@@ -1,0 +1,89 @@
+{% set css = ['css/bootstrap.min.css', 'css/bootstrap-icons.css'] %}
+{% set js = ['js/jquery-3.5.1.min.js','js/bootstrap.bundle.min.js'] %}
+
+<html lang="en">
+<head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <!-- Bootstrap CSS -->
+    {% for item in css %}
+        <link rel="stylesheet" href="{{ url_for('static', filename =item) }}"/>
+    {% endfor %}
+
+    <title>Freelancer {% block title %}{% endblock %}</title>
+
+    {% block head %}{% endblock %}
+</head>
+<body>
+<ul class="nav bg-light fs-4 justify-content-center">
+    <li class="nav-item">
+        <a class="nav-link" href="/">
+            <span class="bi-house"></span> HOME
+        </a>
+    </li>
+    <li class="nav-item navbar-text text-muted">|</li>
+    <li class="nav-item">
+        <a class="nav-link" href="/services">
+            SERVICES
+        </a>
+    </li>
+    <li class="nav-item navbar-text text-muted">|</li>
+    <li class="nav-item">
+        <a class="nav-link" href="/about">ABOUT</a>
+    </li>
+</ul>
+<br/>
+<div class="container">
+
+    {% block content %}{% endblock %}
+</div>
+
+{% for item in js %}
+    <script src="{{ url_for('static', filename=item) }}"></script>
+{% endfor %}
+<script>
+    //function for display alert box
+    function show_alert(msg, type = 'secondary') {
+        $("#alert").hide();
+        document.getElementById('alert').innerText = msg;
+        document.getElementById('alert').className = 'alert alert-' + type;
+        $("#alert").slideDown();
+    }
+
+    //function for hide alert box
+    function hide_alert() {
+        $("#alert").hide();
+    }
+
+    function submit_query_form(form) {
+        event.preventDefault();
+        data = $(form).serialize();
+        $("form :input").prop("disabled", true);
+        $.ajax({
+            url: '/ajax/submit_query',
+            type: 'POST',
+            data: data,
+            dataType: 'JSON',
+            success: function (response) {
+                if (response.result == true) {
+                    show_alert('Your query submitted successfully! Please wait for callback.', 'success')
+                    form.reset();
+                } else {
+                    show_alert('Error: Something went wrong.', 'error')
+                }
+            },
+            error: function (jqXHR, textStatus, errorThrown) {
+                show_alert(textStatus + ' ' + jqXHR.status + ': ' + errorThrown, 'warning');
+            },
+            complete: function () {
+                $("form :input").prop("disabled", false);
+            }
+        })
+
+    }
+</script>
+{% block foot %}{% endblock %}
+</body>
+</html>

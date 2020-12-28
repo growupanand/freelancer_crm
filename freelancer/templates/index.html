@@ -1,0 +1,89 @@
+{% extends 'base.html' %}
+{% block content %}
+    <div class="row">
+        <div class="col-md">
+            <h1>UTKARSH ANAND</h1>
+            <p>Hello myself <span class="fw-bold">UTKARSH ANAND</span> from Bareilly (India), i am a freelancer in
+                finance field and having experience of loan and insurance around 5 years.</p>
+            <h2>SERVICES</h2>
+            <p>I deal in all finance and insurance services.</p>
+            <ul>
+                <li>HOME LOAN</li>
+                <Li>VEHICLE LOAN</Li>
+                <li>PERSONAL LOAN</li>
+                <li>HEALTH INSURANCE</li>
+                <Li>LIFE INSURANCE</Li>
+            </ul>
+            <div class="d-grid mb-2">
+                <a href="/services" class="btn btn-outline-primary">
+                    MORE DETAILS</a>
+            </div>
+
+        </div>
+        <div class="col-md">
+            <p class="text-end"><a class="btn btn-outline-primary" href="/login">LOGIN</a> </p>
+            <div class="card">
+                <div class="card-header fw-bold">CONTACT</div>
+                <div class="card-body">
+                    <div class="row text-center">
+                        <div class="col-md">
+
+                            <table class="table table-borderless table-sm">
+                                <tr>
+                                    <th>Mobile</th>
+                                    <td><span class="bi-phone"></span> +918439493930</td>
+                                </tr>
+                                <tr>
+                                    <th>Email</th>
+                                    <td>utkarshanand93@gmail.com</td>
+                                </tr>
+                            </table>
+                            <p class="btn-group">
+                                <a href="tel:+918439493930" class="btn btn-outline-primary btn-lg">
+                                    <span class="bi-telephone"></span> CALL</a>
+                                <a href="whatsapp://send?phone=8439493930"
+                                   class="btn btn-outline-success btn-lg">
+                                    <span class="bi-chat"></span> WHATSAPP</a>
+                            </p>
+                        </div>
+                        <div class="col-md">
+                            <img style="max-width: 150px" src="{{ url_for('static', filename='img/qr_code.png') }}">
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <br/>
+            <div class="card">
+                <div class="card-header fw-bold">
+                    ENQUIRY FORM
+                </div>
+                <div class="card-body">
+                    <form name="query_form" onsubmit="submit_query_form(this)">
+                        <label for="query_name">Name</label>
+                        <input type="text" id="query_name" name="query_name" class="form-control"
+                               placeholder="Type your Name"/>
+                        <br/>
+                        <label for="query_contact">Contact Detail</label>
+                        <input type="text" id="query_contact" name="query_contact" class="form-control"
+                               placeholder="Type your Mobile number or email"/>
+                        <br/>
+                        <label for="query_content">Query</label>
+                        <textarea rows="4" class="form-control" id="query_content" name="query_content"
+                                  placeholder="Type your query here"></textarea>
+                        <br/>
+                        <div id="alert"></div>
+                        <div class="d-grid">
+                            <button class="btn btn-primary">SUBMIT</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+{% endblock %}
+
+{% block foot %}
+
+{% endblock %}

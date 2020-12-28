@@ -1,0 +1,477 @@
+{% extends 'base.html' %}
+{% block content %}
+    <h1>Services</h1>
+<div class="row">
+<div class="col-lg-9">
+    <div class="btn-group bg-light nav nav-fill sticky-md-top" id="myTab" role="tablist">
+        <a class="nav-link btn btn-outline-primary" id="loan-tab" data-bs-toggle="tab" href="#loan" role="tab"
+           aria-controls="loan" aria-selected="true">LOAN</a>
+        <a class="nav-link btn btn-outline-primary" id="insurance-tab" data-bs-toggle="tab" href="#insurance" role="tab"
+           aria-controls="insurance" aria-selected="false">INSURANCE</a>
+        <a class="nav-link btn btn-outline-primary" id="others-tab" data-bs-toggle="tab" href="#others" role="tab"
+           aria-controls="others" aria-selected="false">OTHERS</a>
+    </div><br/>
+
+    <div class="tab-content" data-bs-spy="scroll" id="myTabContent" data-bs-target="#myTab" data-bs-offset="0" tabindex="0">
+        <div class="tab-pane fade" id="loan" role="tabpanel" aria-labelledby="loan-tab">
+            <h3>Loan Services</h3>
+            <div class="row">
+                <div class="col-md-3 mb-2">
+                    <div class="list-group" id="loan_tabs" role="tablist">
+                        <a href="#hl_tab" class="list-group-item" data-bs-toggle="tab" role="tab">Home Loan</a>
+                        <a href="#lap_tab" class="list-group-item" data-bs-toggle="tab" role="tab">Loan Against
+                            Property</a>
+                        <a href="#bt_tab" class="list-group-item" data-bs-toggle="tab" role="tab">Balance
+                            Transfer</a>
+                        <a href="#pl_tab" class="list-group-item" data-bs-toggle="tab" role="tab">Personal Loan</a>
+                        <a href="#bl_tab" class="list-group-item" data-bs-toggle="tab" role="tab">Business Loan</a>
+                        <a href="#al_tab" class="list-group-item" data-bs-toggle="tab" role="tab">Auto Loan</a>
+                        <a href="#cl_tab" class="list-group-item" data-bs-toggle="tab" role="tab">Consumer Loan</a>
+                    </div>
+                </div>
+                <div class="col-md-9">
+                    <div class="tab-content" id="myTabContent">
+
+                        <div class="card mb-3 border-success tab-pane fade" id="hl_tab" role="tabpanel">
+                            <div class="card-header sticky-top h3 bg-success text-white">Home Loan</div>
+                            <div class="card-body">
+                                <h5 class="card-title">What is Home loan ?</h5>
+                                <p>A house loan or home loan simply means a sum of money borrowed from a financial
+                                    institution
+                                    or bank to purchase a house. Home loans consist of an adjustable or fixed interest
+                                    rate
+                                    and
+                                    payment terms. ... The property is mortgaged to the lender as a security till the
+                                    repayment
+                                    of the loan.</p>
+                                <hr/>
+                                <h5 class="card-title">Type of Home Loan :</h5>
+                                <ul>
+                                    <li>
+                                        <span class="font-weight-bold">Plot Only</span>
+                                        <p>loan for purchase only plot.</p>
+                                    </li>
+                                    <li>
+                                        <span class="font-weight-bold">Construction Only</span>
+                                        <p>Loan for construction of your owned plot.</p>
+                                    </li>
+                                    <li>
+                                        <span class="font-weight-bold">Plot + Construction</span>
+                                        <p>Loan for Plot purchase and construction.</p>
+                                    </li>
+                                    <li>
+                                        <span class="font-weight-bold">House or Flat Purchase</span>
+                                        <p>Loan for purchase of build up house or flat.</p>
+                                    </li>
+                                </ul>
+                                <hr/>
+                                <h5 class="card-title">Required Documents :</h5>
+                                <ul>
+                                    <li>
+                                        <span class="font-weight-bold">KYC</span>
+                                        <ul>
+                                            <li>Photo</li>
+                                            <li>Pan Card</li>
+                                            <li>Aadhar Card\n(for address proof)</li>
+                                            <li>Process Fee Cheque</li>
+                                            <li>Bank Statement</li>
+                                        </ul>
+                                    </li>
+
+                                </ul>
+                                <ul>
+                                    <li>
+                                        <span class="font-weight-bold">Salaried</span>
+                                        <ul>
+                                            <li>Salary Slip</li>
+                                            <li>Form 16</li>
+                                        </ul>
+                                    </li>
+
+                                    <li>
+                                        <span class="font-weight-bold">Self Employed</span>
+                                        <ul>
+                                            <li>Registration Proof</li>
+                                            <li>ITR with computation</li>
+                                        </ul>
+                                    </li>
+                                    <li>
+                                        <span class="font-weight-bold">Property Documents</span>
+                                        <ul>
+                                            <li>Agreement to sale (in case of purchase)</li>
+                                            <li>Property Papers copy (13 year back chain)</li>
+                                            <li>Map + Estimate (in case of construction)</li>
+                                        </ul>
+                                    </li>
+
+                                </ul>
+                                <hr/>
+                                <h5 class="card-title">Companies @ minimum Rate of interest(%) :</h5>
+                                <ul class="list-group list-group-horizontal-sm">
+                                    <li class="list-group-item">HDFC @ 6.99%</li>
+                                    <li class="list-group-item">LICHFL @ 6.99%</li>
+                                    <li class="list-group-item">Indiabulls @ 9%</li>
+                                    <li class="list-group-item">TCHFL @ 11%</li>
+                                </ul>
+                            </div>
+                        </div>
+
+                        <div class="card mb-3 border-success tab-pane fade" id="lap_tab" role="tabpanel">
+                            <div class="card-header h3 bg-success text-white">Loan Against Property</div>
+                            <div class="card-body">
+                                <h5 class="card-title">What is Loan Against Property or Home Equity ?</h5>
+                                <p>Loan against property is nothing but a loan which you avail by keeping your
+                                    commercial/residential property as a collateral. Another name for Loan against
+                                    property
+                                    is a
+                                    secured loan. The security in this kind of loan is the property owned by the person
+                                    applying
+                                    for the loan.</p>
+                                <hr/>
+                                <h5 class="card-title">Type of loan :</h5>
+                                <ul>
+                                    <li>Loan Against Residential property</li>
+                                    <li>Loan Against Commercial property</li>
+                                </ul>
+                                <hr/>
+                                <h5 class="card-title">Required Documents :</h5>
+                                <ul>
+                                    <li>
+                                        <span class="font-weight-bold">KYC</span>
+                                        <ul>
+                                            <li>Photo</li>
+                                            <li>Pan Card</li>
+                                            <li>Aadhar Card\n(for address proof)</li>
+                                            <li>Process Fee Cheque</li>
+                                            <li>Bank Statement</li>
+                                        </ul>
+                                    </li>
+
+                                </ul>
+                                <ul>
+                                    <li>
+                                        <span class="font-weight-bold">Salaried</span>
+                                        <ul>
+                                            <li>Salary Slip</li>
+                                            <li>Form 16</li>
+                                        </ul>
+                                    </li>
+
+                                    <li>
+                                        <span class="font-weight-bold">Self Employed</span>
+                                        <ul>
+                                            <li>Registration Proof</li>
+                                            <li>ITR with computation</li>
+                                        </ul>
+                                    </li>
+                                    <li>
+                                        <span class="font-weight-bold">Property Documents</span>
+                                        <ul>
+                                            <li>Property Papers copy (13 year back chain)</li>
+                                            <li>Original Registry Papers as per legal report</li>
+                                        </ul>
+                                    </li>
+
+                                </ul>
+                                <hr/>
+                                <h5 class="card-title">Companies @ minimum Rate of interest(%) :</h5>
+                                <ul class="list-group list-group-horizontal-sm">
+                                    <li class="list-group-item">HDFC @ 6.99%</li>
+                                    <li class="list-group-item">LICHFL @ 6.99%</li>
+                                    <li class="list-group-item">Indiabulls @ 9%</li>
+                                    <li class="list-group-item">TCHFL @ 11%</li>
+                                </ul>
+                            </div>
+                        </div>
+
+                        <div class="card mb-3 border-success tab-pane fade" id="bt_tab" role="tabpanel">
+                            <div class="card-header h3 bg-success text-white">Balance Transfer</div>
+                            <div class="card-body">
+                                <h5 class="card-title">What is Balance Transfer ?</h5>
+                                <p>Balance transfer of loan is the process where a customer transfers his outstanding
+                                    principal amount to another bank or financial institute primarily for a better rate
+                                    of
+                                    interest and also better features. ... Balance transfer reduces you interest rates
+                                    and
+                                    finally enables you to save on the interest you have to pay.</p>
+                                <hr/>
+                                <h5 class="card-title">Required Documents :</h5>
+                                <ul>
+                                    <li>
+                                        <span class="font-weight-bold">KYC</span>
+                                        <ul>
+                                            <li>Photo</li>
+                                            <li>Pan Card</li>
+                                            <li>Aadhar Card\n(for address proof)</li>
+                                            <li>Process Fee Cheque</li>
+                                            <li>Bank Statement</li>
+                                        </ul>
+                                    </li>
+
+                                </ul>
+                                <ul>
+                                    <li>
+                                        <span class="font-weight-bold">Salaried</span>
+                                        <ul>
+                                            <li>Salary Slip</li>
+                                            <li>Form 16</li>
+                                        </ul>
+                                    </li>
+
+                                    <li>
+                                        <span class="font-weight-bold">Self Employed</span>
+                                        <ul>
+                                            <li>Registration Proof</li>
+                                            <li>ITR with computation</li>
+                                        </ul>
+                                    </li>
+                                    <li>
+                                        <span class="font-weight-bold">Property Documents</span>
+                                        <ul>
+                                            <li>Property Papers copy (13 year back chain)</li>
+                                        </ul>
+                                    </li>
+                                    <li>
+                                        <span class="font-weight-bold">Current Loan Documents</span>
+                                        <ul>
+                                            <li>List of Documetns (LOD) from current bank</li>
+                                            <li>Loan statement</li>
+                                            <li>Foreclosure</li>
+                                        </ul>
+                                    </li>
+
+                                </ul>
+                                <hr/>
+                                <h5 class="card-title">Companies @ minimum Rate of interest(%) :</h5>
+                                <ul class="list-group list-group-horizontal-sm">
+                                    <li class="list-group-item">HDFC @ 6.99%</li>
+                                    <li class="list-group-item">LICHFL @ 6.99%</li>
+                                    <li class="list-group-item">Indiabulls @ 9%</li>
+                                    <li class="list-group-item">TCHFL @ 11%</li>
+                                </ul>
+                            </div>
+                        </div>
+
+                        <div class="card mb-3 border-success tab-pane fade" id="pl_tab" role="tabpanel">
+                            <div class="card-header h3 bg-success text-white">Personal Loan</div>
+                            <div class="card-body">
+
+                            </div>
+                        </div>
+
+                        <div class="card mb-3 border-success tab-pane fade" id="bl_tab" role="tabpanel">
+                            <div class="card-header h3 bg-success text-white">Business Loan</div>
+                            <div class="card-body">
+
+                            </div>
+                        </div>
+
+                        <div class="card mb-3 border-success tab-pane fade" id="al_tab" role="tabpanel">
+                            <div class="card-header h3 bg-success text-white">Auto Loan</div>
+                            <div class="card-body">
+
+                            </div>
+                        </div>
+
+                        <div class="card mb-3 border-success tab-pane fade" id="cl_tab" role="tabpanel">
+                            <div class="card-header h3 bg-success text-white">Consumer Loan</div>
+                            <div class="card-body">
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="tab-pane fade" id="insurance" role="tabpanel" aria-labelledby="insurance-tab">
+            <h3>Insurance Services</h3>
+            <div class="row">
+                <div class="col-md-3 mb-2">
+                    <div class="list-group" id="collapse_insurance"
+                         aria-labelledby="headingTwo"
+                         data-parent="#accordionExample">
+                        <a href="#vi_tab" class="list-group-item" data-bs-toggle="tab" role="tab">Vehicle Insurance
+                            (2w/4w)</a>
+                        <a href="#hi_tab" class="list-group-item" data-bs-toggle="tab" role="tab">Health
+                            Insurance</a>
+                        <a href="#li_tab" class="list-group-item" data-bs-toggle="tab" role="tab">Life
+                            Insurance</a>
+                        <a href="#ti_tab" class="list-group-item" data-bs-toggle="tab" role="tab">Term
+                            Insurance</a>
+                    </div>
+                </div>
+                <div class="col-md-9">
+                    <div class="tab-content" id="myTabContent">
+                    <div class="card  mb-3 border-info tab-pane fade" id="vi_tab" role="tabpanel">
+                        <div class="card-header h3 bg-info text-white">Vehicle Insurance</div>
+                        <div class="card-body">
+                            <h5 class="card-title">What is Vehicle Insurance ?</h5>
+                            <p>Vehicle insurance is insurance for cars, trucks, motorcycles, and other road vehicles.
+                                Its primary use is to provide financial protection against physical damage or bodily
+                                injury resulting from traffic collisions and against liability that could also arise
+                                from incidents in a vehicle.</p>
+                            <hr/>
+                            <h5 class="card-title">Required Documents :</h5>
+                            <ul>
+                                <li>Premium Cheque</li>
+                                <li>Aadhar Card</li>
+                                <li>
+                                    <span class="font-weight-bold">Vehicle Documents</span>
+                                    <ul>
+                                        <li>RC Copy</li>
+                                        <li>Last Policy Copy</li>
+                                    </ul>
+                                </li>
+
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="card  mb-3 border-info tab-pane fade" id="hi_tab" role="tabpanel">
+                        <div class="card-header h3 bg-info text-white">Health Insurance</div>
+                        <div class="card-body">
+                            <h5 class="card-title">What is Health Insurance ?</h5>
+                            <p>Health insurance is an insurance that covers the whole or a part of the risk of a person incurring medical expenses, spreading the risk over numerous persons.</p>
+                            <hr/>
+                            <h5>Type of health insurance</h5>
+                            <ul>
+                                <li>Fresh policy</li>
+                                <li>
+                                <p class="">Existing Policy - You can port your existing health policy in other health insurance company and get all the benefits as previous company. </p>
+                                </li>
+                            </ul>
+                            <hr/>
+                            <h5 class="card-title">Required Documents :</h5>
+                            <ul>
+                                <li>Premium Cheque</li>
+                                <li>Aadhar Card</li>
+                                <li class="font-weight-bold">Vehicle Documents</li>
+                                <ul>
+                                    <li>RC Copy</li>
+                                    <li>Last Policy Copy</li>
+                                </ul>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="card  mb-3 border-info tab-pane fade" id="li_tab" role="tabpanel">
+                        <div class="card-header h3 bg-info text-white">Life Insurance</div>
+                        <div class="card-body">
+                            <h5 class="card-title">What is Life Insurance ?</h5>
+                            <p>Life insurance is a contract between an insurance policy holder and an insurer or assurer, where the insurer promises to pay a designated beneficiary a sum of money in exchange for a premium, upon the death of an insured person.</p>
+                            <h5 class="card-title">Required Documents :</h5>
+                            <ul>
+                                <li>Premium Cheque</li>
+                                <li>Aadhar Card</li>
+                                <li class="font-weight-bold">Vehicle Documents</li>
+                                <ul>
+                                    <li>RC Copy</li>
+                                    <li>Last Policy Copy</li>
+                                </ul>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="card  mb-3 border-info tab-pane fade" id="ti_tab" role="tabpanel">
+                        <div class="card-header h3 bg-info text-white">Term Insurance</div>
+                        <div class="card-body">
+                            <h5 class="card-title">What is Term Insurance ?</h5>
+                            <p>Term life insurance or term assurance is life insurance that provides coverage at a fixed rate of payments for a limited period of time, the relevant term.</p>
+                            <h5 class="card-title">Required Documents :</h5>
+                            <ul>
+                                <li>Premium Cheque</li>
+                                <li>Aadhar Card</li>
+                                <li class="font-weight-bold">Vehicle Documents</li>
+                                <ul>
+                                    <li>RC Copy</li>
+                                    <li>Last Policy Copy</li>
+                                </ul>
+                            </ul>
+                        </div>
+                    </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="tab-pane fade" id="others" role="tabpanel" aria-labelledby="others-tab">
+            <div class="tab-content" id="myTabContent">
+            <div class="card  mb-3 border-secondary " id="card_tab" role="tabpanel">
+                <div class="card-header h3 bg-secondary text-white">Credit Card</div>
+                <div class="card-body">
+                    <h5 class="card-title">What is Credit Card ?</h5>
+                    <p>Vechicle insurance is....</p>
+                </div>
+            </div>
+
+            <div class="card  mb-3 border-secondary " id="lic_tab" role="tabpanel">
+                <div class="card-header h3 bg-secondary text-white">Credit Card</div>
+                <div class="card-body">
+                    <h5 class="card-title">What is Credit Card ?</h5>
+                    <p>Vechicle insurance is....</p>
+                </div>
+            </div>
+
+            <div class="card  mb-3 border-secondary " id="lol_tab" role="tabpanel">
+                <div class="card-header h3 bg-secondary text-white">Credit Card</div>
+                <div class="card-body">
+                    <h5 class="card-title">What is Credit Card ?</h5>
+                    <p>Vechicle insurance is....</p>
+                </div>
+            </div>
+
+            <div class="card  mb-3 border-secondary " id="pr_tab" role="tabpanel">
+                <div class="card-header h3 bg-secondary text-white">Credit Card</div>
+                <div class="card-body">
+                    <h5 class="card-title">What is Credit Card ?</h5>
+                    <p>Vechicle insurance is....</p>
+                </div>
+            </div>
+
+            <div class="card  mb-3 border-secondary " id="ps_tab" role="tabpanel">
+                <div class="card-header h3 bg-secondary text-white">Credit Card</div>
+                <div class="card-body">
+                    <h5 class="card-title">What is Credit Card ?</h5>
+                    <p>Vechicle insurance is....</p>
+                </div>
+            </div>
+
+            <div class="card  mb-3 border-secondary " id="cc_tab" role="tabpanel">
+                <div class="card-header h3 bg-secondary text-white">Credit Card</div>
+                <div class="card-body">
+                    <h5 class="card-title">What is Credit Card ?</h5>
+                    <p>Vechicle insurance is....</p>
+                </div>
+            </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="col-lg-3">
+    <div class="card sticky-lg-top">
+                <div class="card-header fw-bold">
+                    ENQUIRY FORM
+                </div>
+                <div class="card-body">
+                    <form name="query_form" onsubmit="submit_query_form(this)">
+                        <label for="query_name">Name</label>
+                        <input type="text" id="query_name" name="query_name" class="form-control"
+                               placeholder="Type your Name"/>
+                        <br/>
+                        <label for="query_contact">Contact Detail</label>
+                        <input type="text" id="query_contact" name="query_contact" class="form-control"
+                               placeholder="Type your Mobile number or email"/>
+                        <br/>
+                        <label for="query_content">Query</label>
+                        <textarea rows="4" class="form-control" id="query_content" name="query_content"
+                                  placeholder="Type your query here"></textarea>
+                        <br/>
+                        <div id="alert"></div>
+                        <div class="d-grid">
+                            <button class="btn btn-primary">SUBMIT</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+</div>
+</div>
+{% endblock %}

@@ -1,0 +1,171 @@
+{% extends 'admin/base.html' %}
+{% block content %}
+    <h1>CRM</h1>
+    <div class="row">
+        <div class="col-md-4 col-lg-3">
+            <p class="d-md-grid">
+                <button class="btn btn-primary" type="button" data-bs-toggle="modal" data-bs-target="#add_person_modal">
+                    NEW
+                </button>
+            </p>
+            <div class="card mb-3">
+                <div class="card-header">RECENT</div>
+                <div id="recent_person_list" class="list-group list-group-flush">
+                    {% for person in persons_list %}
+                        <a class="text-capitalize list-group-item list-group-item-action"
+                           href="/crm/view_person/{{ person['_id'] }}">
+                            {{ person['name'] }}
+                        </a>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+        <div class="col-md-8">
+            <form onsubmit="submit_find_person(this)" name="find_person">
+                        <div class="row">
+                            <div class="col-8">
+                                <input placeholder="Search by Name or Number" type="text" class="form-control"
+                                       name="query"
+                                       id="query" required/>
+                            </div>
+                            <div class="col-4 d-grid">
+                                <button class="btn btn-outline-primary" type="submit">
+                                    <span class="bi-search"></span> FIND
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+            <div class="card mb-3">
+                <div class="card-header">
+                    CONTACTS
+                </div>
+                <div class="overflow-auto" style="max-height:100vh">
+                    <div class="list-group list-group-flush" id="person_list"></div>
+                </div>
+            </div>
+
+
+        </div>
+    </div>
+
+    <!-- Modal -->
+    <div class="modal fade" id="add_person_modal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">ADD NEW CONTACT</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="card-body">
+                        <form name="add_person_form" onsubmit="submit_add_person_form(this)">
+                            <label for="name" class="form-label col-lg-4">Name</label>
+                            <input type="text" id="name" name="name" class="form-control mb-2" required/>
+
+                            <label for="number" class="form-label">Number</label>
+
+                            <div id="number_list">
+                                <input type="text" class="form-control mb-2" name="number[]" id="number" required/>
+                            </div>
+                            <p class="d-grid">
+                                <button type="button" class="btn btn-outline-secondary" onclick="add_number_list()">+ ADD
+                                    NUMBER
+                                </button>
+                            </p>
+                            <p class="d-grid">
+                                <button type="submit" class="btn btn-lg btn-primary">SUBMIT</button>
+                            </p>
+                        </form>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+{% endblock %}
+
+{% block foot %}
+    <script>
+        //function to submit add person form
+        function submit_add_person_form(form) {
+            event.preventDefault()
+            data = $(form).serialize()
+            $("form :input").prop("disabled", true);
+            $.ajax({
+                url: '/api/add_person',
+                data: data,
+                type: 'POST',
+                dataType: 'JSON',
+                success: function (response) {
+                    if (response.result == true) {
+                        number_html = '<input type="text" class="form-control mb-2" name="number[]" id="number" required/>'
+                        document.getElementById('number_list').innerHTML = number_html
+                        $('#add_person_modal').modal('hide')
+                        show_alert('Added Successfully!', 'success')
+                        form.reset()
+                    } else {
+                        show_alert('Error ' + response.msg, 'danger')
+                    }
+                },
+                error: function (jqXHR, textStatus, errorThrown) {
+                    show_alert(textStatus + ' ' + jqXHR.status + ': ' + errorThrown, 'warning');
+                },
+                complete: function () {
+                    $("form :input").prop("disabled", false);
+                }
+            })
+        }
+
+        //function to add number input in form
+        function add_number_list() {
+            number_element = '<div class="input-group mb-2">' +
+                '<input type="text" class="form-control" name="number[]" id="number" required/>' +
+                '<button class="btn btn-danger" onclick="remove_number_list(this)"><span class="bi-dash"></span> REMOVE</button>' +
+                '</div>'
+            $('#number_list').append(number_element)
+        }
+
+        //function to remove number input form
+        function remove_number_list(e) {
+            $(e).parent().remove()
+        }
+
+        //function to find person
+        function get_person_list(query=null) {
+            $.ajax({
+                url: '/api/get_person_list',
+                type: 'POST',
+                data: {'query': query},
+                dataType: 'JSON',
+                success: function (response) {
+                    if (response.result == true) {
+                        $('#person_list').html('')
+                        for (i in response.persons) {
+                            html = '<a class="text-capitalize list-group-item list-group-item-action" href="/crm/view_person/' +
+                                response.persons[i]._id +
+                                '">' +
+                                response.persons[i].name +
+                                '</a>'
+                            $('#person_list').append(html)
+                        }
+                    }
+                }
+            })
+        }
+
+        function submit_find_person(form) {
+            event.preventDefault()
+            query = form.query.value.trim()
+            if (query == '') {
+                show_alert('Search field cannot be empty!', 'warning')
+            } else {
+                get_person_list(query)
+            }
+        }
+
+        $(document).ready(function () {
+            get_person_list()
+        });
+    </script>
+{% endblock %}

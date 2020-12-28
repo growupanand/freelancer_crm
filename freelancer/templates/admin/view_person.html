@@ -1,0 +1,145 @@
+{% extends 'admin/base.html' %}
+{% block content %}
+    <h1 class="text-capitalize">
+        {{ person['name'] }}
+    </h1>
+    <div class="row">
+        <div class="col-md-3">
+            <div class="card mb-3">
+                <div class="card-header"><span class="bi-phone"></span> MOBILE NUMBER</div>
+                <ul id="contact_number_list" class="list-group list-group-flush">
+                    {% for number in person['numbers'] %}
+                        <li class="list-group-item">{{ number }}</li>
+                    {% endfor %}
+                </ul>
+                <div class="d-grid">
+                    <button data-bs-toggle="collapse" data-bs-target="#add_contact_number_collapse"
+                            class="btn text-primary">
+                        <span class="bi-plus-circle-fill"></span> ADD NUMBER
+                    </button>
+                </div>
+                <div class="card-body collapse" id="add_contact_number_collapse">
+                    <form name="add_contact_number_form" onsubmit="submit_add_contact_number_form(this)">
+                        <div class="row">
+                            <div class="col-lg-8">
+                                <input name="number" placeholder="Number" class="mb-2 form-control form-control-sm"
+                                       type="text" required/>
+                            </div>
+                            <div class="col-lg-4">
+                                <div class="d-grid">
+                                    <button type="submit" class=" btn btn-primary btn-sm">
+                                        SAVE
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            <div class="card mb-3">
+                <div class="card-header"><span class="bi-mailbox"></span> EMAIL</div>
+                <ul id="email_list" class="list-group list-group-flush">
+                    {% for email in person['emails'] %}
+                        <li class="list-group-item">{{ email }}</li>
+                    {% endfor %}
+                </ul>
+                <div class="d-grid">
+                    <button data-bs-toggle="collapse" data-bs-target="#add_email_collapse"
+                            class="btn text-primary">
+                        <span class="bi-plus-circle-fill"></span> ADD EMAIL
+                    </button>
+                </div>
+                <div id="add_email_collapse" class="collapse card-body">
+                    <form name="add_email_form" onsubmit="submit_add_email_form(this)">
+                        <div class="row">
+                            <div class="col-lg-8">
+                                <input name="email" placeholder="Email" class="mb-2 form-control form-control-sm"
+                                       type="text" required/>
+                            </div>
+                            <div class="col-lg-4">
+                                <div class="d-grid">
+                                    <button type="submit" class=" btn btn-primary btn-sm">
+                                        SAVE
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-9">
+            <div class="card mb-3">
+                <div class="card-header">VEHICLE POLICY</div>
+                <div class="list-group list-group-flush">
+                    {% for policy in person['vehicle_policy'] %}
+                        <a class="list-group-item list-group-item-action">
+                            {{ policy['policy_number'] }}
+                        </a>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+{% endblock %}
+
+{% block foot %}
+    <script>
+
+        person_id = '{{ person['_id'] }}'
+
+        function submit_add_contact_number_form(form) {
+            event.preventDefault()
+            number = form.number.value.trim()
+            if (number == '') {
+                show_alert('Number cannot be empty!', 'warning')
+            } else {
+                $.ajax({
+                    url: '/api/add_contact_number',
+                    type: 'POST',
+                    data: {'_id': person_id, 'number': number},
+                    dataType: 'JSON',
+                    success: function (response) {
+                        if (response.result == true) {
+                            $('#add_contact_number_collapse').collapse('hide')
+                            show_alert('Number added successfully!', 'success')
+                            $('<li class="list-group-item">'+number+'</li>').appendTo($('#contact_number_list'))
+                            form.reset()
+                        } else {
+                            show_alert('Error: ' + response.msg, 'error')
+                        }
+                    }
+                })
+
+            }
+        }
+
+        function submit_add_email_form(form) {
+            event.preventDefault()
+            email = form.email.value.trim()
+            if (email == '') {
+                show_alert('Email cannot be empty!', 'warning')
+            } else {
+                $.ajax({
+                    url: '/api/add_contact_email',
+                    type: 'POST',
+                    data: {'_id': person_id, 'email': email},
+                    dataType: 'JSON',
+                    success: function (response) {
+                        if (response.result == true) {
+                            $('#add_email_collapse').collapse('hide')
+                            show_alert('Email added successfully!', 'success')
+                            $('<li class="list-group-item">'+email+'</li>').appendTo($('#email_list'))
+                            form.reset()
+                        } else {
+                            show_alert('Error: ' + response.msg, 'error')
+                        }
+                    }
+                })
+
+            }
+        }
+
+    </script>
+{% endblock %}
