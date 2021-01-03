@@ -1,14 +1,14 @@
 {% extends 'admin/base.html' %}
 {% block content %}
-    <h1>CRM</h1>
+    <h2 class="card-title">CONTACTS</h2>
     <div class="row">
         <div class="col-md-4 col-lg-3">
             <p class="d-md-grid">
                 <button class="btn btn-primary" type="button" data-bs-toggle="modal" data-bs-target="#add_person_modal">
-                    NEW
+                    NEW CONTACT
                 </button>
             </p>
-            <div class="card mb-3">
+            <div class="card mb-3 d-none d-md-block">
                 <div class="card-header">RECENT</div>
                 <div id="recent_person_list" class="list-group list-group-flush">
                     {% for person in persons_list %}
@@ -22,29 +22,22 @@
         </div>
         <div class="col-md-8">
             <form onsubmit="submit_find_person(this)" name="find_person">
-                        <div class="row">
-                            <div class="col-8">
-                                <input placeholder="Search by Name or Number" type="text" class="form-control"
-                                       name="query"
-                                       id="query" required/>
-                            </div>
-                            <div class="col-4 d-grid">
-                                <button class="btn btn-outline-primary" type="submit">
-                                    <span class="bi-search"></span> FIND
-                                </button>
-                            </div>
-                        </div>
-                    </form>
-            <div class="card mb-3">
-                <div class="card-header">
-                    CONTACTS
+                <div class="row">
+                    <div class="col-8">
+                        <input placeholder="Search by Name or Number" type="text" class="form-control"
+                               name="query"
+                               id="query" required/>
+                    </div>
+                    <div class="col-4 d-grid">
+                        <button class="btn btn-outline-primary" type="submit">
+                            <span class="bi-search"></span> FIND
+                        </button>
+                    </div>
                 </div>
-                <div class="overflow-auto" style="max-height:100vh">
-                    <div class="list-group list-group-flush" id="person_list"></div>
-                </div>
+            </form>
+            <div class="overflow-auto" style="max-height:100vh">
+                <div class="list-group list-group-flush" id="person_list"></div>
             </div>
-
-
         </div>
     </div>
 
@@ -68,7 +61,8 @@
                                 <input type="text" class="form-control mb-2" name="number[]" id="number" required/>
                             </div>
                             <p class="d-grid">
-                                <button type="button" class="btn btn-outline-secondary" onclick="add_number_list()">+ ADD
+                                <button type="button" class="btn btn-outline-secondary" onclick="add_number_list()">+
+                                    ADD
                                     NUMBER
                                 </button>
                             </p>
@@ -103,7 +97,7 @@
                         document.getElementById('number_list').innerHTML = number_html
                         $('#add_person_modal').modal('hide')
                         show_alert('Added Successfully!', 'success')
-                        html = '<a class="text-capitalize list-group-item list-group-item-action" href="/crm/view_person/'+response.new_id+'">'+form.name.value+'</a>'
+                        html = '<a class="text-capitalize list-group-item list-group-item-action" href="/crm/view_person/' + response.new_id + '">' + form.name.value + '</a>'
                         $(html).prependTo($('#recent_person_list')).hide().slideDown().effect('highlight')
                         form.reset()
                     } else {
@@ -134,7 +128,7 @@
         }
 
         //function to find person
-        function get_person_list(query=null) {
+        function get_person_list(query = null) {
             $.ajax({
                 url: '/api/get_person_list',
                 type: 'POST',
