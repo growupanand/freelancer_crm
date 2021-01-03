@@ -1,15 +1,20 @@
 {% extends 'admin/base.html' %}
 {% block content %}
-    <h1 class="text-capitalize">
-        {{ person['name'] }}
-    </h1>
     <div class="row">
         <div class="col-md-3">
+            <h1 class="text-capitalize">
+                {{ person['name'] }}
+            </h1>
             <div class="card mb-3">
                 <div class="card-header"><span class="bi-phone"></span> MOBILE NUMBER</div>
                 <ul id="contact_number_list" class="list-group list-group-flush">
                     {% for number in person['numbers'] %}
-                        <li class="list-group-item">{{ number }}</li>
+                        <li class="list-group-item">
+                            {{ number }}
+                            <button onclick="remove_contact_number(this, '{{ number }}')" class="float-end btn ">
+                                <span class="bi bi-dash-circle-fill text-danger"></span>
+                            </button>
+                        </li>
                     {% endfor %}
                 </ul>
                 <div class="d-grid">
@@ -40,7 +45,11 @@
                 <div class="card-header"><span class="bi-mailbox"></span> EMAIL</div>
                 <ul id="email_list" class="list-group list-group-flush">
                     {% for email in person['emails'] %}
-                        <li class="list-group-item">{{ email }}</li>
+                        <li class="list-group-item">{{ email }}
+                            <button onclick="remove_email(this, '{{ email }}')" class="float-end btn ">
+                                <span class="bi bi-dash-circle-fill text-danger"></span>
+                            </button>
+                        </li>
                     {% endfor %}
                 </ul>
                 <div class="d-grid">
@@ -67,16 +76,277 @@
                     </form>
                 </div>
             </div>
+
+
+            <p class="d-grid">
+                <button class="btn btn-danger" onclick="delete_person()">
+                    DELETE PERSON
+                </button>
+            </p>
         </div>
-        <div class="col-md-9">
-            <div class="card mb-3">
-                <div class="card-header">VEHICLE POLICY</div>
-                <div class="list-group list-group-flush">
-                    {% for policy in person['vehicle_policy'] %}
-                        <a class="list-group-item list-group-item-action">
-                            {{ policy['policy_number'] }}
-                        </a>
-                    {% endfor %}
+        <div class="col-md-8">
+            <p>
+                <button data-bs-toggle="modal" data-bs-target="#add_vehicle_modal" class="btn btn-primary">
+                    NEW VEHICLE
+                </button>
+            </p>
+            {% for vehicle in person['vehicles'] %}
+                <div class="card">
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-lg-6">
+                                <h3 class="card-title text-uppercase">
+                                    {{ vehicle['registration_number'] }}
+                                    <button class="btn text-primary float-end"
+                                            onclick="view_vehicle('{{ vehicle['registration_number'] }}')">EDIT DETAIL
+                                    </button>
+                                </h3>
+                                <table class="text-muted table-borderless table table-sm">
+                                    <tr>
+                                        <td>Company and Model</td>
+                                        <td class="text-uppercase">
+                                            {{ vehicle['company'] }} - {{ vehicle['model'] }}
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>Registration Name</td>
+                                        <td class="text-uppercase">{{ vehicle['registration_name'] }}</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Registration Date</td>
+                                        <td class="text-uppercase">{{ vehicle['registration_date'] }}</td>
+                                    </tr>
+                                    <tr>
+                                        <td>MFG Year</td>
+                                        <td class="text-uppercase">{{ vehicle['mfg'] }}</td>
+                                    </tr>
+                                    <tr>
+                                        <td>CC</td>
+                                        <td class="text-uppercase">{{ vehicle['cc'] }}</td>
+                                    </tr>
+                                </table>
+                            </div>
+                            <div class="col-lg-6">
+                                <button class="btn text-primary"
+                                        onclick="add_vehicle_policy('{{ vehicle['registration_number'] }}')">
+                                    <span class="bi bi-plus-circle-fill"></span> ADD POLICY
+                                </button>
+                                <ul class="list-group list-group-flush">
+                                    {% for policy in vehicle['policy_list'] %}
+                                        <li class="list-group-item list-group-item-action">
+                                            <small class="">
+                                                {{ policy['expiry_date'] }}
+                                            </small>
+                                            <a href="/view_policy/{{ policy['_id'] }}">
+                                                {{ policy['policy_number'] }}
+                                            </a>
+                                        <button onclick="view_vehicle_policy('{{ policy['_id'] }}')" class="btn-sm btn text-primary float-end">EDIT</button>
+                                        </li>
+                                    {% endfor %}
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+                <br/>
+            {% endfor %}
+        </div>
+    </div>
+
+    <div class="modal fade" id="add_vehicle_modal">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">ADD VEHICLE</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form onsubmit="submit_add_vehicle_form(this)" name="add_vehicle_form">
+                        <label for="registration_number" class="form-label">Registraion Number</label>
+                        <input type="text" id="registration_number" name="registration_number" class="form-control mb-2"
+                               required/>
+                        <label for="registration_name" class="form-label">Registration Name</label>
+                        <input type="text" id="registration_name" name="registration_name" class="form-control mb-2"/>
+                        <label for="registration_date" class="form-label">Registration Date</label>
+                        <input type="date" id="registration_date" name="registration_date" class="form-control mb-2"/>
+                        <label for="company" class="form-label">Company</label>
+                        <input type="text" id="company" name="company" class="form-control mb-2"/>
+                        <label for="model" class="form-label">Model</label>
+                        <input type="text" id="model" name="model" class="form-control mb-2"/>
+                        <label for="cc" class="form-label">CC</label>
+                        <input type="text" id="cc" name="cc" class="form-control mb-2"/>
+                        <label for="mfg" class="form-label">MFG Year</label>
+                        <input type="text" id="mfg" name="mfg" class="form-control mb-2"/>
+                        <div class="d-grid">
+                            <button type="submit" class="btn btn-primary">SUBMIT</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <div class="modal fade" id="view_vehicle_modal">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5>EDIT VEHICLE</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form onsubmit="submit_update_vehicle_form(this)" name="update_vehicle_form">
+                        <input type="hidden" name="registration_id" value="">
+                        <label for="registration_number" class="form-label">Registraion Number</label>
+                        <input type="text" id="registration_number" name="registration_number" class="form-control mb-2"
+                               required/>
+                        <label for="registration_name" class="form-label">Registration Name</label>
+                        <input type="text" id="registration_name" name="registration_name" class="form-control mb-2"/>
+                        <label for="registration_date" class="form-label">Registration Date</label>
+                        <input type="date" id="registration_date" name="registration_date" class="form-control mb-2"/>
+                        <label for="company" class="form-label">Company</label>
+                        <input type="text" id="company" name="company" class="form-control mb-2"/>
+                        <label for="model" class="form-label">Model</label>
+                        <input type="text" id="model" name="model" class="form-control mb-2"/>
+                        <label for="cc" class="form-label">CC</label>
+                        <input type="text" id="cc" name="cc" class="form-control mb-2"/>
+                        <label for="mfg" class="form-label">MFG Year</label>
+                        <input type="number" class="form-control mb-2" name="mfg" id="mfg"/>
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-primary">
+                                <span class="bi bi-check"></span> SAVE
+                            </button>
+                            <button type="button" onclick="delete_vehicle()"
+                                    class="btn btn-outline-danger">
+                                <span class="bi bi-trash"></span> DELETE
+                            </button>
+                        </div>
+
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="add_vehicle_policy_modal">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5>ADD VEHICLE POLICY</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form name="add_vehicle_policy_form" onsubmit="submit_add_vehicle_policy_form(this)">
+                        <div class="form-check mb-2">
+                            <input class="form-check-input" name="own_business" type="checkbox" value="True"
+                                   id="own_business">
+                            <label class="form-check-label" for="own_business">
+                                Own Business
+                            </label>
+                        </div>
+                        <label class="form-label" for="registration_number">Registration Number</label>
+                        <input type="text" class="form-control mb-2" name="registration_number" id="registration_number"
+                               disabled/>
+                        <label for="expiry_date" class="form-label">Expiry Date</label>
+                        <input type="date" class="form-control mb-2" name="expiry_date" id="expiry_date" required/>
+                        <label for="policy_number" class="form-label">Policy Number</label>
+                        <input type="text" class="form-control mb-2" name="policy_number" id="policy_number"/>
+                        <label for="policy_type" class="form-label">Policy Type</label>
+                        <select class="form-control mb-2" name="policy_type" id="policy_type">
+                            <option value="" selected>Select Type</option>
+                            <option value="od_tp">Normal (OD+TP)</option>
+                            <option value="tp">Third Party Only</option>
+                        </select>
+                        <div class="form-check mb-2">
+                            <input class="form-check-input" name="0_dap" type="checkbox" value="True" id="0_dap">
+                            <label class="form-check-label" for="0_dap">
+                                0 DAP Cover
+                            </label>
+                        </div>
+                        <label for="company" class="form-label">Company</label>
+                        <input type="text" class="form-control mb-2" name="company" id="company"/>
+                        <label for="idv" class="form-label">IDV</label>
+                        <input type="text" class="form-control mb-2" name="idv" id="idv"/>
+                        <label for="ncb" class="form-label">NCB %</label>
+                        <select class="form-control mb-2" name="ncb" id="ncb">
+                            <option value="" selected>SELECT</option>
+                            <option value="0">0%</option>
+                            <option value="20">20%</option>
+                            <option value="25">25%</option>
+                            <option value="35">35%</option>
+                            <option value="45">45%</option>
+                            <option value="50">50%</option>
+                        </select>
+                        <label for="premium" class="form-label">Premium</label>
+                        <input type="text" class="form-control mb-2" name="premium" id="premium"/>
+                        <div class="d-grid">
+                            <button type="submit" class="btn btn-primary">SUBMIT</button>
+                        </div>
+
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="view_vehicle_policy_modal">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5>EDIT VEHICLE POLICY</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form name="edit_vehicle_policy_form" onsubmit="submit_edit_vehicle_policy_form(this)">
+                        <input type="hidden" name="policy_id" id="policy_id" value="" />
+                        <div class="form-check mb-2">
+                            <input class="form-check-input" name="own_business" type="checkbox" value="True"
+                                   id="own_business">
+                            <label class="form-check-label" for="own_business">
+                                Own Business
+                            </label>
+                        </div>
+                        <label class="form-label" for="policy_number">Policy Number</label>
+                        <input type="text" class="form-control mb-2" name="policy_number" id="policy_number"/>
+                        <label for="expiry_date" class="form-label">Expiry Date</label>
+                        <input type="date" class="form-control mb-2" name="expiry_date" id="expiry_date" required/>
+                        <label for="policy_type" class="form-label">Policy Type</label>
+                        <select class="form-control mb-2" name="policy_type" id="policy_type">
+                            <option value="" selected>Select Type</option>
+                            <option value="od_tp">Normal (OD+TP)</option>
+                            <option value="tp">Third Party Only</option>
+                        </select>
+                        <div class="form-check mb-2">
+                            <input class="form-check-input" name="0_dap" type="checkbox" value="True" id="0_dap">
+                            <label class="form-check-label" for="0_dap">
+                                0 DAP Cover
+                            </label>
+                        </div>
+                        <label for="company" class="form-label">Company</label>
+                        <input type="text" class="form-control mb-2" name="company" id="company"/>
+                        <label for="idv" class="form-label">IDV</label>
+                        <input type="text" class="form-control mb-2" name="idv" id="idv"/>
+                        <label for="ncb" class="form-label">NCB %</label>
+                        <select class="form-control mb-2" name="ncb" id="ncb">
+                            <option value="" selected>SELECT</option>
+                            <option value="0">0%</option>
+                            <option value="20">20%</option>
+                            <option value="25">25%</option>
+                            <option value="35">35%</option>
+                            <option value="45">45%</option>
+                            <option value="50">50%</option>
+                        </select>
+                        <label for="premium" class="form-label">Premium</label>
+                        <input type="text" class="form-control mb-2" name="premium" id="premium"/>
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-primary">SAVE</button>
+                            <button type="button" class="btn btn-outline-danger" onclick="delete_vehicle_policy()">
+                                <span class="bi bi-trash"></span> DELETE POLICY
+                            </button>
+                        </div>
+
+                    </form>
                 </div>
             </div>
         </div>
@@ -88,6 +358,9 @@
     <script>
 
         person_id = '{{ person['_id'] }}'
+        person_name = '{{ person['name'] }}'
+        var current_vehicle_registration_number = ''
+        var current_vehicle_policy_id = ''
 
         function submit_add_contact_number_form(form) {
             event.preventDefault()
@@ -103,8 +376,10 @@
                     success: function (response) {
                         if (response.result == true) {
                             $('#add_contact_number_collapse').collapse('hide')
-                            show_alert('Number added successfully!', 'success')
-                            $('<li class="list-group-item">'+number+'</li>').appendTo($('#contact_number_list'))
+                            html = '<li class="list-group-item">' + number +
+                                '<button onclick="remove_contact_number(this, \'' + number + '\')" class="float-end btn ">' +
+                                '<span class="bi bi-dash-circle-fill text-danger"></span></button></li>'
+                            $(html).appendTo($('#contact_number_list')).hide().slideDown('slow').effect('highlight')
                             form.reset()
                         } else {
                             show_alert('Error: ' + response.msg, 'error')
@@ -113,6 +388,24 @@
                 })
 
             }
+        }
+
+        function remove_contact_number(e, number) {
+            $.ajax({
+                url: '/api/remove_contact_number',
+                type: 'POST',
+                data: {'_id': person_id, 'number': number},
+                dataType: 'JSON',
+                success: function (response) {
+                    if (response.result == true) {
+                        $(e).parent().slideUp(function () {
+                            $(e).parent().remove()
+                        })
+                    } else {
+                        show_alert(response.msg, 'error')
+                    }
+                }
+            })
         }
 
         function submit_add_email_form(form) {
@@ -129,8 +422,10 @@
                     success: function (response) {
                         if (response.result == true) {
                             $('#add_email_collapse').collapse('hide')
-                            show_alert('Email added successfully!', 'success')
-                            $('<li class="list-group-item">'+email+'</li>').appendTo($('#email_list'))
+                            html = '<li class="list-group-item">' + email +
+                                '<button onclick="remove_email(this, \'' + email + '\')" class="float-end btn ">' +
+                                '<span class="bi bi-dash-circle-fill text-danger"></span></button></li>'
+                            $(html).appendTo($('#email_list')).hide().slideDown('slow').effect('highlight')
                             form.reset()
                         } else {
                             show_alert('Error: ' + response.msg, 'error')
@@ -141,5 +436,218 @@
             }
         }
 
+        function remove_email(e, email) {
+            $.ajax({
+                url: '/api/remove_email',
+                type: 'POST',
+                data: {'_id': person_id, 'email': email},
+                dataType: 'JSON',
+                success: function (response) {
+                    if (response.result == true) {
+                        $(e).parent().slideUp(function () {
+                            $(e).parent().remove()
+                        })
+                    } else {
+                        show_alert(response.msg, 'error')
+                    }
+                }
+            })
+        }
+
+        function delete_person() {
+            if (confirm('This will delete all data related to ' + person_name + '.\nAre you sure ?')) {
+                $.ajax({
+                    url: '/api/delete_person',
+                    type: 'POST',
+                    data: {'person_id': person_id},
+                    dataType: 'JSON',
+                    success: function (response) {
+                        if (response.result == true) {
+                            window.location.replace("/crm");
+                        } else {
+                            show_alert(response.msg, 'error')
+                        }
+                    }
+                })
+            }
+        }
+
+        function submit_add_vehicle_form(form) {
+            event.preventDefault()
+            data = $(form).serializeArray()
+            data.push({'name': 'person_id', 'value': person_id})
+            console.log(data)
+            $.ajax({
+                url: '/api/add_vehicle',
+                data: data,
+                type: 'POST',
+                dataType: 'JSON',
+                success: function (response) {
+                    if (response.result == true) {
+                        form.reset()
+                        $('#add_vehicle_modal').modal('hide')
+                        show_alert('Successfully added.', 'success')
+                        location.reload()
+                    } else {
+                        alert(response.msg)
+                    }
+                }
+            })
+        }
+
+        function view_vehicle(registration_number = current_vehicle_registration_number) {
+            form = document.update_vehicle_form
+            $.ajax({
+                url: '/api/view_vehicle',
+                type: 'POST',
+                data: {'registration_number': registration_number},
+                dataType: 'JSON',
+                success: function (response) {
+                    if (response.result == true) {
+                        for (i of ['registration_id', 'registration_number', 'registration_name', 'company', 'model', 'cc', 'mfg']) {
+                            form[i].value = response.data[i]
+                        }
+                        registration_date = response.data['registration_date']
+                        if (registration_date != null) {
+                            registration_date = formatdateinput(registration_date)
+                        }
+                        form.registration_date.value = registration_date
+                    } else {
+                        alert(response.msg)
+                    }
+                }
+            })
+            $('#view_vehicle_modal').modal('show')
+        }
+
+        function submit_update_vehicle_form(form) {
+            event.preventDefault()
+            data = $(form).serialize()
+            $.ajax({
+                url: '/api/update_vehicle',
+                type: 'POST',
+                data: data,
+                dataType: 'JSON',
+                success: function (response) {
+                    if (response.result == true) {
+                        $('#view_vehicle_modal').modal('hide')
+                        show_alert('successfully updated vehicle details.', 'success')
+                        location.reload()
+                    } else {
+                        alert(response.msg)
+                    }
+                }
+            })
+        }
+
+        function delete_vehicle() {
+            registration_id = document.update_vehicle_form.registration_id.value
+            $.ajax({
+                url: '/api/delete_vehicle',
+                type: 'POST',
+                data: {'registration_id': registration_id},
+                dataType: 'JSON',
+                success: function (response) {
+                    if (response.result == true) {
+                        location.reload()
+                    } else {
+                        alert(response.msg)
+                    }
+                }
+            })
+        }
+
+        function add_vehicle_policy(registration_number) {
+            current_vehicle_registration_number = registration_number
+            document.add_vehicle_policy_form.registration_number.value = current_vehicle_registration_number
+            $('#add_vehicle_policy_modal').modal('show')
+        }
+
+        function submit_add_vehicle_policy_form(form) {
+            event.preventDefault()
+            data = $(form).serializeArray()
+            data.push({'name': 'person_id', 'value': person_id})
+            data.push({'name': 'registration_number', 'value': current_vehicle_registration_number})
+            $.ajax({
+                url: '/api/add_motor_policy',
+                data: data,
+                type: 'POST',
+                dataType: 'JSON',
+                success: function (response) {
+                    if (response.result == true) {
+                        show_alert('Policy Successfully added.', 'success')
+                        location.reload()
+                    } else {
+                        alert(response.msg)
+                    }
+                }
+            })
+        }
+
+        function view_vehicle_policy(policy_id) {
+            form = document.edit_vehicle_policy_form
+            $.ajax({
+                url: '/api/view_vehicle_policy',
+                type: 'POST',
+                data: {'policy_id': policy_id},
+                dataType: 'JSON',
+                success: function (response) {
+                    current_vehicle_policy_id = response.data['_id']
+                    form.policy_id.value = current_vehicle_policy_id
+                    form.own_business.checked = (response.data['own_business'] === true) ? true : false
+                    form['0_dap'].checked = (response.data['0_dap'] === true) ? true : false
+                    if (response.result == true) {
+                        for (i of ['policy_number', 'policy_type', '0_dap', 'company', 'idv', 'ncb', 'premium']) {
+                            form[i].value = response.data[i]
+                        }
+                        expiry_date = response.data['expiry_date']
+                        if (expiry_date != null) {
+                            expiry_date = formatdateinput(expiry_date)
+                        }
+                        form.expiry_date.value = expiry_date
+                    } else {
+                        alert(response.msg)
+                    }
+                }
+            })
+            $('#view_vehicle_policy_modal').modal('show')
+        }
+
+        function submit_edit_vehicle_policy_form(form) {
+            event.preventDefault()
+            data = $(form).serialize()
+            $.ajax({
+                url: '/api/update_vehicle_policy',
+                type: 'POST',
+                data: data,
+                dataType: 'JSON',
+                success: function (response) {
+                    if (response.result == true) {
+                        $('#view_vehicle_policy_modal').modal('hide')
+                        show_alert('successfully updated policy details.', 'success')
+                        location.reload()
+                    } else {
+                        alert(response.msg)
+                    }
+                }
+            })
+        }
+
+        function delete_vehicle_policy() {
+            policy_id = current_vehicle_policy_id
+            $.ajax({
+                url: '/api/delete_vehicle_policy',
+                type: 'POST',
+                data: {'policy_id': policy_id},
+                dataType: 'JSON',
+                success: function (response) {
+                    if (response.result == true) {
+                        location.reload()
+                    } else {
+                        alert(response.msg)
+                    }
+                }
+            })
+        }
     </script>
 {% endblock %}

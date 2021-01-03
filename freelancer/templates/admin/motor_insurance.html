@@ -1,0 +1,378 @@
+{% extends 'admin/base.html' %}
+{% block content %}
+    <div id="alert"></div>
+
+    <h1>Insurance Renewals</h1>
+    <div class="row">
+        <div class="col-md-3">
+            <div class="card mb-3">
+                <div class="card-header text-center">
+                    <label class="h6" id="current_period"></label>
+                    <button onclick="prev_renewal_month()" class="float-start btn border-0 btn-outline-secondary"><span
+                            class="bi-caret-left"></span></button>
+                    <button onclick="next_renewal_month()" class="float-end btn border-0 btn-outline-secondary"><span
+                            class="bi-caret-right"></span></button>
+                </div>
+                <div style="max-height: 100vh" id="policy_list" class="overflow-auto list-group list-group-flush"></div>
+            </div>
+        </div>
+        <div class="col-md-9">
+            <div id="renewal_card" style="display: none">
+                <div class="row">
+                    <div class="col-md-8">
+                        <div id="info_card" class="card mb-3">
+                            <div class="row">
+                                <div class="col-lg">
+                                    <div class="card-body">
+                                        <h5 class="card-title text-center">
+                                            <span id="policy_number"></span>
+                                            <small id="own_business" class="badge bg-success"></small>
+                                        </h5>
+                                        <table class="table table-borderless">
+                                        <tr>
+                                            <td>Policy Company</td>
+                                            <td id="policy_company"></td>
+                                        </tr>
+                                        <tr>
+                                            <td>Expiry Date</td>
+                                            <td id="expiry_date"></td>
+                                        </tr>
+                                        <tr>
+                                            <td>Policy Type</td>
+                                            <td id="policy_type"></td>
+                                        </tr>
+                                        <tr>
+                                            <td>Premium</td>
+                                            <td id="premium"></td>
+                                        </tr>
+                                        <tr>
+                                            <td>IDV</td>
+                                            <td id="idv"></td>
+                                        </tr>
+                                        <tr>
+                                            <td>NCB %</td>
+                                            <td id="ncb"></td>
+                                        </tr>
+                                        <tr>
+                                            <td>0 DAP</td>
+                                            <td id="0_dap"></td>
+                                        </tr>
+                                    </table>
+                                    </div>
+                                </div>
+                                <div class="col-lg">
+                                    <div class="card-body">
+                                        <h5 class="text-uppercase text-center card-title" id="registration_number"></h5>
+                                    </div>
+                                    <table class="table table-borderless">
+                                        <tr>
+                                            <td>Vehicle Company</td>
+                                            <td id="vehicle_company"></td>
+                                        </tr>
+                                        <tr>
+                                            <td>Model</td>
+                                            <td id="vehicle_model"></td>
+                                        </tr>
+                                        <tr>
+                                            <td>CC</td>
+                                            <td id="vehicle_cc"></td>
+                                        </tr>
+                                        <tr>
+                                            <td>Manufacture Year</td>
+                                            <td id="vehicle_mfg_year"></td>
+                                        </tr>
+                                    </table>
+                                </div>
+                            </div>
+                            <div class="card-body d-grid" id="renewed_policy"></div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+
+                        <div class="card mb-3">
+                            <div class="card-header">
+                                FOLLOWUP
+                            </div>
+                            <div class="card-body">
+                                <h5 class="text-capitalize card-title" id="name"></h5>
+                                <p id="numbers"></p>
+                                <form name="followup_form" onsubmit="submit_followup_form(this)">
+                                    <select id="policy_status" name="policy_status" class="form-control mb-3">
+                                        <option value="">Select Status</option>
+                                        <option value="followup">FOLLOW UP</option>
+                                        <option value="renewed">RENEWAL DONE</option>
+                                        <option value="lost">LOST</option>
+                                    </select>
+                                    <textarea rows="4" class="form-control mb-3" id="followup_remark"
+                                              name="followup_remark"></textarea>
+                                    <div class="d-grid mb-3">
+                                        <button type="submit" class="btn btn-primary">WRITE</button>
+                                    </div>
+                                </form>
+                            </div>
+                            <div id="followup_list" class="list-group list-group-flush">
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <div class="modal fade" id="add_renewal_policy_modal">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5>ADD RENEWAL POLICY</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form name="add_renewal_policy_form" onsubmit="submit_add_renewal_policy_form(this)">
+                        <div class="form-check mb-2">
+                            <input class="form-check-input" name="own_business" type="checkbox" value="True"
+                                   id="own_business">
+                            <label class="form-check-label" for="own_business">
+                                Own Business
+                            </label>
+                        </div>
+                        <label class="form-label" for="policy_number">New Policy Number</label>
+                        <input type="text" class="form-control mb-2" name="policy_number" id="policy_number"/>
+                        <label for="expiry_date" class="form-label">Expiry Date</label>
+                        <input type="date" class="form-control mb-2" name="expiry_date" id="expiry_date" required/>
+                        <label for="policy_type" class="form-label">Policy Type</label>
+                        <select class="form-control mb-2" name="policy_type" id="policy_type">
+                            <option value="" selected>Select Type</option>
+                            <option value="od_tp">Normal (OD+TP)</option>
+                            <option value="tp">Third Party Only</option>
+                        </select>
+                        <div class="form-check mb-2">
+                            <input class="form-check-input" name="0_dap" type="checkbox" value="True" id="0_dap">
+                            <label class="form-check-label" for="0_dap">
+                                0 DAP Cover
+                            </label>
+                        </div>
+                        <label for="company" class="form-label">Company</label>
+                        <input type="text" class="form-control mb-2" name="company" id="company"/>
+                        <label for="idv" class="form-label">IDV</label>
+                        <input type="text" class="form-control mb-2" name="idv" id="idv"/>
+                        <label for="ncb" class="form-label">NCB %</label>
+                        <select class="form-control mb-2" name="ncb" id="ncb">
+                            <option value="" selected>SELECT</option>
+                            <option value="0">0%</option>
+                            <option value="20">20%</option>
+                            <option value="25">25%</option>
+                            <option value="35">35%</option>
+                            <option value="45">45%</option>
+                            <option value="50">50%</option>
+                        </select>
+                        <label for="premium" class="form-label">Premium</label>
+                        <input type="text" class="form-control mb-2" name="premium" id="premium"/>
+                        <div class="d-grid">
+                            <button type="submit" class="btn btn-primary">SUBMIT</button>
+                        </div>
+
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block foot %}
+    <script>
+        var current_policy_id = '{{ policy_id }}'
+        var current_person_id = ''
+        var current_registration_id = ''
+        var monthNames = [null, "January", "February", "March", "April", "May", "June",
+            "July", "August", "September", "October", "November", "December"
+        ];
+        var now = new Date()
+        var current_month = now.getMonth() + 1
+        var current_year = now.getFullYear()
+        var fields = ['policy_number', 'policy_company', 'policy_type',
+            'idv', 'ncb', 'discount', 'premium',
+            'registration_number', 'vehicle_company', 'vehicle_model',
+            , 'vehicle_cc', 'vehicle_year']
+
+        var policy_type = {}
+        policy_type['od_tp'] = 'Normal (OD+TP)'
+        policy_type['tp'] = 'Third Party Only'
+        var info_card_class = {}
+        info_card_class[null] = 'card mb-3'
+        info_card_class['followup'] = 'card mb-3 border-warning'
+        info_card_class['renewed'] = 'card mb-3 border-success'
+        info_card_class['lost'] = 'card mb-3 border-error'
+
+        function view_renewal(_id, e) {
+            $.ajax({
+                url: '/api/view_renewal',
+                data: {'_id': _id},
+                type: 'POST',
+                dataType: 'JSON',
+                success: function (response) {
+                    if (response.result == false) {
+                        show_alert(response.msg, 'error')
+                    } else {
+                        $('#policy_list button').removeClass('active')
+                        $(e).addClass('active')
+                        console.log(info_card_class[response.data.policy_status])
+                        document.getElementById('info_card').className = info_card_class[response.data.policy_status]
+                        current_policy_id = response.data.policy_id
+                        current_person_id = response.data.person_id
+                        current_registration_id = response.data.registration_id
+
+                        for (i of ['policy_company', 'premium', 'idv', 'ncb', 'registration_number',
+                            'vehicle_company', 'vehicle_model', 'vehicle_cc', 'vehicle_mfg_year']) {
+                            document.getElementById(i).innerText = response.data[i]
+                        }
+                        document.getElementById('policy_number').innerText = (response.data['policy_number']==null)?'None':response.data['policy_number']
+                        document.getElementById('policy_type').innerText = policy_type[response.data['policy_type']]
+                        document.getElementById('0_dap').innerText = response.data['0_dap']
+                        document.getElementById('name').innerHTML = '<a style="text-decoration: none" href="/crm/view_person/' + response.data.person_id + '">' + response.data.name + '</a>'
+                        document.getElementById('numbers').innerHTML = response.data.numbers.join(',')
+                        expiry_date = formatdate(response.data.expiry_date)
+                        document.getElementById('expiry_date').innerText = expiry_date
+                        renewal_id = response.data.renewal_id
+                        renewed_policy_html = ''
+                        if (renewal_id == null) {
+                            renewed_policy_html = 'Not Renewed'
+                        } else {
+                            renewed_policy_html = '<button class="btn btn-success" ' +
+                                'onclick="view_renewal(\'' + renewal_id + '\')"' +
+                                '>VIEW RENEWED POLICY</button>'
+                        }
+                        document.getElementById('own_business').innerText = (response.data.own_business == true) ? 'OWNED' : ''
+                        document.getElementById('renewed_policy').innerHTML = renewed_policy_html
+                        followup_list = response.data.followup
+                        $('#followup_list').html('')
+                        for (i in followup_list) {
+                            html = '<div class="list-group-item">' +
+                                '<small class="text-muted">' + formatdate(followup_list[i].created) + '</small>' +
+                                '<p>' + followup_list[i].remark + '</p>' +
+                                '</div>'
+                            $('#followup_list').prepend(html)
+                        }
+                        $('#renewal_card').fadeIn()
+                    }
+                }
+            })
+        }
+
+        function submit_followup_form(form) {
+            event.preventDefault()
+            remark = form.followup_remark.value
+            policy_status = form.policy_status.value
+            if (policy_status == 'renewed') {
+                $('#add_renewal_policy_modal').modal('show')
+            } else {
+                $.ajax({
+                url: '/api/post_policy_followup',
+                data: {
+                    'policy_id': current_policy_id,
+                    'remark': remark,
+                    'policy_status': policy_status
+                },
+                type: 'POST',
+                dataType: 'JSON',
+                success: function (response) {
+                    if (response.result == true) {
+                        show_alert('Remark added successfully!', 'success')
+                        html = '<div class="list-group-item new" style="display: none">' +
+                            '<small class="text-muted">NOW</small>' +
+                            '<p>' + form.followup_remark.value + '</p>' +
+                            '</div>'
+                        $(html).prependTo($('#followup_list')).slideDown()
+                        form.reset()
+                    } else {
+                        show_alert(response.msg, 'error')
+                    }
+                }
+            })
+            }
+        }
+
+        function next_renewal_month() {
+            if (current_month == 12) {
+                current_month = 1
+                current_year += 1
+            } else {
+                current_month += 1
+            }
+            update_renewal_list(current_month, current_year)
+        }
+
+        function prev_renewal_month() {
+            if (current_month == 1) {
+                current_month = 12
+                current_year -= 1
+            } else {
+                current_month -= 1
+            }
+            update_renewal_list(current_month, current_year)
+        }
+
+        function update_renewal_list(month, year) {
+            document.getElementById('current_period').innerHTML = monthNames[current_month] + ' ' + current_year
+            $.ajax({
+                url: '/api/get_renewal_list',
+                data: {'month': month, 'year': year},
+                type: 'POST',
+                dataType: 'JSON',
+                success: function (response) {
+                    $('#policy_list').html('')
+                    for (i in response) {
+                        policy_status_class = ''
+                        if (response[i].policy_status == 'followup') {
+                            policy_status_class = 'list-group-item-warning'
+                        }
+                        if (response[i].policy_status == 'renewed') {
+                            policy_status_class = 'list-group-item-success'
+                        }
+                        if (response[i].policy_status == 'lost') {
+                            policy_status_class = 'list-group-item-danger'
+                        }
+
+                        html = '<button class="' + policy_status_class + ' text-capitalize list-group-item list-group-item-action" onclick="view_renewal(\'' + response[i]._id + '\', this)">' +
+                            response[i].name +
+                            '<small class="float-end">' +
+                            response[i].day +
+                            '</small></button>'
+                        $('#policy_list').append(html)
+                    }
+                }
+            })
+        }
+
+        function submit_add_renewal_policy_form(form) {
+            event.preventDefault()
+            data = $(form).serializeArray()
+            data.push({'name': 'policy_id', 'value': current_policy_id})
+            data.push({'name': 'person_id', 'value': current_person_id})
+            data.push({'name': 'registration_id', 'value': current_registration_id})
+            data.push({'name': 'remark', 'value': document.followup_form.followup_remark.value})
+            data.push({'name': 'policy_status', 'value': document.followup_form.policy_status.value})
+            $.ajax({
+                url: '/api/add_renewal_motor_policy',
+                data: data,
+                type: 'POST',
+                dataType: 'JSON',
+                success: function (response) {
+                    if (response.result == true) {
+                        show_alert('New Policy Successfully added.', 'success')
+                        location.reload()
+                    } else {
+                        alert(response.msg)
+                    }
+                }
+            })
+        }
+
+        $(document).ready(function () {
+            if (current_policy_id != 'None') {view_renewal(current_policy_id)}
+            update_renewal_list(current_month, current_year)
+
+        })
+    </script>
+{% endblock %}

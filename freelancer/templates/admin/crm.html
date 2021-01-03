@@ -103,6 +103,8 @@
                         document.getElementById('number_list').innerHTML = number_html
                         $('#add_person_modal').modal('hide')
                         show_alert('Added Successfully!', 'success')
+                        html = '<a class="text-capitalize list-group-item list-group-item-action" href="/crm/view_person/'+response.new_id+'">'+form.name.value+'</a>'
+                        $(html).prependTo($('#recent_person_list')).hide().slideDown().effect('highlight')
                         form.reset()
                     } else {
                         show_alert('Error ' + response.msg, 'danger')

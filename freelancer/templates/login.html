@@ -1,15 +1,19 @@
 {% extends 'base.html' %}
 {% block content %}
+    <style>
+    body {
+        background-color: #f8f9fa!important;
+    }
+    </style>
     <div class="row">
     <div class="col-md-6 mx-auto">
-    <div class="card">
+    <div class="card bg-light border-0">
         <div class="card-body">
         <form onsubmit="login(this)" name="login_form">
             <label for="username" class="form-label">Username</label>
             <input type="text" class="form-control mb-2" id="username" name="username" required/>
             <label for="password" class="form-label">Password</label>
             <input type="password" class="form-control mb-2" id="password" name="password" required/>
-            <div id="alert"></div>
             <div class="d-grid">
             <button id="login_btn" type="submit" class="btn btn-primary">LOGIN</button>
             </div>
@@ -40,11 +44,8 @@
                 if (response.result == true) {
                     location.replace('/'+response.next)
                 } else {
-                    show_alert(response.msg, "danger");
+                    show_alert(response.msg, "error");
                 }
-            },
-            error: function (jqXHR, textStatus, errorThrown) {
-                show_alert(textStatus+': '+errorThrown, 'warning');
             },
             complete: function () {
                 form.login_btn.disabled = false;

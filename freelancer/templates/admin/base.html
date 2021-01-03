@@ -1,5 +1,5 @@
 {% set css = ['css/bootstrap.min.css', 'css/bootstrap-icons.css'] %}
-{% set js = ['js/jquery-3.5.1.min.js','js/bootstrap.bundle.min.js'] %}
+{% set js = ['js/jquery-3.5.1.min.js','js/bootstrap.bundle.min.js','js/jquery-ui.min.js'] %}
 
 <html lang="en">
 <head>
@@ -17,7 +17,9 @@
     {% block head %}{% endblock %}
 </head>
 <body>
+<div class="toast-container position-absolute p-3">
 <div id="alert"></div>
+</div>
 <nav class="navbar navbar-expand-md navbar-dark bg-dark">
     <div class="container-fluid">
         <a class="navbar-brand" href="/admin">ADMIN</a>
@@ -31,7 +33,7 @@
                     <a class="nav-link" href="/crm">CRM</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="/insurance">INSURANCE</a>
+                    <a class="nav-link" href="/motor_insurance">MOTOR INSURANCE</a>
                 </li>
             </ul>
             <ul class="navbar-nav ms-auto">
@@ -53,19 +55,29 @@
 {% endfor %}
 <script>
     function formatdate(date) {
-	var now=new Date(date);
-				var day = ("0" + now.getDate()).slice(-2);
-				var month = ("0" + (now.getMonth() + 1)).slice(-2);
-				var formatedate = (day)+"/"+(month)+"/"+now.getFullYear() ;
-				return formatedate;
-}
-function format_timestamp(timestamp) {
+        var now = new Date(date);
+        var day = ("0" + now.getDate()).slice(-2);
+        var month = ("0" + (now.getMonth() + 1)).slice(-2);
+        var formatedate = (day) + "-" + (month) + "-" + now.getFullYear();
+        return formatedate;
+    }
+
+    function formatdateinput(date) {
+        var now = new Date(date);
+        var day = ("0" + now.getDate()).slice(-2);
+        var month = ("0" + (now.getMonth() + 1)).slice(-2);
+        var formatedate = now.getFullYear() + '-' + (month) + "-" + (day);
+        return formatedate;
+    }
+
+    function format_timestamp(timestamp) {
         t = new Date(Date.parse(timestamp))
         new_timestamp = ''
         var months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
         new_timestamp += t.getDate() + '/' + months[t.getMonth()] + '/' + t.getFullYear() + ' - ' + t.getHours() + ':' + t.getMinutes()
         return new_timestamp
     }
+
     //function for display alert box
     function show_alert(msg, type = 'default') {
         alert_class = {}
@@ -78,7 +90,7 @@ function format_timestamp(timestamp) {
             '<button type="button" class="btn-close float-end" data-bs-dismiss="toast" aria-label="Close"></button>'
             + '</div>'
         document.getElementById('alert').innerHTML = html
-        document.getElementById('alert').className = 'toast fw-bold ms-auto mx-auto fixed-top ' + alert_class[type];
+        document.getElementById('alert').className = 'toast fw-bold top-0 start-0 fixed-top ' + alert_class[type];
         $("#alert").toast('show');
     }
 
@@ -116,8 +128,8 @@ function format_timestamp(timestamp) {
 
 
     $(document).ajaxError(function myErrorHandler(event, xhr, ajaxOptions, thrownError) {
-  show_alert('Server error', 'error')
-});
+        show_alert('Server error', 'error')
+    });
 </script>
 {% block foot %}{% endblock %}
 </body>

@@ -41,13 +41,26 @@ def admin_crm_page():
 @app.route('/crm/view_person/<_id>')
 def view_person_page(_id):
     person = db.persons_collection.find_one({'_id':ObjectId(_id)})
-    person['vehicle_policy'] = db.motor_policy_collection.find({'person_id':person['_id']}, {'policy_number':1})
+    person['vehicles'] = []
+    q = db.motor_registration_collection.find({'person_id':person['_id']})
+    for i in q:
+        d = i['registration_date']
+        if not d == None:
+            i['registration_date'] = functions.format_timestamp(d, '%d-%m-%Y')
+        i['policy_list'] = []
+        q1 = db.motor_policy_collection.find({'registration_id':i['_id']})
+        for i1 in q1:
+            d = i1['expiry_date']
+            i1['expiry_date'] = functions.format_timestamp(d, '%d-%m-%Y')
+            i['policy_list'].append(i1)
+        person['vehicles'].append(i)
     person['_id'] = str(person['_id'])
     return render_template('admin/view_person.html', person=person)
 
 
-@app.route('/insurance')
-def view_insurance_page():
-    return render_template('admin/insurance.html')
+@app.route('/motor_insurance')
+@app.route('/view_policy/<policy_id>')
+def view_insurance_page(policy_id = None):
+    return render_template('admin/motor_insurance.html', policy_id=policy_id)
 
 from . import api_views

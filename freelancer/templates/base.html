@@ -1,5 +1,5 @@
 {% set css = ['css/bootstrap.min.css', 'css/bootstrap-icons.css'] %}
-{% set js = ['js/jquery-3.5.1.min.js','js/bootstrap.bundle.min.js'] %}
+{% set js = ['js/jquery-3.5.1.min.js','js/bootstrap.bundle.min.js','js/jquery-ui.min.js'] %}
 
 <html lang="en">
 <head>
@@ -17,6 +17,7 @@
     {% block head %}{% endblock %}
 </head>
 <body>
+<div id="alert"></div>
 <ul class="nav bg-light fs-4 justify-content-center">
     <li class="nav-item">
         <a class="nav-link" href="/">
@@ -45,16 +46,24 @@
 {% endfor %}
 <script>
     //function for display alert box
-    function show_alert(msg, type = 'secondary') {
-        $("#alert").hide();
-        document.getElementById('alert').innerText = msg;
-        document.getElementById('alert').className = 'alert alert-' + type;
-        $("#alert").slideDown();
+    function show_alert(msg, type = 'default') {
+        alert_class = {}
+        alert_class['default'] = 'bg-white text-dark'
+        alert_class['error'] = 'bg-danger text-white'
+        alert_class['success'] = 'bg-success text-white'
+        alert_class['warning'] = 'bg-warning text-dark'
+        html = '<div class="toast-body ">' +
+            msg +
+            '<button type="button" class="btn-close float-end" data-bs-dismiss="toast" aria-label="Close"></button>'
+            + '</div>'
+        document.getElementById('alert').innerHTML = html
+        document.getElementById('alert').className = 'toast fw-bold ms-auto mx-auto fixed-top ' + alert_class[type];
+        $("#alert").toast('show');
     }
 
     //function for hide alert box
     function hide_alert() {
-        $("#alert").hide();
+        $("#alert").toast('hide');
     }
 
     function submit_query_form(form) {
