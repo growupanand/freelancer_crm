@@ -32,7 +32,7 @@ def admin_index_page():
 @app.route('/crm')
 def admin_crm_page():
     persons_list = []
-    for i in db.persons_collection.find().sort('_id', -1).limit(20):
+    for i in db.persons_collection.find().sort('_id', -1).limit(10):
         i['_id'] = str(i['_id'])
         persons_list.append(i)
     return render_template('admin/crm.html', persons_list=persons_list)

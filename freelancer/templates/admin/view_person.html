@@ -98,7 +98,7 @@
                                 <h3 class="card-title text-uppercase">
                                     {{ vehicle['registration_number'] }}
                                     <button class="btn text-primary float-end"
-                                            onclick="view_vehicle('{{ vehicle['registration_number'] }}')">EDIT DETAIL
+                                            onclick="view_vehicle('{{ vehicle['_id'] }}')">EDIT DETAIL
                                     </button>
                                 </h3>
                                 <table class="text-muted table-borderless table table-sm">
@@ -128,7 +128,7 @@
                             </div>
                             <div class="col-lg-6">
                                 <button class="btn text-primary"
-                                        onclick="add_vehicle_policy('{{ vehicle['registration_number'] }}')">
+                                        onclick="add_vehicle_policy('{{ vehicle['registration_number'] }}', '{{ vehicle['_id'] }}')">
                                     <span class="bi bi-plus-circle-fill"></span> ADD POLICY
                                 </button>
                                 <ul class="list-group list-group-flush">
@@ -257,6 +257,8 @@
                             <option value="" selected>Select Type</option>
                             <option value="od_tp">Normal (OD+TP)</option>
                             <option value="tp">Third Party Only</option>
+                            <option value="tentative">Tentative</option>
+                            <option value="od">Own Damange Only</option>
                         </select>
                         <div class="form-check mb-2">
                             <input class="form-check-input" name="0_dap" type="checkbox" value="True" id="0_dap">
@@ -316,6 +318,8 @@
                             <option value="" selected>Select Type</option>
                             <option value="od_tp">Normal (OD+TP)</option>
                             <option value="tp">Third Party Only</option>
+                            <option value="tentative">Tentative</option>
+                            <option value="od">Own Damange Only</option>
                         </select>
                         <div class="form-check mb-2">
                             <input class="form-check-input" name="0_dap" type="checkbox" value="True" id="0_dap">
@@ -341,7 +345,7 @@
                         <input type="text" class="form-control mb-2" name="premium" id="premium"/>
                         <div class="d-grid gap-2">
                             <button type="submit" class="btn btn-primary">SAVE</button>
-                            <button type="button" class="btn btn-outline-danger" onclick="delete_vehicle_policy()">
+                            <button type="button" class="btn btn-light text-danger" onclick="delete_vehicle_policy()">
                                 <span class="bi bi-trash"></span> DELETE POLICY
                             </button>
                         </div>
@@ -360,6 +364,7 @@
         person_id = '{{ person['_id'] }}'
         person_name = '{{ person['name'] }}'
         var current_vehicle_registration_number = ''
+        var current_vehicle_registration_id = ''
         var current_vehicle_policy_id = ''
 
         function submit_add_contact_number_form(form) {
@@ -495,12 +500,12 @@
             })
         }
 
-        function view_vehicle(registration_number = current_vehicle_registration_number) {
+        function view_vehicle(registration_id) {
             form = document.update_vehicle_form
             $.ajax({
                 url: '/api/view_vehicle',
                 type: 'POST',
-                data: {'registration_number': registration_number},
+                data: {'registration_id': registration_id},
                 dataType: 'JSON',
                 success: function (response) {
                     if (response.result == true) {
@@ -557,8 +562,9 @@
             })
         }
 
-        function add_vehicle_policy(registration_number) {
+        function add_vehicle_policy(registration_number, registration_id) {
             current_vehicle_registration_number = registration_number
+            current_vehicle_registration_id = registration_id
             document.add_vehicle_policy_form.registration_number.value = current_vehicle_registration_number
             $('#add_vehicle_policy_modal').modal('show')
         }
@@ -568,6 +574,7 @@
             data = $(form).serializeArray()
             data.push({'name': 'person_id', 'value': person_id})
             data.push({'name': 'registration_number', 'value': current_vehicle_registration_number})
+            data.push({'name': 'registration_id', 'value': current_vehicle_registration_id})
             $.ajax({
                 url: '/api/add_motor_policy',
                 data: data,

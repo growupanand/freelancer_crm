@@ -5,16 +5,16 @@
         <div class="col-md-4 col-lg-3">
             <p class="d-md-grid">
                 <button class="btn btn-primary" type="button" data-bs-toggle="modal" data-bs-target="#add_person_modal">
-                    NEW CONTACT
+                    <span class="bi bi-plus fw-bold"></span> NEW
                 </button>
             </p>
             <div class="card mb-3 d-none d-md-block">
-                <div class="card-header">RECENT</div>
+                <div class="card-header">RECENT<span class="bi bi-clock-history float-end   "></span> </div>
                 <div id="recent_person_list" class="list-group list-group-flush">
                     {% for person in persons_list %}
                         <a class="text-capitalize list-group-item list-group-item-action"
                            href="/crm/view_person/{{ person['_id'] }}">
-                            {{ person['name'] }}
+                            <span class="bi bi-person-fill"></span> {{ person['name'] }}
                         </a>
                     {% endfor %}
                 </div>
@@ -35,7 +35,17 @@
                     </div>
                 </div>
             </form>
-            <div class="overflow-auto" style="max-height:100vh">
+            <div class="list-group-item list-group-item-secondary border-0">
+            <div class="row">
+                <div class="col-lg">
+                    NAME
+                </div>
+                <div class="col-lg">
+                    MOBILE NUMBER
+                </div>
+            </div>
+                </div>
+            <div class="overflow-auto" style="max-height:60vh">
                 <div class="list-group list-group-flush" id="person_list"></div>
             </div>
         </div>
@@ -141,7 +151,7 @@
                             html = '<a class="text-capitalize list-group-item list-group-item-action" href="/crm/view_person/' +
                                 response.persons[i]._id +
                                 '">' +
-                                response.persons[i].name +
+                                '<div class="row"><div class="col-lg"><span class="bi bi-person-fill"></span> '+ response.persons[i].name + '</div><div class="col-lg">' + response.persons[i].numbers.join(', ') + '</div></div>'
                                 '</a>'
                             $('#person_list').append(html)
                         }

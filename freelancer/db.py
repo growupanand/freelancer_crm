@@ -1,10 +1,14 @@
+import sys
 import pymongo
+
+selected_db = 'uafs_crm'
+
+if len(sys.argv)>1 and sys.argv[1] == 'vw':
+    selected_db = 'vw_crm'
 
 client = pymongo.MongoClient("mongodb://localhost",27017)
 
-
-db = client['uafs_crm'] #uafs freelancer database
-#db = client['vw_crm'] #vw database
+db = client[selected_db]
 query_collection = db['queries']
 user_collection = db['users']
 persons_collection = db['persons']

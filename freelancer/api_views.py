@@ -97,7 +97,7 @@ def add_vehicle_api():
 
 @app.route('/api/view_vehicle', methods=['POST'])
 def view_vehicle_api():
-    return json.dumps(controllers.view_vehicle(request.form['registration_number']))
+    return json.dumps(controllers.view_vehicle(request.form['registration_id']))
 
 
 @app.route('/api/delete_vehicle', methods=['POST'])
