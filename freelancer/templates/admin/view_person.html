@@ -1,10 +1,15 @@
 {% extends 'admin/base.html' %}
 {% block content %}
     <div class="row">
-        <div class="col-md-3">
+        <div class="col-3">
             <h1 class="text-capitalize">
                 {{ person['name'] }}
             </h1>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-3">
             <div class="card mb-3">
                 <div class="card-header"><span class="bi-phone"></span> MOBILE NUMBER</div>
                 <ul id="contact_number_list" class="list-group list-group-flush">
@@ -78,7 +83,7 @@
             </div>
 
 
-            <p class="d-grid">
+            <p class="text-center">
                 <button class="btn btn-danger" onclick="delete_person()">
                     DELETE PERSON
                 </button>
@@ -91,65 +96,92 @@
                 </button>
             </p>
             {% for vehicle in person['vehicles'] %}
-                <div class="card">
+                <div class="card mb-3">
                     <div class="card-body">
                         <div class="row">
                             <div class="col-lg-6">
-                                <h3 class="card-title text-uppercase">
-                                    {{ vehicle['registration_number'] }}
-                                    <button class="btn text-primary float-end"
-                                            onclick="view_vehicle('{{ vehicle['_id'] }}')">EDIT DETAIL
-                                    </button>
-                                </h3>
-                                <table class="text-muted table-borderless table table-sm">
+                                <div class="row mb-3">
+                                    <div class="col">
+                                        <h5 class="card-title text-uppercase">
+                                            {{ vehicle['registration_number'] }}
+                                        </h5>
+                                    </div>
+                                    <div class="col text-end">
+                                        <button class="btn btn-sm btn-light text-primary"
+                                                onclick="view_vehicle('{{ vehicle['_id'] }}')">
+                                            EDIT
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <table class="text-uppercase small table table-borderless table-sm">
                                     <tr>
-                                        <td>Company and Model</td>
-                                        <td class="text-uppercase">
+                                        <td class="text-muted">Company and Model</td>
+                                        <td>
                                             {{ vehicle['company'] }} - {{ vehicle['model'] }}
                                         </td>
                                     </tr>
                                     <tr>
-                                        <td>Registration Name</td>
-                                        <td class="text-uppercase">{{ vehicle['registration_name'] }}</td>
+                                        <td class="text-muted">Registration Name</td>
+                                        <td>{{ vehicle['registration_name'] }}</td>
                                     </tr>
                                     <tr>
-                                        <td>Registration Date</td>
-                                        <td class="text-uppercase">{{ vehicle['registration_date'] }}</td>
+                                        <td class="text-muted">Registration Date</td>
+                                        <td>{{ vehicle['registration_date'] }}</td>
                                     </tr>
                                     <tr>
-                                        <td>MFG Year</td>
-                                        <td class="text-uppercase">{{ vehicle['mfg'] }}</td>
+                                        <td class="text-muted">MFG Year</td>
+                                        <td>{{ vehicle['mfg'] }}</td>
                                     </tr>
                                     <tr>
-                                        <td>CC</td>
-                                        <td class="text-uppercase">{{ vehicle['cc'] }}</td>
+                                        <td class="text-muted">CC</td>
+                                        <td>{{ vehicle['cc'] }}</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="text-muted">Fuel Type</td>
+                                        <td>{{ vehicle['fuel'] }}</td>
                                     </tr>
                                 </table>
                             </div>
                             <div class="col-lg-6">
-                                <button class="btn text-primary"
-                                        onclick="add_vehicle_policy('{{ vehicle['registration_number'] }}', '{{ vehicle['_id'] }}')">
-                                    <span class="bi bi-plus-circle-fill"></span> ADD POLICY
-                                </button>
-                                <ul class="list-group list-group-flush">
+                                <div class="row mb-3">
+                                    <div class="col">
+                                        <span class="fs-5">Policy</span>
+                                    </div>
+                                    <div class="col text-end">
+                                        <button class="btn btn-sm btn-light text-primary"
+                                                onclick="add_vehicle_policy('{{ vehicle['registration_number'] }}', '{{ vehicle['_id'] }}')">
+                                            ADD
+                                        </button>
+                                    </div>
+                                </div>
+                                <table class="table table-hover table-sm table-borderless">
                                     {% for policy in vehicle['policy_list'] %}
-                                        <li class="list-group-item list-group-item-action">
-                                            <small class="">
-                                                {{ policy['expiry_date'] }}
-                                            </small>
-                                            <a href="/view_policy/{{ policy['_id'] }}">
-                                                {{ policy['policy_number'] }}
-                                            </a>
-                                        <button onclick="view_vehicle_policy('{{ policy['_id'] }}')" class="btn-sm btn text-primary float-end">EDIT</button>
-                                        </li>
+                                        <tr>
+                                            <td>
+                                                <small class="text-muted">
+                                                    {{ policy['expiry_date'] }}
+                                                </small>
+                                            </td>
+                                            <td>
+                                                <a class="text-decoration-none" href="/view_policy/{{ policy['_id'] }}">
+                                                    {{ policy['policy_number'] }}
+                                                </a>
+                                            </td>
+                                            <td>
+                                                <button onclick="view_vehicle_policy('{{ policy['_id'] }}')"
+                                                        class="btn-sm btn text-primary float-end">
+                                                    <small>EDIT</small>
+                                                </button>
+                                            </td>
+                                        </tr>
                                     {% endfor %}
-                                </ul>
+                                </table>
                             </div>
                         </div>
                     </div>
 
                 </div>
-                <br/>
             {% endfor %}
         </div>
     </div>
@@ -176,6 +208,12 @@
                         <input type="text" id="model" name="model" class="form-control mb-2"/>
                         <label for="cc" class="form-label">CC</label>
                         <input type="text" id="cc" name="cc" class="form-control mb-2"/>
+                        <label for="fuel" class="form-label">Fuel Type</label>
+                        <select class="form-control mb-2" name="fuel" id="fuel">
+                            <option value="">Select Fuel Type</option>
+                            <option value="petrol">Petrol</option>
+                            <option value="diesel">Diesel</option>
+                        </select>
                         <label for="mfg" class="form-label">MFG Year</label>
                         <input type="text" id="mfg" name="mfg" class="form-control mb-2"/>
                         <div class="d-grid">
@@ -211,18 +249,25 @@
                         <input type="text" id="model" name="model" class="form-control mb-2"/>
                         <label for="cc" class="form-label">CC</label>
                         <input type="text" id="cc" name="cc" class="form-control mb-2"/>
+                        <label for="fuel" class="form-label">Fuel Type</label>
+                        <select class="form-control mb-2" name="fuel" id="fuel">
+                            <option value="">Select Fuel Type</option>
+                            <option value="petrol">Petrol</option>
+                            <option value="diesel">Diesel</option>
+                        </select>
                         <label for="mfg" class="form-label">MFG Year</label>
                         <input type="number" class="form-control mb-2" name="mfg" id="mfg"/>
-                        <div class="d-grid gap-2">
+                        <div class="d-grid mb-3">
                             <button type="submit" class="btn btn-primary">
-                                <span class="bi bi-check"></span> SAVE
+                                UPDATE
                             </button>
+                        </div>
+                        <div class="text-end">
                             <button type="button" onclick="delete_vehicle()"
-                                    class="btn btn-outline-danger">
+                                    class="btn btn-light text-danger">
                                 <span class="bi bi-trash"></span> DELETE
                             </button>
                         </div>
-
                     </form>
                 </div>
             </div>
@@ -301,7 +346,7 @@
                 </div>
                 <div class="modal-body">
                     <form name="edit_vehicle_policy_form" onsubmit="submit_edit_vehicle_policy_form(this)">
-                        <input type="hidden" name="policy_id" id="policy_id" value="" />
+                        <input type="hidden" name="policy_id" id="policy_id" value=""/>
                         <div class="form-check mb-2">
                             <input class="form-check-input" name="own_business" type="checkbox" value="True"
                                    id="own_business">
@@ -343,13 +388,14 @@
                         </select>
                         <label for="premium" class="form-label">Premium</label>
                         <input type="text" class="form-control mb-2" name="premium" id="premium"/>
-                        <div class="d-grid gap-2">
-                            <button type="submit" class="btn btn-primary">SAVE</button>
+                        <div class="d-grid mb-3">
+                            <button type="submit" class="btn btn-primary">UPDATE</button>
+                        </div>
+                        <div class="text-end">
                             <button type="button" class="btn btn-light text-danger" onclick="delete_vehicle_policy()">
-                                <span class="bi bi-trash"></span> DELETE POLICY
+                                <span class="bi bi-trash"></span> DELETE
                             </button>
                         </div>
-
                     </form>
                 </div>
             </div>
@@ -546,20 +592,22 @@
         }
 
         function delete_vehicle() {
-            registration_id = document.update_vehicle_form.registration_id.value
-            $.ajax({
-                url: '/api/delete_vehicle',
-                type: 'POST',
-                data: {'registration_id': registration_id},
-                dataType: 'JSON',
-                success: function (response) {
-                    if (response.result == true) {
-                        location.reload()
-                    } else {
-                        alert(response.msg)
+            if (confirm('This will delete vehicle data and its policy data!')) {
+                registration_id = document.update_vehicle_form.registration_id.value
+                $.ajax({
+                    url: '/api/delete_vehicle',
+                    type: 'POST',
+                    data: {'registration_id': registration_id},
+                    dataType: 'JSON',
+                    success: function (response) {
+                        if (response.result == true) {
+                            location.reload()
+                        } else {
+                            alert(response.msg)
+                        }
                     }
-                }
-            })
+                })
+            }
         }
 
         function add_vehicle_policy(registration_number, registration_id) {

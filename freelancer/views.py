@@ -29,13 +29,13 @@ def admin_index_page():
 
 # <CRM VIEWS
 
-@app.route('/crm')
-def admin_crm_page():
+@app.route('/contacts')
+def admin_contacts_page():
     persons_list = []
     for i in db.persons_collection.find().sort('_id', -1).limit(10):
         i['_id'] = str(i['_id'])
         persons_list.append(i)
-    return render_template('admin/crm.html', persons_list=persons_list)
+    return render_template('admin/contacts.html', persons_list=persons_list)
 
 
 @app.route('/crm/view_person/<_id>')

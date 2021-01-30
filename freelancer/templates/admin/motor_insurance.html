@@ -1,139 +1,146 @@
 {% extends 'admin/base.html' %}
 {% block content %}
     <div id="alert"></div>
-
-    <h1>Insurance Renewals</h1>
+    <br/>
     <div class="row">
         <div class="col-md-3">
-            <div class="card mb-3">
-                <div class="card-header text-center">
-                    <label class="h6" id="current_period"></label>
-                    <button onclick="prev_renewal_month()" class="float-start btn border-0 btn-outline-secondary"><span
+            <div class="card bg-white border-1 mb-3">
+                <div class="card-header border-0 bg-transparent text-center align-middle">
+                    <label class="fw-bold" id="current_period"></label>
+                    <button onclick="prev_renewal_month()" class="float-start btn"><span
                             class="bi-caret-left"></span></button>
-                    <button onclick="next_renewal_month()" class="float-end btn border-0 btn-outline-secondary"><span
+                    <button onclick="next_renewal_month()" class="float-end btn"><span
                             class="bi-caret-right"></span></button>
                 </div>
-                <div style="max-height: 70vh" id="policy_list" class="overflow-auto list-group list-group-flush"></div>
+                <div style="max-height: 70vh;" id="policy_list" class="overflow-auto list-group list-group-flush"></div>
             </div>
         </div>
-        <div class="col-md-9">
-            <div id="renewal_card" style="display: none">
-                <div class="row">
-                    <div class="col-md-8">
-                        <div id="info_card" class="card mb-3">
-                            <div class="row">
-                                <div class="col-lg">
-                                    <div class="card-body">
-                                        <h5 class="card-title text-center">
-                                            <span id="policy_number"></span>
-                                            <small id="own_business" class="badge bg-success"></small>
-                                        </h5>
-                                        <table class="table table-borderless">
-                                            <tr>
-                                                <td>Policy Company</td>
-                                                <td id="policy_company"></td>
-                                            </tr>
-                                            <tr>
-                                                <td>Expiry Date</td>
-                                                <td id="expiry_date"></td>
-                                            </tr>
-                                            <tr>
-                                                <td>Policy Type</td>
-                                                <td id="policy_type"></td>
-                                            </tr>
-                                            <tr>
-                                                <td>Premium</td>
-                                                <td id="premium"></td>
-                                            </tr>
-                                            <tr>
-                                                <td>IDV</td>
-                                                <td id="idv"></td>
-                                            </tr>
-                                            <tr>
-                                                <td>NCB %</td>
-                                                <td id="ncb"></td>
-                                            </tr>
-                                            <tr>
-                                                <td>0 DAP</td>
-                                                <td id="0_dap"></td>
-                                            </tr>
-                                        </table>
-                                    </div>
-                                </div>
-                                <div class="col-lg">
-                                    <div class="card-body">
-                                        <h5 class="text-uppercase text-center card-title" id="registration_number"></h5>
-                                    </div>
-                                    <table class="table table-borderless">
+        <div class="col-md-9 mb-3">
+            <div id="renewal_card" class="card" style="display: none">
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col">
+                            <h3 class="text-capitalize" id="name"></h3>
+                        </div>
+                        <div class="col">
+                            <p class="text-end fs-5">
+                                <span class="bi bi-phone-fill"></span> <span id="numbers"></span>
+                            </p>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-7 mb-3">
+                            <div class="text-uppercase fs-6">
+                                <div class="mb-3">
+                                    <div id="registration_number" class="fs-5 mb-2"></div>
+                                    <table class="table table-borderless table-striped table-sm small">
+                                        <tbody>
                                         <tr>
-                                            <td>Vehicle Company</td>
+                                            <td class="text-muted">Registration Name</td>
+                                            <td id="registration_name"></td>
+                                        </tr>
+                                        <tr>
+                                            <td class="text-muted">Vehicle Company</td>
                                             <td id="vehicle_company"></td>
                                         </tr>
                                         <tr>
-                                            <td>Model</td>
+                                            <td class="text-muted">Model</td>
                                             <td id="vehicle_model"></td>
                                         </tr>
                                         <tr>
-                                            <td>CC</td>
+                                            <td class="text-muted">CC</td>
                                             <td id="vehicle_cc"></td>
                                         </tr>
                                         <tr>
-                                            <td>Registration Date</td>
+                                            <td class="text-muted">Fuel Type</td>
+                                            <td id="fuel"></td>
+                                        </tr>
+                                        <tr>
+                                            <td class="text-muted">Registration Date</td>
                                             <td id="registration_date"></td>
                                         </tr>
                                         <tr>
-                                            <td>Manufacture Year</td>
+                                            <td class="text-muted">Manufacture Year</td>
                                             <td id="vehicle_mfg_year"></td>
                                         </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                                <div class="mb-3">
+                                    <div class="row mb-2">
+                                        <div class="col-8">
+                                            <span id="policy_number" class="fs-5"></span>
+                                            <small id="own_business" class="badge rounded-pill bg-success"></small>
+                                        </div>
+                                        <div class="col-4 text-end">
+                                            <div class="btn-group" role="group" id="renewed_policy"></div>
+                                        </div>
+                                    </div>
+                                    <table class="table table-borderless table-striped table-sm small">
+                                        <tbody>
+                                        <tr>
+                                            <td class="text-muted">Policy Company</td>
+                                            <td id="policy_company"></td>
+                                        </tr>
+                                        <tr>
+                                            <td class="text-muted">Expiry Date</td>
+                                            <td id="expiry_date"></td>
+                                        </tr>
+                                        <tr>
+                                            <td class="text-muted">Policy Type</td>
+                                            <td id="policy_type"></td>
+                                        </tr>
+                                        <tr>
+                                            <td class="text-muted">Premium</td>
+                                            <td id="premium"></td>
+                                        </tr>
+                                        <tr>
+                                            <td class="text-muted">IDV</td>
+                                            <td id="idv"></td>
+                                        </tr>
+                                        <tr>
+                                            <td class="text-muted">NCB %</td>
+                                            <td id="ncb"></td>
+                                        </tr>
+                                        <tr>
+                                            <td class="text-muted">Addon Cover</td>
+                                            <td id="addon_cover"></td>
+                                        </tr>
+                                        </tbody>
                                     </table>
                                 </div>
                             </div>
-                            <div class="card-body d-grid" id="renewed_policy"></div>
-                        </div>
-                    </div>
-                    <div class="col-md-4">
-                        <div class="card mb-3">
-                            <div class="card-body">
-                                <h4 class="text-capitalize card-title" id="name"></h4>
-                                <p>
-                                    <span class="bi bi-phone-fill"></span> <span id="numbers"></span>
-                                </p>
-                            </div>
                         </div>
 
-                        <div class="card mb-3">
-                            <div class="card-header text-center">
-                                <span class="bi bi-chat"></span> CHAT HISTORY
-                            </div>
-                            <div class="card-body">
-                                <form name="followup_form" onsubmit="submit_followup_form(this)">
-                                    <textarea rows="4" class="form-control mb-3" id="followup_remark"
-                                              name="followup_remark"></textarea>
-                                    <div class="row mb-3">
-                                        <div class="col">
-                                            <select id="policy_status" name="policy_status" class="form-control">
-                                                <option value="">Select Status</option>
-                                                <option value="followup">FOLLOW UP</option>
-                                                <option value="renewed">RENEWAL DONE</option>
-                                                <option value="lost">LOST</option>
-                                            </select>
-                                        </div>
-                                        <div class="col d-grid">
-                                            <button type="submit" class="btn btn-primary">WRITE</button>
-                                        </div>
+                        <div class="col-md-5">
+                            <div class="card border-0 mb-3">
+                                <div class="card-body">
+                                    <div class="d-grid mb-3">
+                                        <button id="renewal_done_btn" class="btn btn-primary" onclick="renewal_done()"
+                                                disabled>DONE
+                                        </button>
                                     </div>
-                                </form>
-                            </div>
-                            <div id="followup_list" class="list-group list-group-flush">
+                                    <form name="followup_form" onsubmit="submit_followup_form(this)">
+                                    <textarea placeholder="Remark" rows="4"
+                                              class="bg-light border-1 border-bottom-0 border-end-0 form-control mb-3"
+                                              id="followup_remark"
+                                              name="followup_remark"></textarea>
+                                        <div class="d-grid">
+                                            <button type="submit" class="btn btn-light text-primary">FOLLOW</button>
+                                        </div>
+                                    </form>
+                                </div>
+                                <div id="followup_list" class="overflow-auto list-group list-group-flush">
 
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
+
             </div>
         </div>
     </div>
-
 
     <div class="modal fade" id="add_renewal_policy_modal">
         <div class="modal-dialog">
@@ -230,46 +237,46 @@
                     } else {
                         $('#policy_list button').removeClass('active')
                         $(e).addClass('active')
-                        info_card_class = 'card mb-3'
-                        console.log(response.data.policy_status)
                         if (response.data.policy_status == 'renewed') {
-                            info_card_class += (response.data.renewal_business == true) ? ' text-success border-success' : ''
+                            // pass here function for renewed policy by me
                         }
-                        document.getElementById('info_card').className = info_card_class
                         current_policy_id = response.data.policy_id
                         current_person_id = response.data.person_id
                         current_registration_id = response.data.registration_id
-
-                        for (i of ['policy_company', 'premium', 'idv', 'ncb', 'registration_number',
-                            'vehicle_company', 'vehicle_model', 'vehicle_cc', 'vehicle_mfg_year']) {
+                        for (i of ['registration_name', 'policy_company', 'premium', 'idv', 'ncb', 'registration_number',
+                            'vehicle_company', 'vehicle_model', 'vehicle_cc', 'fuel', 'vehicle_mfg_year']) {
                             document.getElementById(i).innerText = response.data[i]
                         }
                         registration_date = (response.data.registration_date == null) ? '' : formatdate(response.data.registration_date)
                         document.getElementById('registration_date').innerText = registration_date
                         document.getElementById('policy_number').innerText = (response.data['policy_number'] == null) ? 'None' : response.data['policy_number']
-                        document.getElementById('policy_type').innerText = policy_type[response.data['policy_type']]
-                        document.getElementById('0_dap').innerText = response.data['0_dap']
+                        document.getElementById('policy_type').innerText = (response.data['policy_type'] == null) ? '' : policy_type[response.data['policy_type']]
+                        addon_cover_html = ''
+                        for (cover in response.data['addon_cover']) {
+                            addon_cover_html+='<span class="badge bg-primary">'+response.data['addon_cover'][cover]+'</span>'
+                        }
+                        document.getElementById('addon_cover').innerHTML = addon_cover_html
                         document.getElementById('name').innerHTML = '<a style="text-decoration: none" href="/crm/view_person/' + response.data.person_id + '">' + response.data.name + '</a>'
                         document.getElementById('numbers').innerHTML = response.data.numbers.join(', ')
                         expiry_date = formatdate(response.data.expiry_date)
                         document.getElementById('expiry_date').innerText = expiry_date
+                        old_policy_html = '<button class="btn btn-light text-dark" ' + ((response.data['old_policy_id'] == null) ? 'disabled' : ' onclick="view_renewal(\'' + response.data['old_policy_id'] + '\')"') + '>' +
+                            '<span class="bi bi-caret-left"></span> </button>'
                         renewal_id = response.data.renewal_id
-                        renewed_policy_html = ''
-                        if (renewal_id == null || renewal_id == 'None') {
-                            renewed_policy_html = '<button class="btn btn-secondary"' +
-                                'disabled>VIEW RENEWED POLICY</button>'
+                        if (renewal_id == null) {
+                            document.getElementById('renewal_done_btn').disabled = false
                         } else {
-                            renewed_policy_html = '<button class="btn btn-' + ((response.data.renewal_business == true) ? 'success' : 'secondary') + '" ' +
-                                'onclick="view_renewal(\'' + renewal_id + '\')"' +
-                                '>VIEW RENEWED POLICY</button>'
+                            document.getElementById('renewal_done_btn').disabled = true
                         }
+                        renewed_policy_html = '<button class="btn btn-light text-dark"' + ((response.data['renewal_id'] == null) ? 'disabled' : ' onclick="view_renewal(\'' + response.data['renewal_id'] + '\')"') + '>' +
+                            ' <span class="bi bi-caret-right"></span></button>'
                         document.getElementById('own_business').innerText = (response.data.own_business == true) ? 'OWNED' : ''
-                        document.getElementById('renewed_policy').innerHTML = renewed_policy_html
+                        document.getElementById('renewed_policy').innerHTML =  old_policy_html +  renewed_policy_html
                         followup_list = response.data.followup
                         $('#followup_list').html('')
                         for (i in followup_list) {
-                            html = '<div class="list-group-item">' +
-                                '<small class="text-muted"><span class="bi bi-calendar"></span> ' + formatdate(followup_list[i].created) + '</small>' +
+                            html = '<div class="list-group-item bg-light mb-2 border-0 fs-6">' +
+                                '<small class="text-muted">' + formatdate(followup_list[i].created) + '</small>' +
                                 '<p>' + followup_list[i].remark + '</p>' +
                                 '</div>'
                             $('#followup_list').prepend(html)
@@ -280,37 +287,37 @@
             })
         }
 
+        function renewal_done() {
+            $('#add_renewal_policy_modal').modal('show')
+        }
+
         function submit_followup_form(form) {
             event.preventDefault()
             remark = form.followup_remark.value
-            policy_status = form.policy_status.value
-            if (policy_status == 'renewed') {
-                $('#add_renewal_policy_modal').modal('show')
-            } else {
-                $.ajax({
-                    url: '/api/post_policy_followup',
-                    data: {
-                        'policy_id': current_policy_id,
-                        'remark': remark,
-                        'policy_status': policy_status
-                    },
-                    type: 'POST',
-                    dataType: 'JSON',
-                    success: function (response) {
-                        if (response.result == true) {
-                            show_alert('Remark added successfully!', 'success')
-                            html = '<div class="list-group-item new" style="display: none">' +
-                                '<small class="text-muted">NOW</small>' +
-                                '<p>' + form.followup_remark.value + '</p>' +
-                                '</div>'
-                            $(html).prependTo($('#followup_list')).slideDown()
-                            form.reset()
-                        } else {
-                            show_alert(response.msg, 'error')
-                        }
+            policy_status = 'followup'
+            $.ajax({
+                url: '/api/post_policy_followup',
+                data: {
+                    'policy_id': current_policy_id,
+                    'remark': remark,
+                    'policy_status': policy_status
+                },
+                type: 'POST',
+                dataType: 'JSON',
+                success: function (response) {
+                    if (response.result == true) {
+                        show_alert('Remark added successfully!', 'success')
+                        html = '<div class="list-group-item new" style="display: none">' +
+                            '<small class="text-muted">NOW</small>' +
+                            '<p>' + form.followup_remark.value + '</p>' +
+                            '</div>'
+                        $(html).prependTo($('#followup_list')).slideDown()
+                        form.reset()
+                    } else {
+                        show_alert(response.msg, 'error')
                     }
-                })
-            }
+                }
+            })
         }
 
         function next_renewal_month() {
@@ -334,7 +341,7 @@
         }
 
         function update_renewal_list(month, year) {
-            document.getElementById('current_period').innerHTML = '<span class="bi bi-calendar"></span> '+monthNames[current_month] + ' ' + current_year
+            document.getElementById('current_period').innerHTML = '<span class="bi bi-calendar"></span> ' + monthNames[current_month] + ' ' + current_year
             $.ajax({
                 url: '/api/get_renewal_list',
                 data: {'month': month, 'year': year},
@@ -354,7 +361,7 @@
                             policy_status_class = 'list-group-item-danger'
                         }
 
-                        html = '<button class="' + policy_status_class + ' text-capitalize list-group-item list-group-item-action" onclick="view_renewal(\'' + response[i]._id + '\', this)">' +
+                        html = '<button type="button" class="' + policy_status_class + ' text-capitalize list-group-item list-group-item-action border-0" onclick="view_renewal(\'' + response[i]._id + '\', this)">' +
                             response[i].name +
                             '<small class="float-end">' +
                             response[i].day +
@@ -369,10 +376,7 @@
             event.preventDefault()
             data = $(form).serializeArray()
             data.push({'name': 'policy_id', 'value': current_policy_id})
-            data.push({'name': 'person_id', 'value': current_person_id})
-            data.push({'name': 'registration_id', 'value': current_registration_id})
             data.push({'name': 'remark', 'value': document.followup_form.followup_remark.value})
-            data.push({'name': 'policy_status', 'value': document.followup_form.policy_status.value})
             $.ajax({
                 url: '/api/add_renewal_motor_policy',
                 data: data,

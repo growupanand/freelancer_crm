@@ -1,55 +1,60 @@
 {% extends 'admin/base.html' %}
 {% block content %}
-    <h2 class="card-title">CONTACTS</h2>
-    <div class="row">
+    <div class="row mt-3">
         <div class="col-md-4 col-lg-3">
-            <p class="d-md-grid">
-                <button class="btn btn-primary" type="button" data-bs-toggle="modal" data-bs-target="#add_person_modal">
-                    <span class="bi bi-plus fw-bold"></span> NEW
-                </button>
-            </p>
-            <div class="card mb-3 d-none d-md-block">
-                <div class="card-header">RECENT<span class="bi bi-clock-history float-end   "></span> </div>
-                <div id="recent_person_list" class="list-group list-group-flush">
+            <div class="card bg-white border-1 mb-3 d-none d-md-block">
+                <div class="card-header border-0 bg-transparent text-muted">
+                    Recent Added
+                </div>
+                <div id="recent_person_list" class="list-group list-group-flush small">
                     {% for person in persons_list %}
-                        <a class="text-capitalize list-group-item list-group-item-action"
+                        <a class="text-capitalize list-group-item list-group-item-action border-0"
                            href="/crm/view_person/{{ person['_id'] }}">
-                            <span class="bi bi-person-fill"></span> {{ person['name'] }}
+                            {{ person['name'] }}
                         </a>
                     {% endfor %}
                 </div>
             </div>
         </div>
-        <div class="col-md-8">
-            <form onsubmit="submit_find_person(this)" name="find_person">
-                <div class="row">
-                    <div class="col-8">
-                        <input placeholder="Search by Name or Number" type="text" class="form-control"
-                               name="query"
-                               id="query" required/>
+        <div class="col-md-8 col-lg-9">
+            <div class="card bg-white position-relative">
+                <div class="card-body sticky-top bg-white">
+                    <div class="row">
+                        <div class="col">
+                            <p>
+                                <span class=" fs-1">Contacts</span>
+                                <span id="contact_count"
+                                      class="fs-6 rounded-pill badge bg-secondary text-white">0</span>
+                            </p>
+                        </div>
+                        <div class="col text-end">
+                            <button class="btn px-4 btn-light text-primary" type="button" data-bs-toggle="modal"
+                                    data-bs-target="#add_person_modal">
+                               <span class="bi bi-plus"></span> ADD
+                            </button>
+                        </div>
                     </div>
-                    <div class="col-4 d-grid">
-                        <button class="btn btn-outline-primary" type="submit">
-                            <span class="bi-search"></span> FIND
-                        </button>
-                    </div>
+                    <form onsubmit="submit_find_person(this)" name="find_person">
+                        <div class="row">
+                            <div class="col-8">
+                                <input placeholder="Search by Name or Number" type="text" class="form-control"
+                                       name="query"
+                                       id="query" required/>
+                            </div>
+                            <div class="col-4 d-grid">
+                                <button class="btn btn-primary" type="submit">
+                                    SEARCH
+                                </button>
+                            </div>
+                        </div>
+                    </form>
                 </div>
-            </form>
-            <div class="list-group-item list-group-item-secondary border-0">
-            <div class="row">
-                <div class="col-lg">
-                    NAME
+                <div class="list-group list-group-flush border-0" id="person_list">
                 </div>
-                <div class="col-lg">
-                    MOBILE NUMBER
-                </div>
-            </div>
-                </div>
-            <div class="overflow-auto" style="max-height:60vh">
-                <div class="list-group list-group-flush" id="person_list"></div>
             </div>
         </div>
     </div>
+
 
     <!-- Modal -->
     <div class="modal fade" id="add_person_modal" tabindex="-1" aria-hidden="true">
@@ -145,13 +150,13 @@
                 data: {'query': query},
                 dataType: 'JSON',
                 success: function (response) {
+                    document.getElementById('contact_count').innerText = '0'
                     if (response.result == true) {
+                        document.getElementById('contact_count').innerText = response.persons.length
                         $('#person_list').html('')
                         for (i in response.persons) {
-                            html = '<a class="text-capitalize list-group-item list-group-item-action" href="/crm/view_person/' +
-                                response.persons[i]._id +
-                                '">' +
-                                '<div class="row"><div class="col-lg"><span class="bi bi-person-fill"></span> '+ response.persons[i].name + '</div><div class="col-lg">' + response.persons[i].numbers.join(', ') + '</div></div>'
+                            html = '<a class="text-capitalize border-0 list-group-item list-group-item-action" href="/crm/view_person/' + response.persons[i]._id + '">' + response.persons[i].name +
+                                '<br/><span class="text-center text-muted">' + response.persons[i].numbers.join(', ') + '</span>' +
                                 '</a>'
                             $('#person_list').append(html)
                         }
