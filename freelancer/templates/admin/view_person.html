@@ -561,12 +561,13 @@
                 dataType: 'JSON',
                 success: function (response) {
                     if (response.result == true) {
-                        for (i of ['registration_id', 'registration_number', 'registration_name', 'company', 'model', 'cc', 'mfg']) {
+                        form['registration_id'].value = response.data._id.$oid
+                        for (i of ['registration_number', 'registration_name', 'company', 'model', 'cc', 'fuel', 'mfg']) {
                             form[i].value = response.data[i]
                         }
-                        registration_date = response.data['registration_date']
+                        registration_date = response.data.registration_date
                         if (registration_date != null) {
-                            registration_date = formatdateinput(registration_date)
+                            registration_date = formatdateinput(registration_date.$date)
                         }
                         form.registration_date.value = registration_date
                     } else {
@@ -646,32 +647,31 @@
         }
 
         function view_vehicle_policy(policy_id) {
+            current_vehicle_policy_id = null
             form = document.edit_vehicle_policy_form
             $.ajax({
-                url: '/api/view_vehicle_policy',
-                type: 'POST',
-                data: {'policy_id': policy_id},
+                url: '/api/view_vehicle_policy/' + policy_id,
                 dataType: 'JSON',
                 success: function (response) {
-                    current_vehicle_policy_id = response.data['_id']
-                    form.policy_id.value = current_vehicle_policy_id
-                    form.own_business.checked = (response.data['own_business'] === true) ? true : false
-                    form['o_dap'].checked = (response.data['o_dap'] === true) ? true : false
                     if (response.result == true) {
-                        for (i of ['policy_number', 'policy_type', 'o_dap', 'company', 'idv', 'ncb', 'premium']) {
+                        current_vehicle_policy_id = response.data._id.$oid
+                        form.policy_id.value = current_vehicle_policy_id
+                        form.own_business.checked = (response.data['own_business'] === true)
+                        form.o_dap.checked = (response.data['o_dap'] === true)
+                        for (i of ['policy_number', 'policy_type', 'company', 'idv', 'ncb', 'premium']) {
                             form[i].value = response.data[i]
                         }
-                        expiry_date = response.data['expiry_date']
+                        expiry_date = response.data.expiry_date
                         if (expiry_date != null) {
-                            expiry_date = formatdateinput(expiry_date)
+                            expiry_date = formatdateinput(expiry_date.$date)
                         }
                         form.expiry_date.value = expiry_date
+                        $('#view_vehicle_policy_modal').modal('show')
                     } else {
                         alert(response.msg)
                     }
                 }
             })
-            $('#view_vehicle_policy_modal').modal('show')
         }
 
         function submit_edit_vehicle_policy_form(form) {

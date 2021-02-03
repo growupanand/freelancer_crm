@@ -49,7 +49,7 @@ def view_person_page(_id):
     q = db.motor_registration_collection.find({'person_id':person['_id']})
     for i in q:
         d = i['registration_date']
-        if not d == None:
+        if not d in (None, ''):
             i['registration_date'] = functions.format_timestamp(d, '%d-%m-%Y')
         i['policy_list'] = []
         q1 = db.motor_policy_collection.find({'registration_id':i['_id']})

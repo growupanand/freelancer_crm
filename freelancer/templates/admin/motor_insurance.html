@@ -7,7 +7,7 @@
             <div class="card bg-white border-1 mb-3">
                 <div id="renewal_list_period" class="card-header border-0 bg-transparent text-center align-middle">
                     <label class="fw-bold" id="current_period"></label>
-                     <button onclick="prev_renewal_month()" class="float-start btn"><span
+                    <button onclick="prev_renewal_month()" class="float-start btn"><span
                             class="bi-caret-left"></span></button>
                     <button onclick="next_renewal_month()" class="float-end btn"><span
                             class="bi-caret-right"></span></button>
@@ -125,7 +125,8 @@
                             <div class="card border-0 mb-3">
                                 <div class="card-body">
                                     <div class="d-grid mb-3">
-                                        <button id="renewal_done_btn" class="btn btn-primary" value="" onclick="renewal_done(this.value)"
+                                        <button id="renewal_done_btn" class="btn btn-primary" value=""
+                                                onclick="renewal_done(this.value)"
                                                 disabled>DONE
                                         </button>
                                     </div>
@@ -236,19 +237,25 @@
             'tentative': 'Tentative'
         }
 
+        policy_status_class = {
+                                null: '',
+                                'followup': 'list-group-item-warning',
+                                'lost': 'list-group-item-danger',
+                                'won': 'list-group-item-success'
+                            }
+
 
         function view_renewal(_id, e) {
             $('#policy_list button').prop('disabled', true)
             $(e).find(".loading").fadeIn()
             $.ajax({
-                url: '/api/view_renewal/'+_id,
+                url: '/api/view_renewal/' + _id,
                 type: 'POST',
                 dataType: 'JSON',
                 success: function (response) {
                     if (response.result == false) {
                         show_alert(response.msg, 'error')
-                    }
-                    else {
+                    } else {
                         policy = response.data.policy
                         registration = response.data.registration
                         person = response.data.person
@@ -257,7 +264,7 @@
                         followup_list = response.data.followup_list
 
                         registration.vehicle_company = registration.company
-                        registration.vehicle_model= registration.model
+                        registration.vehicle_model = registration.model
                         registration.vehicle_mfg_year = registration.mfg
                         registration.vehicle_cc = registration.cc
                         if (registration.registration_date != null) {
@@ -281,8 +288,8 @@
                         for (i of ['policy_number', 'policy_company', 'premium', 'idv', 'ncb', 'expiry_date']) {
                             document.getElementById(i).innerText = policy[i]
                         }
-                        document.getElementById('policy_type').innerHTML =policy_type[policy.policy_type]
-                        document.getElementById('own_business').innerHTML =(policy['own_business'] === true)? 'OWNED' : ''
+                        document.getElementById('policy_type').innerHTML = policy_type[policy.policy_type]
+                        document.getElementById('own_business').innerHTML = (policy['own_business'] === true) ? 'OWNED' : ''
                         document.getElementById('addon_cover').innerHTML = ''
                         for (cover of ['o_dap']) {
                             if (policy[cover] === true) {
@@ -394,26 +401,22 @@
                 type: 'POST',
                 dataType: 'JSON',
                 success: function (response) {
-                    current_period.innerHTML = '<span class="bi bi-calendar"></span> ' + monthNames[current_month] + ' ' + current_year
-                    $('#policy_list').html('')
-                    for (i in response) {
-                        policy_status_class = ''
-                        if (response[i].policy_status == 'followup') {
-                            policy_status_class = 'list-group-item-warning'
+                    if (response.result !== true) {
+                        show_alert(response.msg, 'error')
+                    } else {
+                        current_period.innerHTML = '<span class="bi bi-calendar"></span> ' + monthNames[current_month] + ' ' + current_year
+                        $('#policy_list').html('')
+                        renewal_list = response.data
+                        for (i in response.data) {
+                            console.log(renewal_list[i].policy_status)
+                            html = '<button class="btn rounded-0 ' + policy_status_class[renewal_list[i].policy_status] + ' text-capitalize list-group-item list-group-item-action border-0" onclick="view_renewal(\'' + renewal_list[i]._id.$oid + '\', this)">' +
+                                renewal_list[i].name +
+                                ' <span style="display: none" class="loading spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>' +
+                                '<small class="float-end">' +
+                                renewal_list[i].day +
+                                '</small></button>'
+                            $('#policy_list').append(html)
                         }
-                        if (response[i].policy_status == 'renewed') {
-                            policy_status_class = (response[i].renewal_business == true) ? 'list-group-item-success' : 'list-group-item-danger'
-                        }
-                        if (response[i].policy_status == 'lost') {
-                            policy_status_class = 'list-group-item-danger'
-                        }
-                        html = '<button class="btn rounded-0 ' + policy_status_class + ' text-capitalize list-group-item list-group-item-action border-0" onclick="view_renewal(\'' + response[i]._id.$oid + '\', this)">' +
-                            response[i].name +
-                            ' <span style="display: none" class="loading spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>' +
-                            '<small class="float-end">' +
-                            response[i].day +
-                            '</small></button>'
-                        $('#policy_list').append(html)
                     }
                     $(renewal_list_period).find('button').prop('disabled', false)
                 }

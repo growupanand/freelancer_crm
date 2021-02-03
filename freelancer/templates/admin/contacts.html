@@ -113,11 +113,11 @@
         //function to submit add person form
         function submit_add_person_form(form) {
             event.preventDefault()
-            data = $(form).serialize()
+            form_data = $(form).serialize()
             $("form :input").prop("disabled", true);
             $.ajax({
                 url: '/api/add_person',
-                data: data,
+                data: form_data,
                 type: 'POST',
                 dataType: 'JSON',
                 success: function (response) {
@@ -126,7 +126,9 @@
                         document.getElementById('number_list').innerHTML = number_html
                         $('#add_person_modal').modal('hide')
                         show_alert('Added Successfully!', 'success')
-                        html = '<a class="text-capitalize list-group-item list-group-item-action" href="/crm/view_person/' + response._id.$oid + '">' + form.name.value + '</a>'
+                        html = '<a class="text-capitalize bg-transparent list-group-item list-group-item-action" href="/crm/view_person/' + response.new_id.$oid + '">' +
+                            form.name.value +
+                            '</a>'
                         $(html).prependTo($('#recent_person_list')).hide().slideDown().effect('highlight')
                         form.reset()
                     } else {

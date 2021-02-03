@@ -77,10 +77,10 @@
             dataType: 'JSON',
             success: function (response) {
                 if (response.result == true) {
-                    show_alert('Your query submitted successfully! Please wait for callback.', 'success')
+                    show_alert('Thank you for contacting!', 'success')
                     form.reset();
                 } else {
-                    show_alert('Error: Something went wrong.', 'error')
+                    show_alert(response.msg, 'error')
                 }
             },
             error: function (jqXHR, textStatus, errorThrown) {
