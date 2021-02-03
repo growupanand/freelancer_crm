@@ -1,12 +1,8 @@
 {% extends 'admin/base.html' %}
 {% block content %}
-    <div class="row">
-        <div class="col-3">
-            <h1 class="text-capitalize">
-                {{ person['name'] }}
-            </h1>
-        </div>
-    </div>
+    <h1 class="text-capitalize my-3">
+        {{ person['name'] }}
+    </h1>
 
     <div class="row">
         <div class="col-md-3">
@@ -81,8 +77,18 @@
                     </form>
                 </div>
             </div>
-
-
+            <div class="card bg-white mb-3">
+                <div class="card-body">
+                    <table class="table table-borderless table-sm">
+                        <tr>
+                            <td class="text-muted">SOURCE</td>
+                            <td>{{ person['source_type'] }}<br/>
+                                {{ person['source_data'] }}
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
             <p class="text-center">
                 <button class="btn btn-danger" onclick="delete_person()">
                     DELETE PERSON
@@ -209,7 +215,7 @@
                         <label for="cc" class="form-label">CC</label>
                         <input type="text" id="cc" name="cc" class="form-control mb-2"/>
                         <label for="fuel" class="form-label">Fuel Type</label>
-                        <select class="form-control mb-2" name="fuel" id="fuel">
+                        <select class="form-select mb-2" name="fuel" id="fuel">
                             <option value="">Select Fuel Type</option>
                             <option value="petrol">Petrol</option>
                             <option value="diesel">Diesel</option>
@@ -250,7 +256,7 @@
                         <label for="cc" class="form-label">CC</label>
                         <input type="text" id="cc" name="cc" class="form-control mb-2"/>
                         <label for="fuel" class="form-label">Fuel Type</label>
-                        <select class="form-control mb-2" name="fuel" id="fuel">
+                        <select class="form-select mb-2" name="fuel" id="fuel">
                             <option value="">Select Fuel Type</option>
                             <option value="petrol">Petrol</option>
                             <option value="diesel">Diesel</option>
@@ -298,7 +304,7 @@
                         <label for="policy_number" class="form-label">Policy Number</label>
                         <input type="text" class="form-control mb-2" name="policy_number" id="policy_number"/>
                         <label for="policy_type" class="form-label">Policy Type</label>
-                        <select class="form-control mb-2" name="policy_type" id="policy_type">
+                        <select class="form-select mb-2" name="policy_type" id="policy_type">
                             <option value="" selected>Select Type</option>
                             <option value="od_tp">Normal (OD+TP)</option>
                             <option value="tp">Third Party Only</option>
@@ -306,8 +312,8 @@
                             <option value="od">Own Damange Only</option>
                         </select>
                         <div class="form-check mb-2">
-                            <input class="form-check-input" name="0_dap" type="checkbox" value="True" id="0_dap">
-                            <label class="form-check-label" for="0_dap">
+                            <input class="form-check-input" name="o_dap" type="checkbox" value="True" id="o_dap">
+                            <label class="form-check-label" for="o_dap">
                                 0 DAP Cover
                             </label>
                         </div>
@@ -316,7 +322,7 @@
                         <label for="idv" class="form-label">IDV</label>
                         <input type="text" class="form-control mb-2" name="idv" id="idv"/>
                         <label for="ncb" class="form-label">NCB %</label>
-                        <select class="form-control mb-2" name="ncb" id="ncb">
+                        <select class="form-select mb-2" name="ncb" id="ncb">
                             <option value="" selected>SELECT</option>
                             <option value="0">0%</option>
                             <option value="20">20%</option>
@@ -359,7 +365,7 @@
                         <label for="expiry_date" class="form-label">Expiry Date</label>
                         <input type="date" class="form-control mb-2" name="expiry_date" id="expiry_date" required/>
                         <label for="policy_type" class="form-label">Policy Type</label>
-                        <select class="form-control mb-2" name="policy_type" id="policy_type">
+                        <select class="form-select mb-2" name="policy_type" id="policy_type">
                             <option value="" selected>Select Type</option>
                             <option value="od_tp">Normal (OD+TP)</option>
                             <option value="tp">Third Party Only</option>
@@ -367,8 +373,8 @@
                             <option value="od">Own Damange Only</option>
                         </select>
                         <div class="form-check mb-2">
-                            <input class="form-check-input" name="0_dap" type="checkbox" value="True" id="0_dap">
-                            <label class="form-check-label" for="0_dap">
+                            <input class="form-check-input" name="o_dap" type="checkbox" value="True" id="o_dap">
+                            <label class="form-check-label" for="o_dap">
                                 0 DAP Cover
                             </label>
                         </div>
@@ -377,7 +383,7 @@
                         <label for="idv" class="form-label">IDV</label>
                         <input type="text" class="form-control mb-2" name="idv" id="idv"/>
                         <label for="ncb" class="form-label">NCB %</label>
-                        <select class="form-control mb-2" name="ncb" id="ncb">
+                        <select class="form-select mb-2" name="ncb" id="ncb">
                             <option value="" selected>SELECT</option>
                             <option value="0">0%</option>
                             <option value="20">20%</option>
@@ -514,7 +520,7 @@
                     dataType: 'JSON',
                     success: function (response) {
                         if (response.result == true) {
-                            window.location.replace("/crm");
+                            window.location.replace("/contacts");
                         } else {
                             show_alert(response.msg, 'error')
                         }
@@ -650,9 +656,9 @@
                     current_vehicle_policy_id = response.data['_id']
                     form.policy_id.value = current_vehicle_policy_id
                     form.own_business.checked = (response.data['own_business'] === true) ? true : false
-                    form['0_dap'].checked = (response.data['0_dap'] === true) ? true : false
+                    form['o_dap'].checked = (response.data['o_dap'] === true) ? true : false
                     if (response.result == true) {
-                        for (i of ['policy_number', 'policy_type', '0_dap', 'company', 'idv', 'ncb', 'premium']) {
+                        for (i of ['policy_number', 'policy_type', 'o_dap', 'company', 'idv', 'ncb', 'premium']) {
                             form[i].value = response.data[i]
                         }
                         expiry_date = response.data['expiry_date']

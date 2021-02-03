@@ -1,6 +1,8 @@
-from freelancer import app, render_template, session, db, functions
+from freelancer import app, render_template, session, db, functions, models, redirect, url_for
 from bson import ObjectId
+from bson.json_util import dumps
 from datetime import datetime
+
 
 @app.route('/')
 def index():
@@ -31,15 +33,17 @@ def admin_index_page():
 
 @app.route('/contacts')
 def admin_contacts_page():
-    persons_list = []
-    for i in db.persons_collection.find().sort('_id', -1).limit(10):
-        i['_id'] = str(i['_id'])
-        persons_list.append(i)
-    return render_template('admin/contacts.html', persons_list=persons_list)
+    if not session.get('logged_in'):
+        return login_page()
+    recent_added = models.Person().get().limit(10).sort('_id', -1)
+    return render_template('admin/contacts.html', recent_added=recent_added)
+
 
 
 @app.route('/crm/view_person/<_id>')
 def view_person_page(_id):
+    if not session.get('logged_in'):
+        return login_page()
     person = db.persons_collection.find_one({'_id':ObjectId(_id)})
     person['vehicles'] = []
     q = db.motor_registration_collection.find({'person_id':person['_id']})
@@ -55,12 +59,16 @@ def view_person_page(_id):
             i['policy_list'].append(i1)
         person['vehicles'].append(i)
     person['_id'] = str(person['_id'])
+    for field in ('source_type', 'source_data'):
+        person[field] = None if not field in person else person[field]
     return render_template('admin/view_person.html', person=person)
 
 
 @app.route('/motor_insurance')
 @app.route('/view_policy/<policy_id>')
 def view_insurance_page(policy_id = None):
+    if not session.get('logged_in'):
+        return login_page()
     return render_template('admin/motor_insurance.html', policy_id=policy_id)
 
 from . import api_views

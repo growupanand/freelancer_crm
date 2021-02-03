@@ -1,14 +1,25 @@
 {% extends 'admin/base.html' %}
 {% block content %}
-    <div class="row mt-3">
+    <div class="row my-3">
+        <div class="col">
+            <h1>Contacts</h1>
+        </div>
+        <div class="col text-end">
+            <button class="btn btn-lg px-4 btn-primary" type="button" data-bs-toggle="modal"
+                    data-bs-target="#add_person_modal">
+                NEW
+            </button>
+        </div>
+    </div>
+    <div class="row">
         <div class="col-md-4 col-lg-3">
-            <div class="card bg-white border-1 mb-3 d-none d-md-block">
+            <div class="card bg-transparent border-0 mb-3 d-none d-md-block">
                 <div class="card-header border-0 bg-transparent text-muted">
                     Recent Added
                 </div>
                 <div id="recent_person_list" class="list-group list-group-flush small">
-                    {% for person in persons_list %}
-                        <a class="text-capitalize list-group-item list-group-item-action border-0"
+                    {% for person in recent_added %}
+                        <a class="text-capitalize bg-transparent list-group-item list-group-item-action"
                            href="/crm/view_person/{{ person['_id'] }}">
                             {{ person['name'] }}
                         </a>
@@ -19,21 +30,9 @@
         <div class="col-md-8 col-lg-9">
             <div class="card bg-white position-relative">
                 <div class="card-body sticky-top bg-white">
-                    <div class="row">
-                        <div class="col">
-                            <p>
-                                <span class=" fs-1">Contacts</span>
-                                <span id="contact_count"
-                                      class="fs-6 rounded-pill badge bg-secondary text-white">0</span>
-                            </p>
-                        </div>
-                        <div class="col text-end">
-                            <button class="btn px-4 btn-light text-primary" type="button" data-bs-toggle="modal"
-                                    data-bs-target="#add_person_modal">
-                               <span class="bi bi-plus"></span> ADD
-                            </button>
-                        </div>
-                    </div>
+                    <p>
+                        <span id="contact_count" class="fs-6 rounded-pill badge bg-secondary text-white"></span>
+                    </p>
                     <form onsubmit="submit_find_person(this)" name="find_person">
                         <div class="row">
                             <div class="col-8">
@@ -42,7 +41,7 @@
                                        id="query" required/>
                             </div>
                             <div class="col-4 d-grid">
-                                <button class="btn btn-primary" type="submit">
+                                <button class="btn btn-light text-primary" type="submit">
                                     SEARCH
                                 </button>
                             </div>
@@ -50,6 +49,7 @@
                     </form>
                 </div>
                 <div class="list-group list-group-flush border-0" id="person_list">
+
                 </div>
             </div>
         </div>
@@ -67,23 +67,37 @@
                 <div class="modal-body">
                     <div class="card-body">
                         <form name="add_person_form" onsubmit="submit_add_person_form(this)">
+                            <div class="row">
+                                <div class="col-md">
+                                    <select class="form-select mb-3" name="source_type" id="source_type">
+                                        <option value="">Source Type</option>
+                                        <option value="cold_call">Cold Call</option>
+                                        <option value="reference">Reference</option>
+                                        <option value="walkin">Walk In</option>
+                                    </select>
+                                </div>
+                                <div class="col-md">
+                                    <input placeholder="Source" type="text" name="source_data" id="source_data" class="form-control mb-3"/>
+                                </div>
+                            </div>
                             <label for="name" class="form-label col-lg-4">Name</label>
                             <input type="text" id="name" name="name" class="form-control mb-2" required/>
-
+                            <div class="row mb-2">
+                                <div class="col">
                             <label for="number" class="form-label">Number</label>
-
+                                </div>
+                                <div class="col text-end">
+                                    <button type="button" class="btn btn-light text-primary" onclick="add_number_list()">+
+                                    ADD NUMBER
+                                </button>
+                                </div>
+                            </div>
                             <div id="number_list">
                                 <input type="text" class="form-control mb-2" name="number[]" id="number" required/>
                             </div>
-                            <p class="d-grid">
-                                <button type="button" class="btn btn-outline-secondary" onclick="add_number_list()">+
-                                    ADD
-                                    NUMBER
-                                </button>
-                            </p>
-                            <p class="d-grid">
+                            <div class="d-grid">
                                 <button type="submit" class="btn btn-lg btn-primary">SUBMIT</button>
-                            </p>
+                            </div>
                         </form>
 
                     </div>
@@ -112,15 +126,12 @@
                         document.getElementById('number_list').innerHTML = number_html
                         $('#add_person_modal').modal('hide')
                         show_alert('Added Successfully!', 'success')
-                        html = '<a class="text-capitalize list-group-item list-group-item-action" href="/crm/view_person/' + response.new_id + '">' + form.name.value + '</a>'
+                        html = '<a class="text-capitalize list-group-item list-group-item-action" href="/crm/view_person/' + response._id.$oid + '">' + form.name.value + '</a>'
                         $(html).prependTo($('#recent_person_list')).hide().slideDown().effect('highlight')
                         form.reset()
                     } else {
                         show_alert('Error ' + response.msg, 'danger')
                     }
-                },
-                error: function (jqXHR, textStatus, errorThrown) {
-                    show_alert(textStatus + ' ' + jqXHR.status + ': ' + errorThrown, 'warning');
                 },
                 complete: function () {
                     $("form :input").prop("disabled", false);
@@ -132,7 +143,7 @@
         function add_number_list() {
             number_element = '<div class="input-group mb-2">' +
                 '<input type="text" class="form-control" name="number[]" id="number" required/>' +
-                '<button class="btn btn-danger" onclick="remove_number_list(this)"><span class="bi-dash"></span> REMOVE</button>' +
+                '<button class="btn btn-light text-danger border-1 border-danger" onclick="remove_number_list(this)">REMOVE</button>' +
                 '</div>'
             $('#number_list').append(number_element)
         }
@@ -152,11 +163,12 @@
                 success: function (response) {
                     document.getElementById('contact_count').innerText = '0'
                     if (response.result == true) {
-                        document.getElementById('contact_count').innerText = response.persons.length
+                        persons = response.data
+                        document.getElementById('contact_count').innerText = persons.length
                         $('#person_list').html('')
-                        for (i in response.persons) {
-                            html = '<a class="text-capitalize border-0 list-group-item list-group-item-action" href="/crm/view_person/' + response.persons[i]._id + '">' + response.persons[i].name +
-                                '<br/><span class="text-center text-muted">' + response.persons[i].numbers.join(', ') + '</span>' +
+                        for (i in persons) {
+                            html = '<a class="text-capitalize border-0 list-group-item list-group-item-action" href="/crm/view_person/' + persons[i]._id.$oid + '">' + persons[i].name +
+                                '<br/><span class="text-center text-muted">' + persons[i].numbers.join(', ') + '</span>' +
                                 '</a>'
                             $('#person_list').append(html)
                         }

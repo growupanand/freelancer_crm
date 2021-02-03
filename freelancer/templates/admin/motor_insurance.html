@@ -1,13 +1,13 @@
 {% extends 'admin/base.html' %}
 {% block content %}
+    <h1 class="my-3">Renewals</h1>
     <div id="alert"></div>
-    <br/>
     <div class="row">
         <div class="col-md-3">
             <div class="card bg-white border-1 mb-3">
-                <div class="card-header border-0 bg-transparent text-center align-middle">
+                <div id="renewal_list_period" class="card-header border-0 bg-transparent text-center align-middle">
                     <label class="fw-bold" id="current_period"></label>
-                    <button onclick="prev_renewal_month()" class="float-start btn"><span
+                     <button onclick="prev_renewal_month()" class="float-start btn"><span
                             class="bi-caret-left"></span></button>
                     <button onclick="next_renewal_month()" class="float-end btn"><span
                             class="bi-caret-right"></span></button>
@@ -70,10 +70,19 @@
                                     <div class="row mb-2">
                                         <div class="col-8">
                                             <span id="policy_number" class="fs-5"></span>
-                                            <small id="own_business" class="badge rounded-pill bg-success"></small>
                                         </div>
                                         <div class="col-4 text-end">
-                                            <div class="btn-group" role="group" id="renewed_policy"></div>
+                                            <small id="own_business" class="badge rounded-pill bg-success"></small>
+                                            <div class="btn-group" role="group">
+                                                <button id="previous_policy_btn" class="btn btn-light text-dark"
+                                                        onclick="view_renewal(this.value)">
+                                                    <span class="bi bi-caret-left"></span>
+                                                </button>
+                                                <button id="next_policy_btn" class="btn btn-light text-dark"
+                                                        onclick="view_renewal(this.value)">
+                                                    <span class="bi bi-caret-right"></span>
+                                                </button>
+                                            </div>
                                         </div>
                                     </div>
                                     <table class="table table-borderless table-striped table-sm small">
@@ -116,7 +125,7 @@
                             <div class="card border-0 mb-3">
                                 <div class="card-body">
                                     <div class="d-grid mb-3">
-                                        <button id="renewal_done_btn" class="btn btn-primary" onclick="renewal_done()"
+                                        <button id="renewal_done_btn" class="btn btn-primary" value="" onclick="renewal_done(this.value)"
                                                 disabled>DONE
                                         </button>
                                     </div>
@@ -171,8 +180,8 @@
                             <option value="od">Own Damange Only</option>
                         </select>
                         <div class="form-check mb-2">
-                            <input class="form-check-input" name="0_dap" type="checkbox" value="True" id="0_dap">
-                            <label class="form-check-label" for="0_dap">
+                            <input class="form-check-input" name="o_dap" type="checkbox" value="True" id="o_dap">
+                            <label class="form-check-label" for="o_dap">
                                 0 DAP Cover
                             </label>
                         </div>
@@ -205,6 +214,7 @@
 
 {% block foot %}
     <script>
+        var loading_html = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>'
         var current_policy_id = '{{ policy_id }}'
         var current_person_id = ''
         var current_registration_id = ''
@@ -219,70 +229,103 @@
             'registration_number', 'vehicle_company', 'vehicle_model',
             , 'vehicle_cc', 'vehicle_year']
 
-        var policy_type = {}
-        policy_type['od_tp'] = 'Normal (OD+TP)'
-        policy_type['tp'] = 'Third Party Only'
-        policy_type['od'] = 'Own Damage Only'
-        policy_type['tentative'] = 'Tentative'
+        var policy_type = {
+            'od_tp': 'Normal (OD+TP)',
+            'tp': 'Third Party Only',
+            'od': 'Own Damage Only',
+            'tentative': 'Tentative'
+        }
+
 
         function view_renewal(_id, e) {
+            $('#policy_list button').prop('disabled', true)
+            $(e).find(".loading").fadeIn()
             $.ajax({
-                url: '/api/view_renewal',
-                data: {'_id': _id},
+                url: '/api/view_renewal/'+_id,
                 type: 'POST',
                 dataType: 'JSON',
                 success: function (response) {
                     if (response.result == false) {
                         show_alert(response.msg, 'error')
-                    } else {
+                    }
+                    else {
+                        policy = response.data.policy
+                        registration = response.data.registration
+                        person = response.data.person
+                        renewal_policy = response.data.renewal_policy
+                        old_policy = response.data.old_policy
+                        followup_list = response.data.followup_list
+
+                        registration.vehicle_company = registration.company
+                        registration.vehicle_model= registration.model
+                        registration.vehicle_mfg_year = registration.mfg
+                        registration.vehicle_cc = registration.cc
+                        if (registration.registration_date != null) {
+                            registration.registration_date = formatdate(registration.registration_date.$date)
+                        }
+
+                        policy.policy_company = policy.company
+                        if (policy.expiry_date != null) {
+                            policy.expiry_date = formatdate(policy.expiry_date.$date)
+                        }
+                        current_policy_id = policy._id.$oid
+                        current_person_id = person._id.$oid
+                        current_registration_id = registration._id.$oid
+                        person.numbers = person.numbers.join(', ')
                         $('#policy_list button').removeClass('active')
                         $(e).addClass('active')
-                        if (response.data.policy_status == 'renewed') {
-                            // pass here function for renewed policy by me
-                        }
-                        current_policy_id = response.data.policy_id
-                        current_person_id = response.data.person_id
-                        current_registration_id = response.data.registration_id
-                        for (i of ['registration_name', 'policy_company', 'premium', 'idv', 'ncb', 'registration_number',
+                        for (i of ['registration_name', 'registration_number', 'registration_date',
                             'vehicle_company', 'vehicle_model', 'vehicle_cc', 'fuel', 'vehicle_mfg_year']) {
-                            document.getElementById(i).innerText = response.data[i]
+                            document.getElementById(i).innerText = registration[i]
                         }
-                        registration_date = (response.data.registration_date == null) ? '' : formatdate(response.data.registration_date)
-                        document.getElementById('registration_date').innerText = registration_date
-                        document.getElementById('policy_number').innerText = (response.data['policy_number'] == null) ? 'None' : response.data['policy_number']
-                        document.getElementById('policy_type').innerText = (response.data['policy_type'] == null) ? '' : policy_type[response.data['policy_type']]
-                        addon_cover_html = ''
-                        for (cover in response.data['addon_cover']) {
-                            addon_cover_html+='<span class="badge bg-primary">'+response.data['addon_cover'][cover]+'</span>'
+                        for (i of ['policy_number', 'policy_company', 'premium', 'idv', 'ncb', 'expiry_date']) {
+                            document.getElementById(i).innerText = policy[i]
                         }
-                        document.getElementById('addon_cover').innerHTML = addon_cover_html
-                        document.getElementById('name').innerHTML = '<a style="text-decoration: none" href="/crm/view_person/' + response.data.person_id + '">' + response.data.name + '</a>'
-                        document.getElementById('numbers').innerHTML = response.data.numbers.join(', ')
-                        expiry_date = formatdate(response.data.expiry_date)
-                        document.getElementById('expiry_date').innerText = expiry_date
-                        old_policy_html = '<button class="btn btn-light text-dark" ' + ((response.data['old_policy_id'] == null) ? 'disabled' : ' onclick="view_renewal(\'' + response.data['old_policy_id'] + '\')"') + '>' +
-                            '<span class="bi bi-caret-left"></span> </button>'
-                        renewal_id = response.data.renewal_id
-                        if (renewal_id == null) {
-                            document.getElementById('renewal_done_btn').disabled = false
+                        document.getElementById('policy_type').innerHTML =policy_type[policy.policy_type]
+                        document.getElementById('own_business').innerHTML =(policy['own_business'] === true)? 'OWNED' : ''
+                        document.getElementById('addon_cover').innerHTML = ''
+                        for (cover of ['o_dap']) {
+                            if (policy[cover] === true) {
+                                document.getElementById('addon_cover').innerHTML += '<span class="badge bg-primary">' + cover + '</span>'
+                            }
+                        }
+                        document.getElementById('name').innerHTML = '<a style="text-decoration: none" href="/crm/view_person/' + person._id.$oid + '">' + person.name + '</a>'
+                        for (i of ['numbers']) {
+                            document.getElementById(i).innerText = person[i]
+                        }
+
+                        if (old_policy == null) {
+                            document.getElementById('previous_policy_btn').disabled = true
+                            document.getElementById('previous_policy_btn').value = null
                         } else {
-                            document.getElementById('renewal_done_btn').disabled = true
+                            document.getElementById('previous_policy_btn').disabled = false
+                            document.getElementById('previous_policy_btn').value = old_policy._id.$oid
                         }
-                        renewed_policy_html = '<button class="btn btn-light text-dark"' + ((response.data['renewal_id'] == null) ? 'disabled' : ' onclick="view_renewal(\'' + response.data['renewal_id'] + '\')"') + '>' +
-                            ' <span class="bi bi-caret-right"></span></button>'
-                        document.getElementById('own_business').innerText = (response.data.own_business == true) ? 'OWNED' : ''
-                        document.getElementById('renewed_policy').innerHTML =  old_policy_html +  renewed_policy_html
-                        followup_list = response.data.followup
+
+                        if (renewal_policy == null) {
+                            document.getElementById('next_policy_btn').disabled = true
+                            document.getElementById('next_policy_btn').value = null
+                            document.getElementById('renewal_done_btn').disabled = false
+                            document.getElementById('renewal_done_btn').className = "btn btn-primary"
+                        } else {
+                            document.getElementById('next_policy_btn').disabled = false
+                            document.getElementById('next_policy_btn').value = renewal_policy._id.$oid
+                            document.getElementById('renewal_done_btn').disabled = true
+                            document.getElementById('renewal_done_btn').className = "btn btn-success"
+                        }
+
                         $('#followup_list').html('')
                         for (i in followup_list) {
-                            html = '<div class="list-group-item bg-light mb-2 border-0 fs-6">' +
-                                '<small class="text-muted">' + formatdate(followup_list[i].created) + '</small>' +
+                            followup_html = '<div class="list-group-item bg-light mb-2 border-0 fs-6">' +
+                                '<small class="text-muted">' + formatdate(followup_list[i].created.$date) + '</small>' +
                                 '<p>' + followup_list[i].remark + '</p>' +
                                 '</div>'
-                            $('#followup_list').prepend(html)
+                            $('#followup_list').prepend(followup_html)
                         }
                         $('#renewal_card').fadeIn()
                     }
+                    $('#policy_list button').prop('disabled', false)
+                    $(e).find(".loading").fadeOut()
                 }
             })
         }
@@ -341,13 +384,17 @@
         }
 
         function update_renewal_list(month, year) {
-            document.getElementById('current_period').innerHTML = '<span class="bi bi-calendar"></span> ' + monthNames[current_month] + ' ' + current_year
+            renewal_list_period = document.getElementById('renewal_list_period')
+            $(renewal_list_period).find('button').prop('disabled', true)
+            current_period = document.getElementById('current_period')
+            current_period.innerHTML = loading_html
             $.ajax({
                 url: '/api/get_renewal_list',
                 data: {'month': month, 'year': year},
                 type: 'POST',
                 dataType: 'JSON',
                 success: function (response) {
+                    current_period.innerHTML = '<span class="bi bi-calendar"></span> ' + monthNames[current_month] + ' ' + current_year
                     $('#policy_list').html('')
                     for (i in response) {
                         policy_status_class = ''
@@ -360,14 +407,15 @@
                         if (response[i].policy_status == 'lost') {
                             policy_status_class = 'list-group-item-danger'
                         }
-
-                        html = '<button type="button" class="' + policy_status_class + ' text-capitalize list-group-item list-group-item-action border-0" onclick="view_renewal(\'' + response[i]._id + '\', this)">' +
+                        html = '<button class="btn rounded-0 ' + policy_status_class + ' text-capitalize list-group-item list-group-item-action border-0" onclick="view_renewal(\'' + response[i]._id.$oid + '\', this)">' +
                             response[i].name +
+                            ' <span style="display: none" class="loading spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>' +
                             '<small class="float-end">' +
                             response[i].day +
                             '</small></button>'
                         $('#policy_list').append(html)
                     }
+                    $(renewal_list_period).find('button').prop('disabled', false)
                 }
             })
         }
