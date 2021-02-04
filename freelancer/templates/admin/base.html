@@ -11,7 +11,9 @@
     {% for item in css %}
         <link rel="stylesheet" href="{{ url_for('static', filename =item) }}"/>
     {% endfor %}
-
+    {% for item in js %}
+    <script src="{{ url_for('static', filename=item) }}"></script>
+{% endfor %}
     <title>Freelancer Admin {% block title %}{% endblock %}</title>
 
     {% block head %}{% endblock %}
@@ -33,7 +35,10 @@
                     <a class="nav-link" href="/contacts">CONTACTS</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="/motor_insurance">RENEWALS</a>
+                    <a class="nav-link" href="/motor_insurance">MOTOR RENEWALS</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/health_insurance">HEALTH RENEWALS</a>
                 </li>
             </ul>
             <ul class="navbar-nav ms-auto">
@@ -49,9 +54,7 @@
     {% block content %}{% endblock %}
 </div>
 
-{% for item in js %}
-    <script src="{{ url_for('static', filename=item) }}"></script>
-{% endfor %}
+
 <script>
     function formatdate(date) {
         var now = new Date(date);

@@ -3,6 +3,7 @@ from datetime import datetime
 import re
 
 
+
 class user:
 
     def __init__(self, _id=None):
@@ -66,13 +67,15 @@ class Person:
 
     def __init__(self, _id=None):
         self._id = _id
+        self.db_data = None
         if self._id != None:
             self.db_data = db.persons_collection.find_one({'_id': _id})
-            self._id = self.db_data['_id']
-            self.name = self.db_data['name'] if 'name' in self.db_data else None
-            self.numbers = self.db_data['numbers'] if 'numbers' in self.db_data else []
-            self.source_type = self.db_data['source_type'] if 'source_type' in self.db_data else None
-            self.source_data = self.db_data['source_data'] if 'source_data' in self.db_data else None
+            if self.db_data != None:
+                self.name = self.db_data['name'] if 'name' in self.db_data else None
+                self.numbers = self.db_data['numbers'] if 'numbers' in self.db_data else []
+                self.emails = self.db_data['emails'] if 'emails' in self.db_data else []
+                self.source_type = self.db_data['source_type'] if 'source_type' in self.db_data else None
+                self.source_data = self.db_data['source_data'] if 'source_data' in self.db_data else None
 
     # get all person list
     def get(self):
@@ -208,6 +211,9 @@ class Person:
         result = {}
         result['result'] = False
         result['msg'] = 'Something went wrong.'
+        # delete all health policy
+        for policy in self.get_health_policy_list():
+            policy.delete_policy()
         # delete all vehicle
         for registration in self.get_registration_list():
             registration.delete_registration()
@@ -216,6 +222,50 @@ class Person:
         if delete_person_data.acknowledged:
             result['result'] = True
         return result
+
+    # add health policy
+    def add_health_policy(self, expiry_date, policy_owner=None, policy_number=None, policy_type=None,
+                         company=None, idv=None, ncb=None, premium=None, own_business=None):
+        result = {}
+        result['result'] = False
+        result['msg'] = 'Something went wrong.'
+        if expiry_date in (None, ''):
+            result['msg'] = 'Expiry date cannot be empty.'
+            return result
+        expiry_date = datetime.strptime(expiry_date, "%Y-%m-%d")
+        policy_owner = None if str.strip(policy_owner) == '' else str.strip(policy_owner)
+        policy_number = None if str.strip(policy_number) == '' else str.strip(policy_number)
+        policy_type = None if str.strip(policy_type) == '' else str.strip(policy_type)
+        company = None if str.strip(company) == '' else str.strip(company)
+        idv = None if str.strip(idv) == '' else str.strip(idv)
+        ncb = None if str.strip(ncb) == '' else str.strip(ncb)
+        premium = None if str.strip(premium) == '' else str.strip(premium)
+        policy = {
+            'created': datetime.utcnow(),
+            'expiry_date': expiry_date,
+            'person_id': self._id,
+            'policy_owner': policy_owner,
+            'policy_number': policy_number,
+            'policy_type': policy_type,
+            'company': company,
+            'idv': idv,
+            'ncb': ncb,
+            'premium': premium,
+            'own_business': own_business,
+        }
+        insert_policy = db.health_policy_collection.insert_one(policy)
+        if insert_policy.acknowledged:
+            result['result'] = True
+            result['new_id'] = insert_policy.inserted_id
+        return result
+
+    # get health policy list
+    def get_health_policy_list(self):
+        self.health_policy_list = []
+        for policy in db.health_policy_collection.find({'person_id': self._id}):
+            self.health_policy_list.append(Policy_health(policy['_id']))
+        return self.health_policy_list
+
 
 class Registration:
 
@@ -275,11 +325,11 @@ class Registration:
         return result
 
     # get policy list
-    def get_policy_list(self):
-        self.policy_list = []
+    def get_motor_policy_list(self):
+        self.motor_policy_list = []
         for policy in db.motor_policy_collection.find({'registration_id': self._id}):
-            self.policy_list.append(Policy(policy['_id']))
-        return self.policy_list
+            self.motor_policy_list.append(Policy_motor(policy['_id']))
+        return self.motor_policy_list
 
     # update registration data
     def update_registration(self, registration_number=None, registration_name=None, registration_date=None,
@@ -327,14 +377,15 @@ class Registration:
         result = {}
         result['result'] = False
         # delete vehcle all policy
-        for policy in self.get_policy_list():
+        for policy in self.get_motor_policy_list():
             policy.delete_policy()
         delete_registration = db.motor_registration_collection.delete_one({'_id': self._id})
         if delete_registration.acknowledged:
             result['result'] = True
         return result
 
-class Policy:
+
+class Policy_motor:
 
     def __init__(self, _id=None):
         self._id = _id
@@ -358,7 +409,7 @@ class Policy:
                 self.registration_id = self.db_data['registration_id'] if 'expiry_date' in self.db_data else None
                 self.registration = Registration(self.registration_id)
                 self.renewal_id = self.db_data['renewal_id'] if 'renewal_id' in self.db_data else None
-                self.renewal_policy = Policy(self.renewal_id)
+                self.renewal_policy = Policy_motor(self.renewal_id)
                 self.old_policy = db.motor_policy_collection.find_one({'renewal_id': self._id})
 
     # get follow up data
@@ -402,7 +453,7 @@ class Policy:
         for policy in policy_list:
             if 'renewal_id' in policy:
                 if policy['renewal_id'] != None:
-                    if Policy(policy['renewal_id']).own_business:
+                    if Policy_motor(policy['renewal_id']).own_business:
                         policy['policy_status'] = 'won'
                     else:
                         policy['policy_status'] = 'lost'
@@ -481,11 +532,165 @@ class Policy:
         result['result'] = False
         # delete renewal id in old policy
         if self.old_policy != None:
-            old_policy = Policy(self.old_policy['_id'])
+            old_policy = Policy_motor(self.old_policy['_id'])
             old_policy.update_motor_policy(renewal_id='', policy_status='')
         # delete followup of this policy
         db.followup_collection.delete_many({'policy_id': self._id})
         delete_policy = db.motor_policy_collection.delete_one({'_id': self._id})
+        if delete_policy.acknowledged:
+            result['result'] = True
+        return result
+
+
+class Policy_health:
+
+    def __init__(self, _id=None):
+        self._id = _id
+        self.db_data = None
+        if self._id != None:
+            # get policy data from database
+            self.db_data = db.health_policy_collection.find_one({'_id': self._id})
+            if self.db_data != None:
+                self.expiry_date = self.db_data['expiry_date']
+                self.policy_owner = self.db_data['policy_owner'] if 'policy_owner' in self.db_data else None
+                self.policy_number = self.db_data['policy_number'] if 'policy_number' in self.db_data else None
+                self.policy_type = self.db_data['policy_type'] if 'policy_type' in self.db_data else None
+                self.company = self.db_data['company'] if 'company' in self.db_data else None
+                self.idv = self.db_data['idv'] if 'idv' in self.db_data else None
+                self.ncb = self.db_data['ncb'] if 'ncb' in self.db_data else None
+                self.premium = self.db_data['premium'] if 'premium' in self.db_data else None
+                self.own_business = self.db_data['own_business'] if 'own_business' in self.db_data else None
+                self.created = self.db_data['created'] if 'created' in self.db_data else None
+                self.person_id = self.db_data['person_id'] if 'person_id' in self.db_data else None
+                self.person = Person(self.person_id)
+                self.renewal_id = self.db_data['renewal_id'] if 'renewal_id' in self.db_data else None
+                self.renewal_policy = Policy_health(self.renewal_id)
+                self.old_policy = db.health_policy_collection.find_one({'renewal_id': self._id})
+
+    # get follow up data
+    def get_followup_list(self):
+        self.followup_list = db.followup_collection.find({'policy_id': self._id})
+        return self.followup_list
+
+    # get renewal list
+    def get_renewal_list(self, month, year):  # month should 1-12
+        # get policy id list of maximum expiry date
+        policy_id_list = []
+        q = db.health_policy_collection.aggregate([
+            {'$match': {
+                "$and": [
+                    {"$expr": {"$eq": [{"$month": "$expiry_date"}, int(month)]}},
+                    {"$expr": {"$lt": [{"$year": "$expiry_date"}, int(year) + 1]}}
+                ]}},
+            {'$sort': {'expiry_date': -1}},
+            {'$group': {
+                '_id': "person_id",
+                'expiry_date': {'$first': "$expiry_date"},
+                'policy_id': {'$first': '$_id'}
+            }}
+        ])
+        for i in q:
+            policy_id_list.append(i['policy_id'])
+        policy_list = db.health_policy_collection.aggregate([
+            {'$match': {'_id': {'$in': policy_id_list}}},
+            {'$addFields': {'day': {'$dayOfMonth': '$expiry_date'}}},
+            {'$sort': {'day': 1}},
+            {'$lookup': {
+                'from': "persons",
+                'localField': "person_id",
+                'foreignField': "_id",
+                'as': "person"
+            }},
+            {'$addFields': {'name': {"$arrayElemAt": ["$person.name", 0]}}},
+            {'$project': {'_id': 1, 'expiry_date': 1, 'day': 1, 'name': 1, 'policy_status': 1, 'renewal_id': 1}}
+        ])
+        renewal_list = []
+        for policy in policy_list:
+            if 'renewal_id' in policy:
+                if policy['renewal_id'] != None:
+                    if Policy_health(policy['renewal_id']).own_business:
+                        policy['policy_status'] = 'won'
+                    else:
+                        policy['policy_status'] = 'lost'
+            renewal_list.append(policy)
+        return renewal_list
+
+    # post policy followup
+    def post_policy_followup(self, remark):
+        result = {}
+        result['result'] = False
+        followup = {
+            'policy_id': self._id,
+            'person_id': self.person_id,
+            'remark': str.strip(remark),
+            'created': datetime.utcnow(),
+            'policy_type': 'health'
+        }
+        insert_followup = db.followup_collection.insert_one(followup)
+        if insert_followup.acknowledged:
+            result['result'] = True
+            result['new_id'] = insert_followup.inserted_id
+            if self.renewal_id is None:
+                policy_status = 'renewed'
+                db.health_policy_collection.update_one({'_id': self._id}, {
+                    '$set': {'policy_status': 'followup'}
+                })
+        return result
+
+    # update policy data
+    def update_health_policy(self, expiry_date=None, policy_owner=None, policy_number=None, policy_type=None,
+                         company=None, idv=None, ncb=None, premium=None, own_business=None,
+                            renewal_id=None, policy_status=None):
+        result = {}
+        result['result'] = False
+        result['msg'] = 'Something went wrong.'
+        policy = {
+            'last_updated': datetime.utcnow(),
+        }
+        if not expiry_date is None:
+            if expiry_date == '':
+                result['msg'] = 'Expiry date cannot be empty.'
+                return result
+            else:
+                policy['expiry_date'] = datetime.strptime(expiry_date, "%Y-%m-%d")
+        if not policy_owner is None:
+            policy['policy_owner'] = None if str.strip(policy_owner) == '' else str.strip(policy_owner)
+        if not policy_number is None:
+            policy['policy_number'] = None if str.strip(policy_number) == '' else str.strip(policy_number)
+        if not policy_type is None:
+            policy['policy_type'] = None if str.strip(policy_type) == '' else str.strip(policy_type)
+        if not company is None:
+            policy['company'] = None if str.strip(company) == '' else str.strip(company)
+        if not idv is None:
+            policy['idv'] = None if str.strip(idv) == '' else str.strip(idv)
+        if not ncb is None:
+            policy['ncb'] = None if str.strip(policy_number) == '' else str.strip(ncb)
+        if not premium is None:
+            policy['premium'] = None if str.strip(premium) == '' else str.strip(premium)
+        if not own_business is None:
+            policy['own_business'] = own_business
+        if not renewal_id is None:
+            policy['renewal_id'] = None if str.strip(renewal_id) == '' else renewal_id
+        if not policy_status is None:
+            policy['policy_status'] = None if str.strip(policy_status) == '' else str.strip(policy_status)
+        update_policy = db.health_policy_collection.update_one({'_id': self._id}, {
+            "$set": policy
+        })
+        if update_policy.acknowledged:
+            result['result'] = True
+        return result
+
+    # delete policy
+    def delete_policy(self):
+        result = {}
+        result['result'] = False
+        # delete renewal id in old policy
+        if self.old_policy != None:
+            old_policy = Policy_health(self.old_policy['_id'])
+            old_policy.update_health_policy(renewal_id='', policy_status='')
+        # delete followup of this policy
+        db.followup_collection.delete_many({'policy_id': self._id})
+        delete_policy = db.health_policy_collection.delete_one({'_id': self._id})
         if delete_policy.acknowledged:
             result['result'] = True
         return result

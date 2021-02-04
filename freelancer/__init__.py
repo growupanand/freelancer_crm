@@ -6,5 +6,4 @@ app.secret_key = 'this is secret key'
 
 
 from . import views
-from . import controllers
-from . import models
+from . import api_views

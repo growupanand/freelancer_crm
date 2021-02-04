@@ -1,0 +1,71 @@
+<div class="card border-0 mb-3">
+    <div class="card-body">
+        <form name="followup_form" onsubmit="submit_followup_form(this)">
+            <textarea placeholder="Remark" rows="4"
+                      class="form-control mb-3"
+                      id="followup_remark"
+                      name="followup_remark"></textarea>
+            <div class="d-grid">
+                <button type="submit" class="btn btn-light text-primary">FOLLOW</button>
+            </div>
+        </form>
+    </div>
+    <div id="followup_list" class="overflow-auto list-group list-group-flush"></div>
+</div>
+
+<script>
+
+    function get_followup_list(policy_id, type) {
+        $.ajax({
+            url: '/api/get_followup_list',
+            data: {'policy_id':policy_id, 'type': type},
+            type: 'POST',
+            dataType: 'JSON',
+            success: function (response) {
+                if (response.result == true) {
+                    $('#followup_list').html('')
+                    for (i in followup_list) {
+                        followup_html = '<div class="list-group-item bg-light mb-2 border-0 fs-6">' +
+                            '<small class="text-muted">' + formatdate(followup_list[i].created.$date) + '</small>' +
+                            '<p>' + followup_list[i].remark + '</p>' +
+                            '</div>'
+                        $('#followup_list').prepend(followup_html)
+                    }
+                } else {
+                    show_alert(response.msg, 'error')
+                }
+            }
+        })
+
+    }
+
+    function submit_followup_form(form) {
+        event.preventDefault()
+        remark = form.followup_remark.value
+        policy_status = 'followup'
+        $.ajax({
+            url: '/api/post_policy_followup',
+            data: {
+                'policy_id': current_policy_id,
+                'remark': remark,
+                'policy_status': policy_status,
+                'type': current_followup_type
+            },
+            type: 'POST',
+            dataType: 'JSON',
+            success: function (response) {
+                if (response.result == true) {
+                    show_alert('Remark added successfully!', 'success')
+                    html = '<div class="list-group-item bg-light mb-2 border-0 fs-6" style="display: none">' +
+                        '<small class="text-muted">NOW</small>' +
+                        '<p>' + form.followup_remark.value + '</p>' +
+                        '</div>'
+                    $(html).prependTo($('#followup_list')).slideDown()
+                    form.reset()
+                } else {
+                    show_alert(response.msg, 'error')
+                }
+            }
+        })
+    }
+</script>

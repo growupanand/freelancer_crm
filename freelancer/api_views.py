@@ -4,6 +4,8 @@ from bson import ObjectId
 from bson.json_util import dumps
 from datetime import datetime
 
+
+
 @app.route('/ajax/submit_query', methods=['POST'])
 def submit_query_api():
     result = {}
@@ -58,25 +60,25 @@ def get_person_list_api():
     return dumps({'result': True, 'data': result.sort('name', 1)})
 
 
-@app.route('/api/get_renewal_list', methods=['POST'])
-def get_renewal_list_api():
+@app.route('/api/get_motor_renewal_list', methods=['POST'])
+def get_motor_renewal_list_api():
     if not session.get('logged_in'):
         return json.dumps({'result': False, 'msg': 'Login required.'})
     result = {'result': False}
     month = request.form.get('month')
     year = request.form.get('year')
-    result['data'] = models.Policy().get_renewal_list(month, year)
+    result['data'] = models.Policy_motor().get_renewal_list(month, year)
     result['result'] = True
     return dumps(result)
 
 
-@app.route('/api/view_renewal/<_id>', methods=['POST'])
-def view_renewal_api(_id):
+@app.route('/api/view_motor_renewal/<_id>', methods=['POST'])
+def view_motor_renewal_api(_id):
     if not session.get('logged_in'):
         return json.dumps({'result': False, 'msg': 'Login required.'})
     result = {}
     result['result'] = False
-    policy = models.Policy(ObjectId(_id))
+    policy = models.Policy_motor(ObjectId(_id))
     if policy.person == None:
         result['msg'] = 'Person ID not found.'
         return result
@@ -101,7 +103,13 @@ def post_policy_followup():
         return json.dumps({'result': False, 'msg': 'Login required.'})
     policy_id = ObjectId(request.form.get('policy_id'))
     remark = request.form.get('remark')
-    return dumps(models.Policy(policy_id).post_policy_followup(remark))
+    type = request.form.get('type')
+    policy = None
+    if type == 'motor':
+        policy = models.Policy_motor(policy_id)
+    elif type == 'health':
+        policy = models.Policy_health(policy_id)
+    return dumps(policy.post_policy_followup(remark))
 
 
 @app.route('/api/add_contact_number', methods=['POST'])
@@ -213,7 +221,7 @@ def view_vehicle_policy_api(policy_id):
         return json.dumps({'result': False, 'msg': 'Login required.'})
     result = {'result': False}
     policy_id = ObjectId(policy_id)
-    policy = models.Policy(policy_id)
+    policy = models.Policy_motor(policy_id)
     if policy.db_data != None:
         result['result'] = True
         result['data'] = policy.db_data
@@ -225,7 +233,7 @@ def delete_vehicle_policy_api():
     if not session.get('logged_in'):
         return json.dumps({'result': False, 'msg': 'Login required.'})
     policy_id = ObjectId(request.form['policy_id'])
-    return dumps(models.Policy(policy_id).delete_policy())
+    return dumps(models.Policy_motor(policy_id).delete_policy())
 
 
 @app.route('/api/add_renewal_motor_policy', methods=['POST'])
@@ -237,7 +245,7 @@ def add_renewal_motor_policy_api():
     result['msg'] = 'Something went wrong.'
     policy_id = ObjectId(request.form.get('policy_id'))
     remark = request.form.get('remark')
-    policy = models.Policy(policy_id)
+    policy = models.Policy_motor(policy_id)
     registration_id = policy.registration_id
     expiry_date = request.form.get('expiry_date')
     policy_number = request.form.get('policy_number')
@@ -260,7 +268,7 @@ def add_renewal_motor_policy_api():
         })
         # add followup
         remark = 'Policy renewed!\n' + str.strip(remark)
-        models.Policy(policy_id).post_policy_followup(remark)
+        models.Policy_motor(policy_id).post_policy_followup(remark)
     return dumps(result)
 
 
@@ -269,7 +277,7 @@ def update_vehicle_policy_api():
     if not session.get('logged_in'):
         return json.dumps({'result': False, 'msg': 'Login required.'})
     policy_id = ObjectId(request.form.get('policy_id'))
-    policy = models.Policy(policy_id)
+    policy = models.Policy_motor(policy_id)
     expiry_date = request.form.get('expiry_date')
     policy_number = request.form.get('policy_number')
     policy_type = request.form.get('policy_type')
@@ -300,4 +308,154 @@ def update_vehicle_api():
     mfg = request.form.get('mfg')
     result = registration.update_registration(registration_number, registration_name, registration_date, company, model,
                                               cc, fuel, mfg)
+    return dumps(result)
+
+
+@app.route('/api/add_health_policy', methods=['POST'])
+def add_health_policy_api():
+    if not session.get('logged_in'):
+        return json.dumps({'result': False, 'msg': 'Login required.'})
+    person_id = ObjectId(request.form.get('person_id'))
+    expiry_date = request.form.get('expiry_date')
+    policy_owner = request.form.get('policy_owner')
+    policy_number = request.form.get('policy_number')
+    policy_type = request.form.get('policy_type')
+    company = request.form.get('company')
+    idv = request.form.get('idv')
+    ncb = request.form.get('ncb')
+    premium = request.form.get('premium')
+    own_business = True if 'own_business' in request.form else False
+    return dumps(
+        models.Person(person_id).add_health_policy(expiry_date,policy_owner, policy_number, policy_type, company, idv,
+                                                              ncb, premium, own_business))
+
+
+@app.route('/api/view_health_policy/<policy_id>')
+def view_health_policy_api(policy_id):
+    if not session.get('logged_in'):
+        return json.dumps({'result': False, 'msg': 'Login required.'})
+    result = {'result': False}
+    policy_id = ObjectId(policy_id)
+    policy = models.Policy_health(policy_id)
+    if policy.db_data != None:
+        result['result'] = True
+        result['data'] = policy.db_data
+    return dumps(result)
+
+
+@app.route('/api/update_health_policy', methods=['POST'])
+def update_health_policy():
+    if not session.get('logged_in'):
+        return json.dumps({'result': False, 'msg': 'Login required.'})
+    policy_id = ObjectId(request.form.get('policy_id'))
+    policy = models.Policy_health(policy_id)
+    expiry_date = request.form.get('expiry_date')
+    policy_owner = request.form.get('policy_owner')
+    policy_number = request.form.get('policy_number')
+    policy_type = request.form.get('policy_type')
+    company = request.form.get('company')
+    idv = request.form.get('idv')
+    ncb = request.form.get('ncb')
+    premium = request.form.get('premium')
+    own_business = True if 'own_business' in request.form else False
+    result = policy.update_health_policy(expiry_date,policy_owner, policy_number, policy_type, company, idv, ncb, premium,
+                                        own_business)
+    return dumps(result)
+
+
+@app.route('/api/delete_health_policy', methods=['POST'])
+def delete_health_policy_api():
+    if not session.get('logged_in'):
+        return json.dumps({'result': False, 'msg': 'Login required.'})
+    policy_id = ObjectId(request.form['policy_id'])
+    return dumps(models.Policy_health(policy_id).delete_policy())
+
+
+@app.route('/api/view_health_renewal/<_id>', methods=['POST'])
+def view_health_renewal(_id):
+    if not session.get('logged_in'):
+        return json.dumps({'result': False, 'msg': 'Login required.'})
+    result = {}
+    result['result'] = False
+    policy = models.Policy_health(ObjectId(_id))
+    if policy.person == None:
+        result['msg'] = 'Person ID not found.'
+        return result
+    data = {}
+    data['policy'] = policy.db_data
+    data['person'] = policy.person.db_data
+    data['renewal_policy'] = policy.renewal_policy.db_data
+    data['old_policy'] = policy.old_policy
+    data['followup_list'] = policy.get_followup_list()
+    result['data'] = data
+    result['result'] = True
+    return dumps(result)
+
+
+@app.route('/api/get_health_renewal_list', methods=['POST'])
+def get_health_renewal_list():
+    if not session.get('logged_in'):
+        return json.dumps({'result': False, 'msg': 'Login required.'})
+    result = {'result': False}
+    month = request.form.get('month')
+    year = request.form.get('year')
+    result['data'] = models.Policy_health().get_renewal_list(month, year)
+    result['result'] = True
+    print(result)
+    return dumps(result)
+
+
+@app.route('/api/add_renewal_health_policy', methods=['POST'])
+def add_renewal_health_policy():
+    if not session.get('logged_in'):
+        return json.dumps({'result': False, 'msg': 'Login required.'})
+    result = {}
+    result['result'] = False
+    result['msg'] = 'Something went wrong.'
+    policy_id = ObjectId(request.form.get('policy_id'))
+    remark = request.form.get('remark')
+    policy = models.Policy_health(policy_id)
+    expiry_date = request.form.get('expiry_date')
+    policy_owner = policy.policy_owner
+    policy_number = request.form.get('policy_number')
+    policy_type = request.form.get('policy_type')
+    company = request.form.get('company')
+    idv = request.form.get('idv')
+    ncb = request.form.get('ncb')
+    premium = request.form.get('premium')
+    own_business = True if 'own_business' in request.form else False
+    insert_new_policy = models.Person(policy.person_id).add_health_policy(expiry_date,policy_owner, policy_number, policy_type,
+                                                                              company, idv,
+                                                                              ncb, premium, own_business)
+    if insert_new_policy['result']:
+        result['result'] = True
+        result['new_id'] = insert_new_policy['new_id']
+        # add new policy id & policy status in old policy data
+        db.health_policy_collection.update_one({'_id': policy._id}, {
+            '$set': {'policy_status': 'renewed', 'renewal_id': result['new_id']}
+        })
+        # add followup
+        remark = 'Policy renewed!\n' + str.strip(remark)
+        models.Policy_health(policy_id).post_policy_followup(remark)
+    return dumps(result)
+
+
+@app.route('/api/get_followup_list', methods=['POST'])
+def get_followup_list_api():
+    if not session.get('logged_in'):
+        return json.dumps({'result': False, 'msg': 'Login required.'})
+    result = {}
+    result['result'] = False
+    result['msg'] = 'Something went wrong.'
+    policy_id = ObjectId(request.form.get('policy_id'))
+    type = request.form.get('type')
+    policy = None
+    if type == 'motor':
+        policy = models.Policy_motor(policy_id)
+    elif type == 'health':
+        policy = models.Policy_health(policy_id)
+    result['followup_list'] = []
+    for followup in policy.get_followup_list():
+        result['followup_list'].append(followup)
+    result['result'] = True
     return dumps(result)

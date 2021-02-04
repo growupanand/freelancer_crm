@@ -1,194 +1,245 @@
 {% extends 'admin/base.html' %}
 {% block content %}
-    <h1 class="text-capitalize my-3">
-        {{ person['name'] }}
-    </h1>
+    <style>
+        .edit_control {
+            display: none;
+        }
+    </style>
+    <div class="row my-3">
+        <div class="col">
+            <h1 class="text-capitalize">
+                {{ person['name'] }}
+            </h1>
+        </div>
+        <div class="col text-end">
+            <button class="btn btn-sm btn-outline-secondary" data-bs-toggle="button" onclick="edit_control_toggle()">
+                EDIT
+            </button>
+        </div>
+    </div>
+
 
     <div class="row">
         <div class="col-md-3">
             <div class="card mb-3">
-                <div class="card-header"><span class="bi-phone"></span> MOBILE NUMBER</div>
-                <ul id="contact_number_list" class="list-group list-group-flush">
-                    {% for number in person['numbers'] %}
-                        <li class="list-group-item">
-                            {{ number }}
-                            <button onclick="remove_contact_number(this, '{{ number }}')" class="float-end btn ">
-                                <span class="bi bi-dash-circle-fill text-danger"></span>
-                            </button>
-                        </li>
-                    {% endfor %}
-                </ul>
-                <div class="d-grid">
-                    <button data-bs-toggle="collapse" data-bs-target="#add_contact_number_collapse"
-                            class="btn text-primary">
-                        <span class="bi-plus-circle-fill"></span> ADD NUMBER
-                    </button>
+                <div class="card-header"><span class="bi-phone"></span> MOBILE NUMBER
                 </div>
-                <div class="card-body collapse" id="add_contact_number_collapse">
-                    <form name="add_contact_number_form" onsubmit="submit_add_contact_number_form(this)">
-                        <div class="row">
-                            <div class="col-lg-8">
-                                <input name="number" placeholder="Number" class="mb-2 form-control form-control-sm"
-                                       type="text" required/>
-                            </div>
-                            <div class="col-lg-4">
-                                <div class="d-grid">
-                                    <button type="submit" class=" btn btn-primary btn-sm">
-                                        SAVE
-                                    </button>
+                <div id="contact_number_list" class="list-group list-group-flush small">
+                    <div class="list-group-item edit_control">
+                        <form name="add_contact_number_form" onsubmit="submit_add_contact_number_form(this)">
+                            <div class="row">
+                                <div class="col-8">
+                                    <input name="number" placeholder="Number"
+                                           class="form-control form-control-sm"
+                                           type="text" required/>
                                 </div>
-                            </div>
-                        </div>
-                    </form>
-                </div>
-            </div>
-            <div class="card mb-3">
-                <div class="card-header"><span class="bi-mailbox"></span> EMAIL</div>
-                <ul id="email_list" class="list-group list-group-flush">
-                    {% for email in person['emails'] %}
-                        <li class="list-group-item">{{ email }}
-                            <button onclick="remove_email(this, '{{ email }}')" class="float-end btn ">
-                                <span class="bi bi-dash-circle-fill text-danger"></span>
-                            </button>
-                        </li>
-                    {% endfor %}
-                </ul>
-                <div class="d-grid">
-                    <button data-bs-toggle="collapse" data-bs-target="#add_email_collapse"
-                            class="btn text-primary">
-                        <span class="bi-plus-circle-fill"></span> ADD EMAIL
-                    </button>
-                </div>
-                <div id="add_email_collapse" class="collapse card-body">
-                    <form name="add_email_form" onsubmit="submit_add_email_form(this)">
-                        <div class="row">
-                            <div class="col-lg-8">
-                                <input name="email" placeholder="Email" class="mb-2 form-control form-control-sm"
-                                       type="text" required/>
-                            </div>
-                            <div class="col-lg-4">
-                                <div class="d-grid">
-                                    <button type="submit" class=" btn btn-primary btn-sm">
-                                        SAVE
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-                    </form>
-                </div>
-            </div>
-            <div class="card bg-white mb-3">
-                <div class="card-body">
-                    <table class="table table-borderless table-sm">
-                        <tr>
-                            <td class="text-muted">SOURCE</td>
-                            <td>{{ person['source_type'] }}<br/>
-                                {{ person['source_data'] }}
-                            </td>
-                        </tr>
-                    </table>
-                </div>
-            </div>
-            <p class="text-center">
-                <button class="btn btn-danger" onclick="delete_person()">
-                    DELETE PERSON
-                </button>
-            </p>
-        </div>
-        <div class="col-md-8">
-            <p>
-                <button data-bs-toggle="modal" data-bs-target="#add_vehicle_modal" class="btn btn-primary">
-                    NEW VEHICLE
-                </button>
-            </p>
-            {% for vehicle in person['vehicles'] %}
-                <div class="card mb-3">
-                    <div class="card-body">
-                        <div class="row">
-                            <div class="col-lg-6">
-                                <div class="row mb-3">
-                                    <div class="col">
-                                        <h5 class="card-title text-uppercase">
-                                            {{ vehicle['registration_number'] }}
-                                        </h5>
-                                    </div>
-                                    <div class="col text-end">
-                                        <button class="btn btn-sm btn-light text-primary"
-                                                onclick="view_vehicle('{{ vehicle['_id'] }}')">
-                                            EDIT
-                                        </button>
-                                    </div>
-                                </div>
-
-                                <table class="text-uppercase small table table-borderless table-sm">
-                                    <tr>
-                                        <td class="text-muted">Company and Model</td>
-                                        <td>
-                                            {{ vehicle['company'] }} - {{ vehicle['model'] }}
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td class="text-muted">Registration Name</td>
-                                        <td>{{ vehicle['registration_name'] }}</td>
-                                    </tr>
-                                    <tr>
-                                        <td class="text-muted">Registration Date</td>
-                                        <td>{{ vehicle['registration_date'] }}</td>
-                                    </tr>
-                                    <tr>
-                                        <td class="text-muted">MFG Year</td>
-                                        <td>{{ vehicle['mfg'] }}</td>
-                                    </tr>
-                                    <tr>
-                                        <td class="text-muted">CC</td>
-                                        <td>{{ vehicle['cc'] }}</td>
-                                    </tr>
-                                    <tr>
-                                        <td class="text-muted">Fuel Type</td>
-                                        <td>{{ vehicle['fuel'] }}</td>
-                                    </tr>
-                                </table>
-                            </div>
-                            <div class="col-lg-6">
-                                <div class="row mb-3">
-                                    <div class="col">
-                                        <span class="fs-5">Policy</span>
-                                    </div>
-                                    <div class="col text-end">
-                                        <button class="btn btn-sm btn-light text-primary"
-                                                onclick="add_vehicle_policy('{{ vehicle['registration_number'] }}', '{{ vehicle['_id'] }}')">
+                                <div class="col-4">
+                                    <div class="d-grid">
+                                        <button type="submit" class=" btn btn-primary btn-sm">
                                             ADD
                                         </button>
                                     </div>
                                 </div>
-                                <table class="table table-hover table-sm table-borderless">
-                                    {% for policy in vehicle['policy_list'] %}
-                                        <tr>
-                                            <td>
-                                                <small class="text-muted">
-                                                    {{ policy['expiry_date'] }}
-                                                </small>
-                                            </td>
-                                            <td>
-                                                <a class="text-decoration-none" href="/view_policy/{{ policy['_id'] }}">
-                                                    {{ policy['policy_number'] }}
-                                                </a>
-                                            </td>
-                                            <td>
-                                                <button onclick="view_vehicle_policy('{{ policy['_id'] }}')"
-                                                        class="btn-sm btn text-primary float-end">
-                                                    <small>EDIT</small>
-                                                </button>
-                                            </td>
-                                        </tr>
-                                    {% endfor %}
-                                </table>
                             </div>
-                        </div>
+                        </form>
                     </div>
+                    {% for number in person['numbers'] %}
+                        <div class="list-group-item">
+                            {{ number }}
+                            <button onclick="remove_contact_number(this, '{{ number }}')" class="float-end btn ">
+                                <span class="edit_control bi bi-dash-circle-fill text-danger"></span>
+                            </button>
+                        </div>
+                    {% endfor %}
 
                 </div>
-            {% endfor %}
+
+            </div>
+            <div class="card mb-3">
+                <div class="card-header"><span class="bi-mailbox"></span> EMAIL</div>
+                <div id="email_list" class="list-group list-group-flush small">
+                    <div class="list-group-item edit_control">
+                        <form name="add_email_form" onsubmit="submit_add_email_form(this)">
+                            <div class="row">
+                                <div class="col-lg-8">
+                                    <input name="email" placeholder="Email" class="mb-2 form-control form-control-sm"
+                                           type="text" required/>
+                                </div>
+                                <div class="col-lg-4">
+                                    <div class="d-grid">
+                                        <button type="submit" class=" btn btn-primary btn-sm">
+                                            SAVE
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                    {% for email in person['emails'] %}
+                        <div class="list-group-item">{{ email }}
+                            <button onclick="remove_email(this, '{{ email }}')" class="float-end btn edit_control">
+                                <span class="bi bi-dash-circle-fill text-danger"></span>
+                            </button>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+            <div class="card mb-3">
+                <div class="card-header">Other Information</div>
+                <div class="card-body">
+                    <table class="table table-borderless table-sm small">
+                        <tr>
+                            <td class="text-muted">SOURCE TYPE</td>
+                            <td>{{ functions.source_type[person['source_type']] }}
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="text-muted">SOURCE</td>
+                            <td>{{ person['source_data'] }}</td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+            <div class="d-grid mb-3">
+                <button class="btn btn-danger edit_control" onclick="delete_person()">
+                    DELETE PERSON
+                </button>
+            </div>
+
+        </div>
+        <div class="col-md-9">
+            <ul class="nav nav-pills nav-fill bg-white mb-3" id="pills-tab" role="tablist">
+                <li class="nav-item" role="presentation">
+                    <a class="nav-link active" data-bs-toggle="pill" href="#vehicle_list_tab"
+                       role="tab">
+                        MOTOR <span class="float-end badge rounded-pill bg-light text-primary">{{ person.registration_list|length }}</span>
+                    </a>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <a class="nav-link" data-bs-toggle="pill" href="#health_list_tab"
+                       role="tab">
+                        HEALTH <span class="float-end badge rounded-pill bg-light text-primary">{{ person['health_policy_list']|length }}</span>
+                    </a>
+                </li>
+            </ul>
+            <div class="tab-content" id="pills-tabContent">
+                <div class="tab-pane fade show active" id="vehicle_list_tab" role="tabpanel">
+                    <div class="mb-3">
+                        <button data-bs-toggle="modal" data-bs-target="#add_vehicle_modal" class="btn btn-primary">
+                            NEW VEHICLE
+                        </button>
+                    </div>
+                    {% for vehicle in person.registration_list %}
+                        <div class="card mb-3">
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-lg-6">
+                                        <div class="row mb-3">
+                                            <div class="col">
+                                                <h5 class="card-title text-uppercase">
+                                                    {{ vehicle['registration_number'] }}
+                                                </h5>
+                                            </div>
+                                            <div class="col text-end">
+                                                <button class="btn btn-sm btn-light text-primary"
+                                                        onclick="view_vehicle('{{ vehicle['_id'] }}')">
+                                                    EDIT
+                                                </button>
+                                            </div>
+                                        </div>
+
+                                        <table class="text-uppercase small table table-borderless table-sm">
+                                            <tr>
+                                                <td class="text-muted">Company and Model</td>
+                                                <td>
+                                                    {{ vehicle['company'] }} - {{ vehicle['model'] }}
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td class="text-muted">Registration Name</td>
+                                                <td>{{ vehicle['registration_name'] }}</td>
+                                            </tr>
+                                            <tr>
+                                                <td class="text-muted">Registration Date</td>
+                                                <td>{{ functions.format_timestamp(vehicle['registration_date'], '%d-%m-%Y') }}</td>
+                                            </tr>
+                                            <tr>
+                                                <td class="text-muted">MFG Year</td>
+                                                <td>{{ vehicle['mfg'] }}</td>
+                                            </tr>
+                                            <tr>
+                                                <td class="text-muted">CC</td>
+                                                <td>{{ vehicle['cc'] }}</td>
+                                            </tr>
+                                            <tr>
+                                                <td class="text-muted">Fuel Type</td>
+                                                <td>{{ vehicle['fuel'] }}</td>
+                                            </tr>
+                                        </table>
+                                    </div>
+                                    <div class="col-lg-6">
+                                        <div class="text-end mb-3">
+                                            <button class="btn btn-sm btn-light text-primary"
+                                                    onclick="add_vehicle_policy('{{ vehicle['registration_number'] }}', '{{ vehicle['_id'] }}')">
+                                                ADD POLICY
+                                            </button>
+                                        </div>
+                                        <table class="table table-hover table-sm table-borderless">
+                                            {% for policy in vehicle.motor_policy_list %}
+                                                <tr>
+                                                    <td class="text-center">
+                                                        <small class="text-muted">
+                                                            {{ functions.format_timestamp(policy['expiry_date'], '%d-%m-%Y') }}
+                                                        </small>
+                                                    </td>
+                                                    <td class="text-start">
+                                                        <a class="text-decoration-none"
+                                                           href="/view_motor_policy/{{ policy['_id'] }}">
+                                                            {{ policy['policy_number'] }}
+                                                        </a>
+                                                    </td>
+                                                    <td class="text-end">
+                                                        <button onclick="view_vehicle_policy('{{ policy['_id'] }}')"
+                                                                class="btn-sm btn text-primary">
+                                                            <small>EDIT</small>
+                                                        </button>
+                                                    </td>
+                                                </tr>
+                                            {% endfor %}
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div>
+                    {% endfor %}
+                </div>
+                <div class="tab-pane fade" id="health_list_tab" role="tabpanel">
+                    <div class="mb-3">
+                        <button data-bs-toggle="modal" data-bs-target="#add_health_policy_modal"
+                                class="btn btn-primary">
+                            NEW HEALTH POLICY
+                        </button>
+                    </div>
+                    <ul class="list-group list-group-flush">
+                        {% for policy in person['health_policy_list'] %}
+                            <li class="list-group-item">
+                                <small class="text-muted">
+                                    {{ functions.format_timestamp(policy['expiry_date'], '%d-%m-%Y') }}
+                                </small>
+                                <a class="text-decoration-none"
+                                   href="/view_health_policy/{{ policy['_id'] }}">
+                                    {{ policy['policy_owner'] }}
+                                </a>
+                                <button onclick="view_health_policy('{{ policy['_id'] }}')"
+                                        class="btn-sm btn text-primary float-end">
+                                    <small>EDIT</small>
+                                </button>
+                            </li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -408,6 +459,111 @@
         </div>
     </div>
 
+    <div class="modal fade" id="add_health_policy_modal">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5>ADD HEALTH POLICY</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form name="add_health_policy_form" onsubmit="submit_add_health_policy_form(this)">
+                        <div class="form-check mb-2">
+                            <input class="form-check-input" name="own_business" type="checkbox" value="True"
+                                   id="own_business">
+                            <label class="form-check-label" for="own_business">
+                                Own Business
+                            </label>
+                        </div>
+                        <label for="expiry_date" class="form-label">Expiry Date</label>
+                        <input type="date" class="form-control mb-2" name="expiry_date" id="expiry_date" required/>
+                        <label for="policy_owner" class="form-label">Policy Owner Name</label>
+                        <input type="text" class="form-control mb-2" name="policy_owner" id="policy_owner"/>
+                        <label for="policy_number" class="form-label">Policy Number</label>
+                        <input type="text" class="form-control mb-2" name="policy_number" id="policy_number"/>
+                        <label for="company" class="form-label">Company</label>
+                        <input type="text" class="form-control mb-2" name="company" id="company"/>
+                        <label for="policy_type" class="form-label">Plan Name</label>
+                        <input type="text" class="form-control mb-2" name="policy_type" id="policy_type"/>
+                        <label for="idv" class="form-label">Sum Insured Value</label>
+                        <input type="text" class="form-control mb-2" name="idv" id="idv"/>
+                        <label for="ncb" class="form-label">NCB %</label>
+                        <select class="form-select mb-2" name="ncb" id="ncb">
+                            <option value="" selected>SELECT</option>
+                            <option value="0">0%</option>
+                            <option value="20">20%</option>
+                            <option value="25">25%</option>
+                            <option value="35">35%</option>
+                            <option value="45">45%</option>
+                            <option value="50">50%</option>
+                        </select>
+                        <label for="premium" class="form-label">Premium</label>
+                        <input type="text" class="form-control mb-2" name="premium" id="premium"/>
+                        <div class="d-grid">
+                            <button type="submit" class="btn btn-primary">SUBMIT</button>
+                        </div>
+
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="view_health_policy_modal">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5>EDIT HEALTH POLICY</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form name="edit_health_policy_form" onsubmit="submit_edit_health_policy_form(this)">
+                        <input type="hidden" name="policy_id" id="policy_id" value=""/>
+                        <div class="form-check mb-2">
+                            <input class="form-check-input" name="own_business" type="checkbox" value="True"
+                                   id="own_business">
+                            <label class="form-check-label" for="own_business">
+                                Own Business
+                            </label>
+                        </div>
+                        <label class="form-label" for="policy_number">Policy Number</label>
+                        <input type="text" class="form-control mb-2" name="policy_number" id="policy_number"/>
+                        <label class="form-label" for="policy_owner">Policy Owner</label>
+                        <input type="text" class="form-control mb-2" name="policy_owner" id="policy_owner"/>
+                        <label for="expiry_date" class="form-label">Expiry Date</label>
+                        <input type="date" class="form-control mb-2" name="expiry_date" id="expiry_date" required/>
+                        <label for="policy_type" class="form-label">Policy Plan</label>
+                        <input type="text" class="form-control mb-2" name="policy_type" id="policy_type"/>
+                        <label for="company" class="form-label">Company</label>
+                        <input type="text" class="form-control mb-2" name="company" id="company"/>
+                        <label for="idv" class="form-label">IDV</label>
+                        <input type="text" class="form-control mb-2" name="idv" id="idv"/>
+                        <label for="ncb" class="form-label">NCB %</label>
+                        <select class="form-select mb-2" name="ncb" id="ncb">
+                            <option value="" selected>SELECT</option>
+                            <option value="0">0%</option>
+                            <option value="20">20%</option>
+                            <option value="25">25%</option>
+                            <option value="35">35%</option>
+                            <option value="45">45%</option>
+                            <option value="50">50%</option>
+                        </select>
+                        <label for="premium" class="form-label">Premium</label>
+                        <input type="text" class="form-control mb-2" name="premium" id="premium"/>
+                        <div class="d-grid mb-3">
+                            <button type="submit" class="btn btn-primary">UPDATE</button>
+                        </div>
+                        <div class="text-end">
+                            <button type="button" class="btn btn-light text-danger" onclick="delete_health_policy()">
+                                <span class="bi bi-trash"></span> DELETE
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
 {% endblock %}
 
 {% block foot %}
@@ -435,7 +591,7 @@
                             $('#add_contact_number_collapse').collapse('hide')
                             html = '<li class="list-group-item">' + number +
                                 '<button onclick="remove_contact_number(this, \'' + number + '\')" class="float-end btn ">' +
-                                '<span class="bi bi-dash-circle-fill text-danger"></span></button></li>'
+                                '<span class="bi bi-dash-circle-fill text-danger edit_control" style="display: block"></span></button></li>'
                             $(html).appendTo($('#contact_number_list')).hide().slideDown('slow').effect('highlight')
                             form.reset()
                         } else {
@@ -481,7 +637,7 @@
                             $('#add_email_collapse').collapse('hide')
                             html = '<li class="list-group-item">' + email +
                                 '<button onclick="remove_email(this, \'' + email + '\')" class="float-end btn ">' +
-                                '<span class="bi bi-dash-circle-fill text-danger"></span></button></li>'
+                                '<span class="bi bi-dash-circle-fill text-danger edit_control" style="display: block"></span></button></li>'
                             $(html).appendTo($('#email_list')).hide().slideDown('slow').effect('highlight')
                             form.reset()
                         } else {
@@ -709,6 +865,94 @@
                     }
                 }
             })
+        }
+
+        function submit_add_health_policy_form(form) {
+            event.preventDefault()
+            data = $(form).serializeArray()
+            data.push({'name': 'person_id', 'value': person_id})
+            $.ajax({
+                url: '/api/add_health_policy',
+                data: data,
+                type: 'POST',
+                dataType: 'JSON',
+                success: function (response) {
+                    if (response.result == true) {
+                        show_alert('Policy Successfully added.', 'success')
+                        location.reload()
+                    } else {
+                        alert(response.msg)
+                    }
+                }
+            })
+        }
+
+        function view_health_policy(policy_id) {
+            current_health_policy_id = null
+            form = document.edit_health_policy_form
+            $.ajax({
+                url: '/api/view_health_policy/' + policy_id,
+                dataType: 'JSON',
+                success: function (response) {
+                    if (response.result == true) {
+                        current_health_policy_id = response.data._id.$oid
+                        form.policy_id.value = current_health_policy_id
+                        form.own_business.checked = (response.data['own_business'] === true)
+                        for (i of ['policy_owner', 'policy_number', 'policy_type', 'company', 'idv', 'ncb', 'premium']) {
+                            form[i].value = response.data[i]
+                        }
+                        expiry_date = response.data.expiry_date
+                        if (expiry_date != null) {
+                            expiry_date = formatdateinput(expiry_date.$date)
+                        }
+                        form.expiry_date.value = expiry_date
+                        $('#view_health_policy_modal').modal('show')
+                    } else {
+                        alert(response.msg)
+                    }
+                }
+            })
+        }
+
+        function submit_edit_health_policy_form(form) {
+            event.preventDefault()
+            data = $(form).serialize()
+            $.ajax({
+                url: '/api/update_health_policy',
+                type: 'POST',
+                data: data,
+                dataType: 'JSON',
+                success: function (response) {
+                    if (response.result == true) {
+                        $('#view_health_policy_modal').modal('hide')
+                        show_alert('successfully updated policy details.', 'success')
+                        location.reload()
+                    } else {
+                        alert(response.msg)
+                    }
+                }
+            })
+        }
+
+        function delete_health_policy() {
+            policy_id = current_health_policy_id
+            $.ajax({
+                url: '/api/delete_health_policy',
+                type: 'POST',
+                data: {'policy_id': policy_id},
+                dataType: 'JSON',
+                success: function (response) {
+                    if (response.result == true) {
+                        location.reload()
+                    } else {
+                        alert(response.msg)
+                    }
+                }
+            })
+        }
+
+        function edit_control_toggle() {
+            $('.edit_control').toggle('animated')
         }
     </script>
 {% endblock %}
