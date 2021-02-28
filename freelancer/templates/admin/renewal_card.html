@@ -2,16 +2,16 @@
     <div class="card-body">
         <div class="row">
             <div class="col-md-7 mb-3">
-            <div class="row">
-            <div class="col">
-                <h3 class="text-capitalize" id="name"></h3>
-            </div>
-            <div class="col">
-                <div class="text-end fs-5">
-                    <span class="bi bi-phone-fill"></span> <span id="numbers"></span>
+                <div class="row">
+                    <div class="col">
+                        <h3 class="text-capitalize" id="name"></h3>
+                    </div>
+                    <div class="col">
+                        <div class="text-end fs-5">
+                            <span class="bi bi-phone-fill"></span> <span id="numbers"></span>
+                        </div>
+                    </div>
                 </div>
-            </div>
-        </div>
                 <div class="text-uppercase fs-6">
 
                     {# Registration detail card #}
@@ -149,13 +149,29 @@
             </div>
 
             <div class="col-md-5">
-                <div class="d-grid mb-3">
-                    <button id="renewal_done_btn" class="btn btn-primary" value=""
-                            onclick="renewal_done(this.value)"
-                            disabled>DONE
-                    </button>
+                <div class="card border-0 mb-3">
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col">
+                                <div class="d-grid">
+                                    <button id="renewal_done_btn" class="btn btn-light text-success" value=""
+                                            onclick="renewal_done()"
+                                            disabled>WON
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="col">
+                                <div class="d-grid">
+                                    <button id="renewal_lost_btn" class="btn btn-light text-danger"
+                                    onclick="renewal_lost()" disabled>LOST</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        {% include 'admin/followup_card.html' %}
+                    </div>
                 </div>
-                {% include 'admin/followup_card.html' %}
             </div>
         </div>
     </div>
@@ -171,9 +187,11 @@
             </div>
             <div class="modal-body">
                 <form name="add_renewal_policy_form" onsubmit="submit_add_renewal_policy_form(this)">
+                    <input name="own_business" type="hidden" value="True"
+                               id="own_business"/>
                     <div class="form-check mb-2">
-                        <input class="form-check-input" name="own_business" type="checkbox" value="True"
-                               id="own_business">
+                        <input class="form-check-input" type="checkbox" checked
+                                disabled>
                         <label class="form-check-label" for="own_business">
                             Own Business
                         </label>
@@ -228,8 +246,31 @@
     </div>
 </div>
 
+<div class="modal fade" id="renewal_lost_modal">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5>RENEWAL LOST</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form name="renewal_lost_form" onsubmit="submit_renewal_lost_form(this)">
+                    <select class="form-select mb-3" id="lost_reason" name="lost_reason">
+                    <option value="">Select Lost Reason</option>
+                    {% for reason in ('Self done', 'car sold', 'car total loss', 'Not contactable', 'others') %}
+                    <option value="{{ reason }}">{{ reason }}</option>
+                    {% endfor %}
+                    </select>
+                    <div class="d-grid">
+                        <button type="submit" class="btn btn-primary">SUBMIT</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
 <script>
-    var loading_html = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>'
     var current_policy_id = '{{ current_policy_id }}'
     var current_policy_type = '{{ current_policy_type }}'
     var current_followup_type = current_policy_type
@@ -334,12 +375,22 @@
                         document.getElementById('next_policy_btn').disabled = true
                         document.getElementById('next_policy_btn').value = null
                         document.getElementById('renewal_done_btn').disabled = false
-                        document.getElementById('renewal_done_btn').className = "btn btn-primary"
+                        document.getElementById('renewal_done_btn').className = "btn btn-light text-success"
+                        if (policy.policy_status == 'lost') {
+                            document.getElementById('renewal_lost_btn').disabled = true
+                            document.getElementById('renewal_lost_btn').className = "btn btn-danger"
+                        } else {
+                            document.getElementById('renewal_lost_btn').disabled = false
+                            document.getElementById('renewal_lost_btn').className = "btn btn-light text-danger"
+                        }
+
                     } else {
                         document.getElementById('next_policy_btn').disabled = false
                         document.getElementById('next_policy_btn').value = renewal_policy._id.$oid
                         document.getElementById('renewal_done_btn').disabled = true
                         document.getElementById('renewal_done_btn').className = "btn btn-success"
+                        document.getElementById('renewal_lost_btn').disabled = true
+                        document.getElementById('renewal_lost_btn').className = "btn btn-light text-danger"
                     }
                     get_followup_list(current_policy_id, current_policy_type)
                     $('#renewal_card').fadeIn()
@@ -419,6 +470,31 @@
         data.push({'name': 'remark', 'value': document.followup_form.followup_remark.value})
         $.ajax({
             url: '/api/add_renewal_' + current_policy_type + '_policy',
+            data: data,
+            type: 'POST',
+            dataType: 'JSON',
+            success: function (response) {
+                if (response.result == true) {
+                    show_alert('New Policy Successfully added.', 'success')
+                    location.reload()
+                } else {
+                    alert(response.msg)
+                }
+            }
+        })
+    }
+
+    function renewal_lost() {
+        $('#renewal_lost_modal').modal('show')
+    }
+
+    function submit_renewal_lost_form(form) {
+        event.preventDefault()
+        data = $(form).serializeArray()
+        data.push({'name': 'policy_id', 'value': current_policy_id})
+        data.push({'name': 'remark', 'value': document.followup_form.followup_remark.value})
+        $.ajax({
+            url: '/api/renewal_lost_' + current_policy_type,
             data: data,
             type: 'POST',
             dataType: 'JSON',

@@ -7,11 +7,6 @@ def index():
     return render_template('index.html')
 
 
-@app.route('/services')
-def services_page():
-    return render_template('services.html')
-
-
 @app.route('/login')
 def login_page():
     return render_template('login.html')

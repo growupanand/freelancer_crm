@@ -56,6 +56,9 @@
 
 
 <script>
+    var loading_html = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>'
+
+
     function formatdate(date) {
         var now = new Date(date);
         var day = ("0" + now.getDate()).slice(-2);
@@ -89,7 +92,7 @@
         alert_class['warning'] = 'bg-warning text-dark'
         html = '<div class="toast-body ">' +
             msg +
-            '<button type="button" class="btn-close float-end" data-bs-dismiss="toast" aria-label="Close"></button>'
+            '<button type="button" class="btn-close text-white float-end" data-bs-dismiss="toast" aria-label="Close"></button>'
             + '</div>'
         document.getElementById('alert').innerHTML = html
         document.getElementById('alert').className = 'toast fw-bold top-0 start-0 fixed-top ' + alert_class[type];

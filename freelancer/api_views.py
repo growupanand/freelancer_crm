@@ -5,25 +5,6 @@ from bson.json_util import dumps
 from datetime import datetime
 
 
-
-@app.route('/ajax/submit_query', methods=['POST'])
-def submit_query_api():
-    result = {}
-    result['result'] = False
-    query = {}
-    query['name'] = request.form.get('name')
-    query['contact'] = str.strip(request.form.get('contact'))
-    if query['contact'] in (None, ''):
-        result['msg'] = 'Contact cannot be empty.'
-        return result
-    query['remark'] = request.form.get('remark')
-    query['created'] = datetime.utcnow()
-    insert_query = db.query_collection.insert_one(query)
-    if insert_query.acknowledged:
-        result['result'] = True
-    return dumps(result)
-
-
 @app.route('/api/login', methods=["POST"])
 def login_api():
     username = request.form['username']
@@ -104,6 +85,8 @@ def post_policy_followup():
     policy_id = ObjectId(request.form.get('policy_id'))
     remark = request.form.get('remark')
     type = request.form.get('type')
+    if str.strip(remark) == '':
+        return dumps({'result':False, 'msg': 'Remark cannot be empty.'})
     policy = None
     if type == 'motor':
         policy = models.Policy_motor(policy_id)
@@ -269,6 +252,24 @@ def add_renewal_motor_policy_api():
         # add followup
         remark = 'Policy renewed!\n' + str.strip(remark)
         models.Policy_motor(policy_id).post_policy_followup(remark)
+    return dumps(result)
+
+@app.route('/api/renewal_lost_motor', methods=['POST'])
+def renewal_lost_motor_api():
+    if not session.get('logged_in'):
+        return json.dumps({'result': False, 'msg': 'Login required.'})
+    result = {}
+    result['result'] = False
+    result['msg'] = 'Something went wrong.'
+    policy_id = ObjectId(request.form.get('policy_id'))
+    remark = request.form.get('remark')
+    lost_reason = request.form.get('lost_reason')
+    policy = models.Policy_motor(policy_id)
+    post_lost_followup = policy.post_policy_followup('Policy lost! Reason is ' + lost_reason + '. ' + remark)
+    if post_lost_followup['result']:
+        result['result'] = True
+        policy.update_motor_policy(policy_status='lost', lost_reason=lost_reason)
+
     return dumps(result)
 
 

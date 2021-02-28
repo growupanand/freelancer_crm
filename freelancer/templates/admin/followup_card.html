@@ -1,21 +1,21 @@
-<div class="card border-0 mb-3">
-    <div class="card-body">
+
         <form name="followup_form" onsubmit="submit_followup_form(this)">
             <textarea placeholder="Remark" rows="4"
                       class="form-control mb-3"
                       id="followup_remark"
                       name="followup_remark"></textarea>
             <div class="d-grid">
-                <button type="submit" class="btn btn-light text-primary">FOLLOW</button>
+                <button type="submit" name="submit" class="btn btn-primary">FOLLOW</button>
             </div>
         </form>
     </div>
     <div id="followup_list" class="overflow-auto list-group list-group-flush"></div>
-</div>
+
 
 <script>
 
     function get_followup_list(policy_id, type) {
+        $('#followup_list').html('<div class="list-group-item text-center">Loading Followups '+loading_html+'</div>')
         $.ajax({
             url: '/api/get_followup_list',
             data: {'policy_id':policy_id, 'type': type},
@@ -29,7 +29,7 @@
                             '<small class="text-muted">' + formatdate(followup_list[i].created.$date) + '</small>' +
                             '<p>' + followup_list[i].remark + '</p>' +
                             '</div>'
-                        $('#followup_list').prepend(followup_html)
+                        $(followup_html).prependTo($('#followup_list')).hide().slideDown()
                     }
                 } else {
                     show_alert(response.msg, 'error')
@@ -43,6 +43,8 @@
         event.preventDefault()
         remark = form.followup_remark.value
         policy_status = 'followup'
+        $(form).find(" :input").prop("disabled", true);
+        $(form.submit).html(loading_html)
         $.ajax({
             url: '/api/post_policy_followup',
             data: {
@@ -56,15 +58,19 @@
             success: function (response) {
                 if (response.result == true) {
                     show_alert('Remark added successfully!', 'success')
-                    html = '<div class="list-group-item bg-light mb-2 border-0 fs-6" style="display: none">' +
+                    html = '<div class="list-group-item mb-2 border-0 fs-6" style="display: none">' +
                         '<small class="text-muted">NOW</small>' +
                         '<p>' + form.followup_remark.value + '</p>' +
                         '</div>'
-                    $(html).prependTo($('#followup_list')).slideDown()
+                    $(html).prependTo($('#followup_list')).slideDown().effect('highlight', function () {
+                        $(this).addClass('bg-light')
+                    })
                     form.reset()
                 } else {
                     show_alert(response.msg, 'error')
                 }
+                $(form.submit).html('FOLLOW')
+                $(form).find(" :input").prop("disabled", false);
             }
         })
     }

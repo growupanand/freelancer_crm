@@ -285,6 +285,7 @@ class Registration:
                 self.model = self.db_data['model'] if 'model' in self.db_data else None
                 self.cc = self.db_data['cc'] if 'cc' in self.db_data else None
                 self.mfg = self.db_data['mfg'] if 'mfg' in self.db_data else None
+                self.fuel = self.db_data['fuel'] if 'fuel' in self.db_data else None
                 self.registration_date = self.db_data['registration_date'] if 'registration_date' in self.db_data else None
                 self.created = self.db_data['created'] if 'created' in self.db_data else None
 
@@ -486,7 +487,7 @@ class Policy_motor:
     # update policy data
     def update_motor_policy(self, expiry_date=None, policy_number=None, policy_type=None,
                          company=None, idv=None, ncb=None, premium=None, own_business=None, o_dap=None,
-                            renewal_id=None, policy_status=None):
+                            renewal_id=None, policy_status=None, lost_reason=None):
         result = {}
         result['result'] = False
         result['msg'] = 'Something went wrong.'
@@ -515,6 +516,8 @@ class Policy_motor:
             policy['own_business'] = own_business
         if not o_dap is None:
             policy['o_dap'] = o_dap
+        if not lost_reason is None:
+            policy['lost_reason'] = lost_reason
         if not renewal_id is None:
             policy['renewal_id'] = None if str.strip(renewal_id) == '' else renewal_id
         if not policy_status is None:

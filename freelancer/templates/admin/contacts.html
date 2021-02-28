@@ -5,7 +5,7 @@
             <h1>Contacts</h1>
         </div>
         <div class="col text-end">
-            <button class="btn btn-lg px-4 btn-primary" type="button" data-bs-toggle="modal"
+            <button class="btn px-5 btn-primary" type="button" data-bs-toggle="modal"
                     data-bs-target="#add_person_modal">
                 NEW
             </button>
@@ -34,17 +34,13 @@
                         <span id="contact_count" class="fs-6 badge bg-secondary text-white"></span>
                     </p>
                     <form onsubmit="submit_find_person(this)" name="find_person">
-                        <div class="row">
-                            <div class="col-8">
-                                <input placeholder="Search by Name or Number" type="text" class="form-control"
-                                       name="query"
-                                       id="query" required/>
-                            </div>
-                            <div class="col-4 d-grid">
-                                <button class="btn btn-light text-primary" type="submit">
-                                    SEARCH
-                                </button>
-                            </div>
+                        <div class="input-group mb-3">
+                            <input placeholder="Search by Name or Number" type="text" class="form-control"
+                                   name="query"
+                                   id="query" required/>
+                            <button class="btn btn-outline-primary" type="submit">
+                                <span class="bi bi-search"></span> FIND
+                            </button>
                         </div>
                     </form>
                 </div>
@@ -77,19 +73,21 @@
                                     </select>
                                 </div>
                                 <div class="col-md">
-                                    <input placeholder="Source" type="text" name="source_data" id="source_data" class="form-control mb-3"/>
+                                    <input placeholder="Source" type="text" name="source_data" id="source_data"
+                                           class="form-control mb-3"/>
                                 </div>
                             </div>
                             <label for="name" class="form-label col-lg-4">Name</label>
                             <input type="text" id="name" name="name" class="form-control mb-2" required/>
                             <div class="row mb-2">
                                 <div class="col">
-                            <label for="number" class="form-label">Number</label>
+                                    <label for="number" class="form-label">Number</label>
                                 </div>
                                 <div class="col text-end">
-                                    <button type="button" class="btn btn-light text-primary" onclick="add_number_list()">+
-                                    ADD NUMBER
-                                </button>
+                                    <button type="button" class="btn btn-light text-primary"
+                                            onclick="add_number_list()">+
+                                        ADD NUMBER
+                                    </button>
                                 </div>
                             </div>
                             <div id="number_list">
