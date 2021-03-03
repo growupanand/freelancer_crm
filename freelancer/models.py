@@ -3,7 +3,6 @@ from datetime import datetime
 import re
 
 
-
 class user:
 
     def __init__(self, _id=None):
@@ -225,7 +224,7 @@ class Person:
 
     # add health policy
     def add_health_policy(self, expiry_date, policy_owner=None, policy_number=None, policy_type=None,
-                         company=None, idv=None, ncb=None, premium=None, own_business=None):
+                          company=None, idv=None, ncb=None, premium=None, own_business=None):
         result = {}
         result['result'] = False
         result['msg'] = 'Something went wrong.'
@@ -280,13 +279,15 @@ class Registration:
                 self.person = Person(self.person_id)
                 self.registration_number = self.db_data[
                     'registration_number'] if 'registration_number' in self.db_data else None
-                self.registration_name = self.db_data['registration_name'] if 'registration_name' in self.db_data else None
+                self.registration_name = self.db_data[
+                    'registration_name'] if 'registration_name' in self.db_data else None
                 self.company = self.db_data['company'] if 'company' in self.db_data else None
                 self.model = self.db_data['model'] if 'model' in self.db_data else None
                 self.cc = self.db_data['cc'] if 'cc' in self.db_data else None
                 self.mfg = self.db_data['mfg'] if 'mfg' in self.db_data else None
                 self.fuel = self.db_data['fuel'] if 'fuel' in self.db_data else None
-                self.registration_date = self.db_data['registration_date'] if 'registration_date' in self.db_data else None
+                self.registration_date = self.db_data[
+                    'registration_date'] if 'registration_date' in self.db_data else None
                 self.created = self.db_data['created'] if 'created' in self.db_data else None
 
     # add motor policy
@@ -334,7 +335,7 @@ class Registration:
 
     # update registration data
     def update_registration(self, registration_number=None, registration_name=None, registration_date=None,
-                         company=None, model=None, cc=None, fuel=None, mfg=None):
+                            company=None, model=None, cc=None, fuel=None, mfg=None):
         result = {}
         result['result'] = False
         registration = {
@@ -353,9 +354,10 @@ class Registration:
                 registration['registration_number'] = registration_number
         if not registration_date is None:
             registration['registration_date'] = None if str.strip(registration_date) in (
-            None, '') else datetime.strptime(registration_date, "%Y-%m-%d")
+                None, '') else datetime.strptime(registration_date, "%Y-%m-%d")
         if not registration_name is None:
-            registration['registration_name'] = None if str.strip(registration_name) == '' else str.strip(registration_name)
+            registration['registration_name'] = None if str.strip(registration_name) == '' else str.strip(
+                registration_name)
         if not company is None:
             registration['company'] = None if str.strip(company) == '' else str.strip(company)
         if not model is None:
@@ -486,7 +488,7 @@ class Policy_motor:
 
     # update policy data
     def update_motor_policy(self, expiry_date=None, policy_number=None, policy_type=None,
-                         company=None, idv=None, ncb=None, premium=None, own_business=None, o_dap=None,
+                            company=None, idv=None, ncb=None, premium=None, own_business=None, o_dap=None,
                             renewal_id=None, policy_status=None, lost_reason=None):
         result = {}
         result['result'] = False
@@ -642,8 +644,8 @@ class Policy_health:
 
     # update policy data
     def update_health_policy(self, expiry_date=None, policy_owner=None, policy_number=None, policy_type=None,
-                         company=None, idv=None, ncb=None, premium=None, own_business=None,
-                            renewal_id=None, policy_status=None):
+                             company=None, idv=None, ncb=None, premium=None, own_business=None,
+                             renewal_id=None, policy_status=None):
         result = {}
         result['result'] = False
         result['msg'] = 'Something went wrong.'
@@ -696,4 +698,26 @@ class Policy_health:
         delete_policy = db.health_policy_collection.delete_one({'_id': self._id})
         if delete_policy.acknowledged:
             result['result'] = True
+        return result
+
+
+class Lead:
+
+    def __init__(self, _id=None):
+        self._id = _id
+
+    def create_policy_lead(self, policy_type, source, name, expiry_date, contact_detail):
+        create_lead = db.lead_collection.insert_one({
+            'created': datetime.utcnow(),
+            'type' : 'insurance',
+            'policy_type' : policy_type,
+            'source' : source,
+            'name': name,
+            'expiry_date': expiry_date,
+            'contact_detail': contact_detail
+        })
+        if create_lead.acknowledged:
+            result = {'result': True, 'msg': 'Success', 'new_id': create_lead.inserted_id}
+        else:
+            result = {'result': False, 'msg': 'Lead not created for some reason.'}
         return result

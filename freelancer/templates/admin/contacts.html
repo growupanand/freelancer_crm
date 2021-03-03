@@ -1,21 +1,10 @@
 {% extends 'admin/base.html' %}
 {% block content %}
-    <div class="row my-3">
-        <div class="col">
-            <h1>Contacts</h1>
-        </div>
-        <div class="col text-end">
-            <button class="btn px-5 btn-primary" type="button" data-bs-toggle="modal"
-                    data-bs-target="#add_person_modal">
-                NEW
-            </button>
-        </div>
-    </div>
-    <div class="row">
+    <div class="row mt-3">
         <div class="col-md-4 col-lg-3">
             <div class="card bg-transparent border-0 mb-3 d-none d-md-block">
-                <div class="card-header border-0 bg-transparent text-muted">
-                    Recent Added
+                <div class="card-body">
+                    <h5 class="card-title">RECENTLY ADDED</h5>
                 </div>
                 <div id="recent_person_list" class="list-group list-group-flush small">
                     {% for person in recent_added %}
@@ -25,24 +14,37 @@
                         </a>
                     {% endfor %}
                 </div>
+
             </div>
         </div>
         <div class="col-md-8 col-lg-9">
             <div class="card bg-white position-relative">
                 <div class="card-body sticky-top bg-white">
-                    <p>
-                        <span id="contact_count" class="fs-6 badge bg-secondary text-white"></span>
-                    </p>
-                    <form onsubmit="submit_find_person(this)" name="find_person">
-                        <div class="input-group mb-3">
-                            <input placeholder="Search by Name or Number" type="text" class="form-control"
-                                   name="query"
-                                   id="query" required/>
-                            <button class="btn btn-outline-primary" type="submit">
-                                <span class="bi bi-search"></span> FIND
-                            </button>
+                    <h1 class="card-title mb-3">Contacts</h1>
+                    <div class="row">
+                        <div class="col-8">
+                            <form onsubmit="submit_find_person(this)" name="find_person">
+                                <div class="input-group mb-3">
+                            <span class="input-group-text border-0 bg-light">
+                                <span class="bi bi-search"></span>
+                            </span>
+                                    <input placeholder="Name or Number" type="text"
+                                           class="form-control bg-light border-0"
+                                           name="query"
+                                           id="query" required/>
+                                </div>
+                            </form>
                         </div>
-                    </form>
+                        <div class="col-4">
+                            <div class="d-grid">
+                                <button class="btn btn-primary" type="button" data-bs-toggle="modal"
+                                    data-bs-target="#add_person_modal">NEW
+                            </button>
+                            </div>
+
+                        </div>
+                    </div>
+                    <span class="text-muted">All (<span id="contact_count"></span>)</span>
                 </div>
                 <div class="list-group list-group-flush border-0" id="person_list">
 
@@ -167,8 +169,9 @@
                         document.getElementById('contact_count').innerText = persons.length
                         $('#person_list').html('')
                         for (i in persons) {
-                            html = '<a class="text-capitalize border-0 list-group-item list-group-item-action" href="/crm/view_person/' + persons[i]._id.$oid + '">' + persons[i].name +
-                                '<br/><span class="text-center text-muted">' + persons[i].numbers.join(', ') + '</span>' +
+                            html = '<a class="text-capitalize d-flex align-items-center border-0 list-group-item list-group-item-action" href="/crm/view_person/' + persons[i]._id.$oid + '">' +
+                                '<span class="bi bi-person-fill fs-1 me-2"></span> <span class="d-inline-block"> ' + persons[i].name +
+                                '<br/><span class="text-center text-muted">' + persons[i].numbers.join(', ') + '</span></span>' +
                                 '</a>'
                             $('#person_list').append(html)
                         }

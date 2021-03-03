@@ -5,44 +5,45 @@
             display: none;
         }
     </style>
-    <div class="row my-3">
-        <div class="col">
-            <h1 class="text-capitalize">
-                {{ person['name'] }}
-            </h1>
-        </div>
-        <div class="col text-end">
-            <button class="btn btn-sm btn-outline-secondary" data-bs-toggle="button" onclick="edit_control_toggle()">
-                EDIT
-            </button>
-        </div>
-    </div>
-
-
+    <p>
+    <nav aria-label="breadcrumb" style="--bs-breadcrumb-divider: '>';">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="/">Home</a></li>
+            <li class="breadcrumb-item"><a href="/contacts">Contacts</a></li>
+            <li class="breadcrumb-item active text-capitalize" aria-current="page">{{ person['name'] }}</li>
+        </ol>
+    </nav>
+    </p>
+    <div id="alert"></div>
+    <h1 class="text-capitalize my-3">
+        {{ person['name'] }}
+    </h1>
     <div class="row">
         <div class="col-md-3">
-            <div class="card mb-3">
-                <div class="card-header"><span class="bi-phone"></span> MOBILE NUMBER
-                </div>
-                <div id="contact_number_list" class="list-group list-group-flush small">
-                    <div class="list-group-item edit_control">
-                        <form name="add_contact_number_form" onsubmit="submit_add_contact_number_form(this)">
-                            <div class="row">
-                                <div class="col-8">
-                                    <input name="number" placeholder="Number"
-                                           class="form-control form-control-sm"
-                                           type="text" required/>
-                                </div>
-                                <div class="col-4">
-                                    <div class="d-grid">
-                                        <button type="submit" class=" btn btn-primary btn-sm">
-                                            ADD
-                                        </button>
-                                    </div>
-                                </div>
-                            </div>
-                        </form>
+            <div class="d-grid">
+                <label class="btn mx-auto mb-3" for="flexSwitchCheckChecked">
+                    <div class="form-check form-switch fs-5">
+                        <input onclick="edit_control_toggle()" class="form-check-input" type="checkbox"
+                               id="flexSwitchCheckChecked">
+                        EDIT
                     </div>
+                </label>
+            </div>
+            <div class="card mb-3">
+                <div class="card-header"><span class="bi-phone"></span> MOBILE NUMBER</div>
+                <div class="card-body edit_control">
+                    <form name="add_contact_number_form" onsubmit="submit_add_contact_number_form(this)">
+                        <div class="input-group">
+                            <input name="number" placeholder="Type Number here"
+                                   class="form-control bg-light border-light"
+                                   type="text" required/>
+                            <button type="submit" class=" btn btn-primary">
+                                ADD
+                            </button>
+                        </div>
+                    </form>
+                </div>
+                <div id="contact_number_list" class="list-group list-group-flush">
                     {% for number in person['numbers'] %}
                         <div class="list-group-item">
                             {{ number }}
@@ -51,30 +52,22 @@
                             </button>
                         </div>
                     {% endfor %}
-
                 </div>
-
             </div>
             <div class="card mb-3">
                 <div class="card-header"><span class="bi-mailbox"></span> EMAIL</div>
-                <div id="email_list" class="list-group list-group-flush small">
-                    <div class="list-group-item edit_control">
-                        <form name="add_email_form" onsubmit="submit_add_email_form(this)">
-                            <div class="row">
-                                <div class="col-lg-8">
-                                    <input name="email" placeholder="Email" class="mb-2 form-control form-control-sm"
-                                           type="text" required/>
-                                </div>
-                                <div class="col-lg-4">
-                                    <div class="d-grid">
-                                        <button type="submit" class=" btn btn-primary btn-sm">
-                                            SAVE
-                                        </button>
-                                    </div>
-                                </div>
-                            </div>
-                        </form>
-                    </div>
+                <div class="card-body edit_control">
+                    <form name="add_email_form" onsubmit="submit_add_email_form(this)">
+                        <div class="input-group">
+                            <input name="email" placeholder="Type email here" class="bg-light border-light form-control"
+                                   type="text" required/>
+                            <button type="submit" class=" btn btn-primary">
+                                ADD
+                            </button>
+                        </div>
+                    </form>
+                </div>
+                <div id="email_list" class="list-group list-group-flush">
                     {% for email in person['emails'] %}
                         <div class="list-group-item">{{ email }}
                             <button onclick="remove_email(this, '{{ email }}')" class="float-end btn edit_control">
@@ -85,82 +78,94 @@
                 </div>
             </div>
             <div class="card mb-3">
-                <div class="card-header">Other Information</div>
-                <div class="card-body">
-                    <table class="table table-borderless table-sm small">
-                        <tr>
-                            <td class="text-muted">SOURCE TYPE</td>
-                            <td>{{ functions.source_type[person['source_type']] }}
-                            </td>
-                        </tr>
-                        <tr>
-                            <td class="text-muted">SOURCE</td>
-                            <td>{{ person['source_data'] }}</td>
-                        </tr>
-                    </table>
+                <ul class="list-group list-group-flush">
+                    <li class="list-group-item">
+                        <span class="text-capitalize">{{ functions.source_type[person['source_type']] }}</span><br/>
+                        <small class="text-muted">SOURCE TYPE</small>
+                    </li>
+                    <li class="list-group-item">
+                        <span class="text-capitalize">{{ person['source_data'] }}</span><br/>
+                        <small class="text-muted">SOURCE</small>
+                    </li>
+                </ul>
+            </div>
+
+            <div class="card bg-light border-0 mb-3">
+                <div class="card-body edit_control">
+                    <div class="d-grid">
+                        <button class="btn btn-danger" onclick="delete_person()">
+                            DELETE PERSON
+                        </button>
+                    </div>
                 </div>
             </div>
-            <div class="d-grid mb-3">
-                <button class="btn btn-danger edit_control" onclick="delete_person()">
-                    DELETE PERSON
-                </button>
-            </div>
+
 
         </div>
         <div class="col-md-9">
-            <ul class="nav nav-pills nav-fill bg-white mb-3" id="pills-tab" role="tablist">
+            <ul class="nav nav-tabs nav-fill" id="pills-tab" role="tablist">
                 <li class="nav-item" role="presentation">
                     <a class="nav-link active" data-bs-toggle="pill" href="#vehicle_list_tab"
                        role="tab">
-                        MOTOR <span class="float-end badge rounded-pill bg-light text-primary">{{ person.registration_list|length }}</span>
+                        MOTOR <span
+                            class="float-end badge rounded-pill bg-light text-primary">{{ person.registration_list|length }}</span>
                     </a>
                 </li>
                 <li class="nav-item" role="presentation">
                     <a class="nav-link" data-bs-toggle="pill" href="#health_list_tab"
                        role="tab">
-                        HEALTH <span class="float-end badge rounded-pill bg-light text-primary">{{ person['health_policy_list']|length }}</span>
+                        HEALTH <span
+                            class="float-end badge rounded-pill bg-light text-primary">{{ person['health_policy_list']|length }}</span>
                     </a>
                 </li>
             </ul>
             <div class="tab-content" id="pills-tabContent">
                 <div class="tab-pane fade show active" id="vehicle_list_tab" role="tabpanel">
-                    <div class="mb-3">
-                        <button data-bs-toggle="modal" data-bs-target="#add_vehicle_modal" class="btn btn-primary">
-                            NEW VEHICLE
-                        </button>
+                    <div class="mb-3 card border-top-0">
+                        <div class="card-body">
+                            <button data-bs-toggle="modal" data-bs-target="#add_vehicle_modal"
+                                    class="btn btn-primary">
+                                ADD VEHICLE
+                            </button>
+                        </div>
                     </div>
-                    {% for vehicle in person.registration_list %}
-                        <div class="card mb-3">
-                            <div class="card-body">
+                    <div class="list-group">
+                        {% for vehicle in person.registration_list %}
+                            <div class="list-group-item mb-3 border-1">
                                 <div class="row">
-                                    <div class="col-lg-6">
-                                        <div class="row mb-3">
-                                            <div class="col">
-                                                <h5 class="card-title text-uppercase">
-                                                    {{ vehicle['registration_number'] }}
-                                                </h5>
-                                            </div>
-                                            <div class="col text-end">
-                                                <button class="btn btn-sm btn-light text-primary"
-                                                        onclick="view_vehicle('{{ vehicle['_id'] }}')">
-                                                    EDIT
-                                                </button>
-                                            </div>
-                                        </div>
+                                    <div class="col-10">
+                                        <h4 class="card-title text-uppercase my-3">
+                                            {{ vehicle['registration_number'] }} <br/>
+                                            <small class="text-muted">{{ vehicle['registration_name'] }}</small>
+                                        </h4>
+                                    </div>
+                                    <div class="col-2">
+                                        <button class="btn text-primary float-end"
+                                                onclick="view_vehicle('{{ vehicle['_id'] }}')">
+                                            EDIT
+                                        </button>
+                                    </div>
+                                </div>
 
-                                        <table class="text-uppercase small table table-borderless table-sm">
+                                <div class="row">
+                                    <div class="col-lg-6 mb-3">
+                                        <table class="text-uppercase table table-borderless table-striped table-sm">
                                             <tr>
-                                                <td class="text-muted">Company and Model</td>
+                                                <td class="text-muted">Number</td>
+                                                <td>{{ vehicle['registration_number'] }}</td>
+                                            </tr>
+                                            <tr>
+                                                <td class="text-muted">Name</td>
+                                                <td>{{ vehicle['registration_name'] }}</td>
+                                            </tr>
+                                            <tr>
+                                                <td class="text-muted">Make - Model</td>
                                                 <td>
                                                     {{ vehicle['company'] }} - {{ vehicle['model'] }}
                                                 </td>
                                             </tr>
                                             <tr>
-                                                <td class="text-muted">Registration Name</td>
-                                                <td>{{ vehicle['registration_name'] }}</td>
-                                            </tr>
-                                            <tr>
-                                                <td class="text-muted">Registration Date</td>
+                                                <td class="text-muted">Reg Date</td>
                                                 <td>{{ functions.format_timestamp(vehicle['registration_date'], '%d-%m-%Y') }}</td>
                                             </tr>
                                             <tr>
@@ -177,67 +182,64 @@
                                             </tr>
                                         </table>
                                     </div>
-                                    <div class="col-lg-6">
-                                        <div class="text-end mb-3">
-                                            <button class="btn btn-sm btn-light text-primary"
+                                    <div class="col-lg-6 mb-3">
+                                        <p>
+                                            <span class="fs-5">Policy List</span>
+                                            <button class="btn btn-light text-primary float-end"
                                                     onclick="add_vehicle_policy('{{ vehicle['registration_number'] }}', '{{ vehicle['_id'] }}')">
                                                 ADD POLICY
                                             </button>
-                                        </div>
-                                        <table class="table table-hover table-sm table-borderless">
+                                        </p>
+                                        <div class="list-group list-group-flush">
                                             {% for policy in vehicle.motor_policy_list %}
-                                                <tr>
-                                                    <td class="text-center">
-                                                        <small class="text-muted">
+                                                <button onclick="view_vehicle_policy('{{ policy['_id'] }}')"
+                                                        class="border-0 list-group-item list-group-item-action">
+                                                    <div class="row">
+                                                        <div class="col-lg-4">
                                                             {{ functions.format_timestamp(policy['expiry_date'], '%d-%m-%Y') }}
-                                                        </small>
-                                                    </td>
-                                                    <td class="text-start">
-                                                        <a class="text-decoration-none"
-                                                           href="/view_motor_policy/{{ policy['_id'] }}">
-                                                            {{ policy['policy_number'] }}
-                                                        </a>
-                                                    </td>
-                                                    <td class="text-end">
-                                                        <button onclick="view_vehicle_policy('{{ policy['_id'] }}')"
-                                                                class="btn-sm btn text-primary">
-                                                            <small>EDIT</small>
-                                                        </button>
-                                                    </td>
-                                                </tr>
+
+                                                        </div>
+                                                        <div class="col-lg-8">
+                                                            <span class="text-muted">{{ policy['policy_number'] }}</span>
+                                                        </div>
+                                                    </div>
+                                                </button>
                                             {% endfor %}
-                                        </table>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
-
-                        </div>
-                    {% endfor %}
+                        {% endfor %}
+                    </div>
                 </div>
                 <div class="tab-pane fade" id="health_list_tab" role="tabpanel">
-                    <div class="mb-3">
-                        <button data-bs-toggle="modal" data-bs-target="#add_health_policy_modal"
-                                class="btn btn-primary">
-                            NEW HEALTH POLICY
-                        </button>
-                    </div>
-                    <ul class="list-group list-group-flush">
-                        {% for policy in person['health_policy_list'] %}
-                            <li class="list-group-item">
-                                <small class="text-muted">
-                                    {{ functions.format_timestamp(policy['expiry_date'], '%d-%m-%Y') }}
-                                </small>
-                                <a class="text-decoration-none"
-                                   href="/view_health_policy/{{ policy['_id'] }}">
-                                    {{ policy['policy_owner'] }}
-                                </a>
-                                <button onclick="view_health_policy('{{ policy['_id'] }}')"
-                                        class="btn-sm btn text-primary float-end">
-                                    <small>EDIT</small>
+                    <div class="mb-3 card border-top-0">
+                        <div class="card-body">
+                            <p>
+                                <button data-bs-toggle="modal" data-bs-target="#add_health_policy_modal"
+                                        class="btn btn-primary">
+                                    NEW HEALTH POLICY
                                 </button>
-                            </li>
-                        {% endfor %}
-                    </ul>
+                            </p>
+                            <ul class="list-group list-group-flush">
+                                {% for policy in person['health_policy_list'] %}
+                                    <li class="list-group-item">
+                                        <small class="text-muted">
+                                            {{ functions.format_timestamp(policy['expiry_date'], '%d-%m-%Y') }}
+                                        </small>
+                                        <a class="text-decoration-none"
+                                           href="/view_health_policy/{{ policy['_id'] }}">
+                                            {{ policy['policy_owner'] }}
+                                        </a>
+                                        <button onclick="view_health_policy('{{ policy['_id'] }}')"
+                                                class="btn-sm btn text-primary float-end">
+                                            <small>EDIT</small>
+                                        </button>
+                                    </li>
+                                {% endfor %}
+                            </ul>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -395,6 +397,63 @@
     </div>
 
     <div class="modal fade" id="view_vehicle_policy_modal">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5>POLICY DETAILS</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p>
+                        <button class="btn btn-light text-primary" onclick="view_edit_motor_policy_modal()">EDIT
+                        </button>
+                        <a href="#" class="btn btn-link float-end" target="_blank" id="view_renewal_button">VIEW RENEWAL
+                            PAGE
+                            <span class="bi bi-box-arrow-in-up-right"></span> </a>
+                    </p>
+                    <p id="motor_policy_table_own_business"></p>
+                    <table id="motor_policy_table" class="table table-borderless table-striped text-uppercase">
+                        <tbody>
+                        <tr>
+                            <td class="text-muted">Policy Number</td>
+                            <td id="motor_policy_table_policy_number"></td>
+                        </tr>
+                        <tr>
+                            <td class="text-muted">Policy Company</td>
+                            <td id="motor_policy_table_company"></td>
+                        </tr>
+                        <tr>
+                            <td class="text-muted">Expiry Date</td>
+                            <td id="motor_policy_table_expiry_date"></td>
+                        </tr>
+                        <tr>
+                            <td class="text-muted">Policy Type</td>
+                            <td id="motor_policy_table_policy_type"></td>
+                        </tr>
+                        <tr>
+                            <td class="text-muted">Premium</td>
+                            <td id="motor_policy_table_premium"></td>
+                        </tr>
+                        <tr>
+                            <td class="text-muted">IDV</td>
+                            <td id="motor_policy_table_idv"></td>
+                        </tr>
+                        <tr>
+                            <td class="text-muted">NCB %</td>
+                            <td id="motor_policy_table_ncb"></td>
+                        </tr>
+                        <tr>
+                            <td class="text-muted">Addon Cover</td>
+                            <td id="motor_policy_table_addon_cover"></td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="edit_vehicle_policy_modal">
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
@@ -604,21 +663,24 @@
         }
 
         function remove_contact_number(e, number) {
-            $.ajax({
-                url: '/api/remove_contact_number',
-                type: 'POST',
-                data: {'_id': person_id, 'number': number},
-                dataType: 'JSON',
-                success: function (response) {
-                    if (response.result == true) {
-                        $(e).parent().slideUp(function () {
-                            $(e).parent().remove()
-                        })
-                    } else {
-                        show_alert(response.msg, 'error')
+            if (confirm('Delete Number ' + number + ' ?')) {
+                $.ajax({
+                    url: '/api/remove_contact_number',
+                    type: 'POST',
+                    data: {'_id': person_id, 'number': number},
+                    dataType: 'JSON',
+                    success: function (response) {
+                        if (response.result == true) {
+                            show_alert('Number deleted Successfully.', 'success', 'alert', 'toast')
+                            $(e).parent().slideUp(function () {
+                                $(e).parent().remove()
+                            })
+                        } else {
+                            show_alert(response.msg, 'error', 'alert', 'toast')
+                        }
                     }
-                }
-            })
+                })
+            }
         }
 
         function submit_add_email_form(form) {
@@ -650,21 +712,24 @@
         }
 
         function remove_email(e, email) {
-            $.ajax({
-                url: '/api/remove_email',
-                type: 'POST',
-                data: {'_id': person_id, 'email': email},
-                dataType: 'JSON',
-                success: function (response) {
-                    if (response.result == true) {
-                        $(e).parent().slideUp(function () {
-                            $(e).parent().remove()
-                        })
-                    } else {
-                        show_alert(response.msg, 'error')
+            if (confirm('Delete email ' + email + ' ?')) {
+                $.ajax({
+                    url: '/api/remove_email',
+                    type: 'POST',
+                    data: {'_id': person_id, 'email': email},
+                    dataType: 'JSON',
+                    success: function (response) {
+                        if (response.result == true) {
+                            show_alert('Email deleted successfully.', 'success', 'alert', 'toast')
+                            $(e).parent().slideUp(function () {
+                                $(e).parent().remove()
+                            })
+                        } else {
+                            show_alert(response.msg, 'error')
+                        }
                     }
-                }
-            })
+                })
+            }
         }
 
         function delete_person() {
@@ -812,16 +877,28 @@
                     if (response.result == true) {
                         current_vehicle_policy_id = response.data._id.$oid
                         form.policy_id.value = current_vehicle_policy_id
+                        document.getElementById('view_renewal_button').setAttribute('href', '/view_motor_policy/' + current_vehicle_policy_id)
                         form.own_business.checked = (response.data['own_business'] === true)
+                        if (response.data['own_business'] === true) {
+                            document.getElementById('motor_policy_table_own_business').innerHTML = '<span class="badge bg-success fs-6">OWNED POLICY</span>'
+                        } else {
+                            document.getElementById('motor_policy_table_own_business').innerHTML = ''
+                        }
                         form.o_dap.checked = (response.data['o_dap'] === true)
+                        if (response.data['o_dap'] === true) {
+                            document.getElementById('motor_policy_table_addon_cover').innerHTML = '<span class="badge bg-primary">0 DAP</span>'
+                        } else {
+                            document.getElementById('motor_policy_table_addon_cover').innerHTML = ''
+                        }
+
                         for (i of ['policy_number', 'policy_type', 'company', 'idv', 'ncb', 'premium']) {
-                            form[i].value = response.data[i]
+                            form[i].value = document.getElementById('motor_policy_table_' + i).innerHTML = response.data[i]
                         }
                         expiry_date = response.data.expiry_date
                         if (expiry_date != null) {
                             expiry_date = formatdateinput(expiry_date.$date)
                         }
-                        form.expiry_date.value = expiry_date
+                        form.expiry_date.value = document.getElementById('motor_policy_table_expiry_date').innerHTML = expiry_date
                         $('#view_vehicle_policy_modal').modal('show')
                     } else {
                         alert(response.msg)
@@ -953,6 +1030,14 @@
 
         function edit_control_toggle() {
             $('.edit_control').toggle('animated')
+        }
+
+        function view_edit_motor_policy_modal() {
+            $('#view_vehicle_policy_modal').modal('hide').on('hidden.bs.modal', function (e) {
+                $('#edit_vehicle_policy_modal').modal('show');
+
+                $(this).off('hidden.bs.modal'); // Remove the 'on' event binding
+            });
         }
     </script>
 {% endblock %}

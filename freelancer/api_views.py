@@ -3,6 +3,7 @@ import json
 from bson import ObjectId
 from bson.json_util import dumps
 from datetime import datetime
+import re
 
 
 @app.route('/api/login', methods=["POST"])
@@ -459,4 +460,22 @@ def get_followup_list_api():
     for followup in policy.get_followup_list():
         result['followup_list'].append(followup)
     result['result'] = True
+    return dumps(result)
+
+
+@app.route('/api/add_policy_reminder', methods=['POST'])
+def add_policy_reminder_api():
+    result = {'result':False, 'msg': 'Something went wrong'}
+    policy_type = request.form.get('policy_type')
+    name = request.form.get('name')
+    expiry_date = request.form.get('expiry_date')
+    contact_detail = request.form.get('contact_detail')
+    if '' in (name, expiry_date, contact_detail):
+        result['msg'] = 'Please fill all details.'
+        return result
+    source = 'homepage'
+    create_lead = models.Lead().create_policy_lead(policy_type, source, name, expiry_date,
+                                                  contact_detail)
+    result['result'] = create_lead['result']
+    result['msg'] = create_lead['msg']
     return dumps(result)

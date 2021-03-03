@@ -2,9 +2,9 @@
 {% block content %}
 
     <div class="bg-light">
-        <div class="navbar navbar-dark bg-dark">
+        <div class="navbar navbar-dark bg-dark sticky-top">
             <div class="container">
-                <a class="navbar-brand text-white" href="/">Utkarsh Anand Financial Services</a>
+                <a class="navbar-brand fs-lg-1 text-white" href="/">Utkarsh Anand Financial Services</a>
                 <div class="navbar-nav">
                     <div class="nav-item">
                         <a class="nav-link" href="/login">LOGIN</a>
@@ -18,7 +18,7 @@
                     <div class="card border-0 mb-3 bg-light">
                         <div class="card-body">
                             <h1 class="card-title"><span class="fs-1 bi bi-person-circle"></span> UTKARSH ANAND
-                                    </h1>
+                            </h1>
                             <div class="row">
                                 <div class="col-md">
                                     <p><span class="bi bi-phone"></span> +91-8439493930
@@ -26,14 +26,14 @@
                                 </div>
                                 <div class="col-md text-center">
                                     <div class="btn-group">
-                                        <button class="btn px-5 bg-white text-success"><span
+                                        <a href="tel:8439493930" class="btn px-5 bg-white text-success"><span
                                                 class="bi bi-telephone-fill"></span> CALL
-                                        </button>
-                                        <button class="btn px-4 btn-success">
+                                        </a>
+                                        <a target="_blank" href="https://api.whatsapp.com/send?phone=8439493930" class="btn px-4 btn-success">
                                             <img width="30px"
                                                  src="{{ url_for('static', filename='img/icon_whatsapp.png') }}">
                                             WhatsApp
-                                        </button>
+                                        </a>
                                     </div>
                                 </div>
                             </div>
@@ -51,20 +51,26 @@
                     <div class="card mb-3 rounded">
                         <div class="card-body">
                             <h2 class="card-title">INSURANCE</h2>
-                            <figure>
+                            <figure class="px-3">
                                 <blockquote class="blockquote">
-                                    <p>Getting insurance is YOUR responsibility to your family and loved
-                                        ones.
-                                        You
-                                        may hate it but it is your responsibility.</p>
+                                    "Getting insurance is YOUR responsibility to your family and loved
+                                    ones.
+                                    You
+                                    may hate it but it is your responsibility."
                                 </blockquote>
                                 <figcaption class="blockquote-footer">
                                     Jeremiah
                                 </figcaption>
                             </figure>
+                            <p class="text-end">
+                                <button class="btn btn-light text-primary"
+                                        type="button" data-bs-toggle="modal"
+                                        data-bs-target="#policy_reminder_modal">
+                                    <span class="bi bi-bell-fill"></span> SET REMINDER
+                                </button>
+                            </p>
                         </div>
-                        <div class="card-body">
-                            <div class="accordion accordion-flush" id="accordion_services">
+                        <div class="accordion accordion-flush" id="accordion_services">
                                 <div class="accordion-item">
                                     <h3 class="accordion-header" id="heading_motor">
                                         <button class="accordion-button collapsed" type="button"
@@ -75,8 +81,7 @@
                                     <div class="accordion-collapse collapse"
                                          id="motor_insurance" data-bs-parent="#accordion_services">
                                         <div class="accordion-body">
-
-                                            <p><span class="lead fw-bold">Motor insurance</span> is an
+                                            <p><span class="lead fw-bold">Motor Insurance</span> is an
                                                 insurance policy that covers the
                                                 policyholder
                                                 in
@@ -91,15 +96,16 @@
                                                 compensating for
                                                 own
                                                 losses as well.</p>
-                                            <figure>
+                                            <figure class="p-3">
                                                 <blockquote class="blockquote">
-                                                    <p>Driving race cars is risky, not having motor
-                                                        insurance is riskier</p>
+                                                    <p>"Driving race cars is risky, not having motor
+                                                        insurance is riskier."</p>
                                                 </blockquote>
 
                                             </figure>
+
                                             <div class="row">
-                                                <div class="col-lg-8">
+                                                <div class="col-lg-6">
 
                                                     <h5 class="card-title">What are covered in Motor
                                                         Insurance</h5>
@@ -120,6 +126,9 @@
                                                         <li>Third Party Policy</li>
                                                         <li>Standalone OD Policy</li>
                                                     </ul>
+
+                                                </div>
+                                                <div class="col-lg-6">
                                                     <h5 class="card-title">Benefits you get from us</h5>
                                                     <ul>
                                                         <li>Lowest Premium</li>
@@ -139,14 +148,7 @@
                                                         <li>Download Policy</li>
                                                     </ol>
                                                 </div>
-                                                <div class="col-lg-4">
-                                                    <div class="d-grid">
-                                                        <button class="btn btn-light text-primary"
-                                                                type="button">GET POLICY
-                                                            REMINDER
-                                                        </button>
-                                                    </div>
-                                                </div>
+
                                             </div>
                                         </div>
                                     </div>
@@ -166,7 +168,6 @@
                                 </div>
 
                             </div>
-                        </div>
 
                     </div>
                 </div>
@@ -185,7 +186,7 @@
                                     <textarea placeholder="Type your query here" rows="5" class="form-control mb-3"
                                               required></textarea>
                                     <div class="d-grid">
-                                        <button class="btn btn-primary" type="submit">SUBMIT</button>
+                                        <button class="btn btn-primary btn-lg" type="submit">SUBMIT</button>
                                     </div>
                                 </form>
                             </div>
@@ -198,4 +199,104 @@
 
         </div>
     </div>
+
+
+
+    <div class="modal fade" id="policy_reminder_modal">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">GET POLICY REMINDER</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+
+                    <form name="form_policy_reminder" onsubmit="submit_policy_reminder_form(this)">
+                        <label class="form-label" for="reminder_policy_type">Policy Type</label>
+                        <select class="form-select mb-3" name="policy_type" id="reminder_policy_type">
+                            <option value="">Select Type</option>
+                            <option value="motor">Motor Policy</option>
+                            <option value="health">Health Policy</option>
+                        </select>
+                        <label class="form-label" for="reminder_name">Name</label>
+                        <input placeholder="Name" class="form-control mb-3" id="reminder_name" type="text" name="name"
+                               required/>
+                        <label class="form-label" for="reminder_contact_detail">Contact Detail</label>
+                        <input placeholder="Mobile Number or Email" class="form-control mb-3"
+                               id="reminder_contact_detail" type="text" name="contact_detail" required/>
+                        <label class="form-label" for="reminder_expiry_date">Expiry Date</label>
+                        <input placeholder="Expiry Date" class="form-control mb-3" id="reminder_expiry_date" type="date"
+                               name="expiry_date" required/>
+                        <div id="alert_reminder_motor"></div>
+                        <div class="d-grid mb-3">
+                            <button class="btn btn-primary" type="submit">
+                                <span style="display: none" class="spinner-border spinner-border-sm" id="loading"
+                                      role="status" aria-hidden="true"></span>
+                                SUBMIT
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+
+    <script>
+
+        function submit_policy_reminder_form(form) {
+            event.preventDefault()
+            data = $(form).serializeArray()
+            data.push({'name': 'source', 'value': 'homepage'})
+            hide_alert('alert_reminder_motor')
+            $("form :input").prop("disabled", true);
+            $(form).find('#loading').show()
+            $.ajax({
+                url: '/api/add_policy_reminder',
+                data: data,
+                dataType: 'JSON',
+                type: 'POST',
+                success: function (response) {
+                    if (response.result == true) {
+                        form.reset()
+                        show_alert('Reminder set successfully. We will call you before policy expiry.', 'success', 'alert_reminder_motor')
+                    } else {
+                        show_alert(response.msg, 'error', 'alert_reminder_motor')
+                    }
+                },
+                complete: function () {
+                    $(form).find('#loading').hide()
+                    $("form :input").prop("disabled", false);
+                }
+            })
+        }
+
+        function submit_query_form(form) {
+    event.preventDefault();
+    data = $(form).serialize();
+    $("form :input").prop("disabled", true);
+    $.ajax({
+        url: '/ajax/submit_query',
+        type: 'POST',
+        data: data,
+        dataType: 'JSON',
+        success: function (response) {
+            if (response.result == true) {
+                show_alert('Your query submitted successfully! Please wait for callback.', 'success')
+                form.reset();
+            } else {
+                show_alert('Error: Something went wrong.', 'error')
+            }
+        },
+        error: function (jqXHR, textStatus, errorThrown) {
+            show_alert(textStatus + ' ' + jqXHR.status + ': ' + errorThrown, 'warning');
+        },
+        complete: function () {
+            $("form :input").prop("disabled", false);
+        }
+    })
+
+}
+    </script>
 {% endblock %}

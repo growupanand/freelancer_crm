@@ -1,5 +1,6 @@
 from freelancer import app, render_template, session, db, functions, models, redirect, url_for
 from bson import ObjectId
+from datetime import datetime
 
 
 @app.route('/')
@@ -23,7 +24,18 @@ def admin_index_page():
     if 'logged_in' in session:
         if session['logged_in'] == True:
             if session['user']['type'] == 'admin':
-                return render_template('admin/index.html')
+                today = datetime.today()
+                month = today.month
+                year = today.year
+                motor_renewal_list = models.Policy_motor().get_renewal_list(month, year)
+                motor_renewal_count = {'total':0, 'not_touch':0, 'followup':0, 'won':0, 'lost':0}
+                for policy in motor_renewal_list:
+                    motor_renewal_count['total'] += 1
+                    if 'policy_status' in policy:
+                        motor_renewal_count[policy['policy_status']] += 1
+                    else:
+                        motor_renewal_count['not_touch'] +=1
+                return render_template('admin/index.html', motor_renewal_count=motor_renewal_count)
     return render_template('login.html')
 
 
@@ -66,3 +78,5 @@ def view_health_insurance_page(policy_id = None):
     current_policy_id = policy_id
     current_policy_type = 'health'
     return render_template('admin/insurance_renewal.html', current_policy_id=current_policy_id, current_policy_type=current_policy_type)
+
+
