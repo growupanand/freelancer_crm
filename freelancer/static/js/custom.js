@@ -1,5 +1,5 @@
 //function for display alert box
-function show_alert(msg, type = 'default', id = 'alert', alert_type = 'default') {
+function show_alert(msg, type = 'default', id = 'alert', alert_type = 'toast') {
     alert_e = document.getElementById(id)
     $(alert_e).hide()
     if (alert_type == 'toast') {

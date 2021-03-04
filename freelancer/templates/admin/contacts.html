@@ -1,6 +1,17 @@
 {% extends 'admin/base.html' %}
 {% block content %}
-    <div class="row mt-3">
+    <div class="card bg-transparent border-0">
+        <div class="card-body">
+            <nav aria-label="breadcrumb" style="--bs-breadcrumb-divider: '>';">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="/admin">Home</a></li>
+                    <li class="breadcrumb-item active text-capitalize" aria-current="page">Contacts</li>
+                </ol>
+            </nav>
+        </div>
+    </div>
+    <h1 class="my-3">Contacts</h1>
+    <div class="row">
         <div class="col-md-4 col-lg-3">
             <div class="card bg-transparent border-0 mb-3 d-none d-md-block">
                 <div class="card-body">
@@ -10,7 +21,8 @@
                     {% for person in recent_added %}
                         <a class="text-capitalize bg-transparent list-group-item list-group-item-action"
                            href="/crm/view_person/{{ person['_id'] }}">
-                            {{ person['name'] }}
+                            {{ person['name'] }}<br/>
+                            <span class="text-muted">{{ functions.format_timestamp(person['created'], '%d-%m-%Y') }}</span>
                         </a>
                     {% endfor %}
                 </div>
@@ -20,35 +32,42 @@
         <div class="col-md-8 col-lg-9">
             <div class="card bg-white position-relative">
                 <div class="card-body sticky-top bg-white">
-                    <h1 class="card-title mb-3">Contacts</h1>
                     <div class="row">
-                        <div class="col-8">
+                        <div class="col-lg-4 mb-3">
+                            <div class="d-grid">
+                                <button class="btn btn-primary" type="button" data-bs-toggle="modal"
+                                        data-bs-target="#add_person_modal">NEW
+                                </button>
+                            </div>
+                        </div>
+                        <div class="col-lg-8 mb-3">
                             <form onsubmit="submit_find_person(this)" name="find_person">
                                 <div class="input-group mb-3">
-                            <span class="input-group-text border-0 bg-light">
-                                <span class="bi bi-search"></span>
-                            </span>
-                                    <input placeholder="Name or Number" type="text"
+                                    <input placeholder="Search by Name or Mobile Number" type="text"
                                            class="form-control bg-light border-0"
                                            name="query"
                                            id="query" required/>
+                                    <span class="input-group-text border-0 bg-light">
+                                <span class="bi bi-search"></span>
+                            </span>
                                 </div>
                             </form>
                         </div>
-                        <div class="col-4">
-                            <div class="d-grid">
-                                <button class="btn btn-primary" type="button" data-bs-toggle="modal"
-                                    data-bs-target="#add_person_modal">NEW
-                            </button>
-                            </div>
-
-                        </div>
                     </div>
-                    <span class="text-muted">All (<span id="contact_count"></span>)</span>
+                    <p>
+                        <button id="all_contacts_button" class="btn badge rounded-pill bg-primary text-white"
+                                onclick="get_person_list()">
+                            ALL <span id="all_contacts_count"></span>
+                        </button>
+                        <span style="display: none" id="result_contacts_badge"
+                              class="fw-normal badge rounded-pill bg-light text-dark">
+                            Result
+                            "<span class="fw-bold" id="search_query_label"></span>"
+                            (<span class="fw-bold" id="result_contact_count"></span>)
+                        </span>
+                    </p>
                 </div>
-                <div class="list-group list-group-flush border-0" id="person_list">
-
-                </div>
+                <div class="list-group list-group-flush border-0" id="person_list"></div>
             </div>
         </div>
     </div>
@@ -163,10 +182,19 @@
                 data: {'query': query},
                 dataType: 'JSON',
                 success: function (response) {
-                    document.getElementById('contact_count').innerText = '0'
                     if (response.result == true) {
                         persons = response.data
-                        document.getElementById('contact_count').innerText = persons.length
+                        if (query == null) {
+                            document.find_person.reset()
+                            document.getElementById('all_contacts_button').className = 'btn badge rounded-pill bg-primary text-white'
+                            document.getElementById('all_contacts_count').innerText = persons.length
+                            $('#result_contacts_badge').fadeOut()
+                        } else {
+                            document.getElementById('all_contacts_button').className = 'btn badge rounded-pill bg-light text-primary'
+                            document.getElementById('search_query_label').innerText = query
+                            document.getElementById('result_contact_count').innerText = persons.length
+                            $('#result_contacts_badge').fadeIn()
+                        }
                         $('#person_list').html('')
                         for (i in persons) {
                             html = '<a class="text-capitalize d-flex align-items-center border-0 list-group-item list-group-item-action" href="/crm/view_person/' + persons[i]._id.$oid + '">' +

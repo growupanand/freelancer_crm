@@ -405,6 +405,7 @@ class Policy_motor:
                 self.ncb = self.db_data['ncb'] if 'ncb' in self.db_data else None
                 self.premium = self.db_data['premium'] if 'premium' in self.db_data else None
                 self.own_business = self.db_data['own_business'] if 'own_business' in self.db_data else None
+                self.claim_status = self.db_data['claim_status'] if 'claim_status' in self.db_data else None
                 self.o_dap = self.db_data['o_dap'] if 'o_dap' in self.db_data else None
                 self.created = self.db_data['created'] if 'created' in self.db_data else None
                 self.person_id = self.db_data['person_id'] if 'person_id' in self.db_data else None
@@ -455,7 +456,7 @@ class Policy_motor:
         renewal_list = []
         for policy in policy_list:
             if 'renewal_id' in policy:
-                if policy['renewal_id'] != None:
+                if policy['renewal_id'] not in (None, False):
                     if Policy_motor(policy['renewal_id']).own_business:
                         policy['policy_status'] = 'won'
                     else:
@@ -489,7 +490,7 @@ class Policy_motor:
     # update policy data
     def update_motor_policy(self, expiry_date=None, policy_number=None, policy_type=None,
                             company=None, idv=None, ncb=None, premium=None, own_business=None, o_dap=None,
-                            renewal_id=None, policy_status=None, lost_reason=None):
+                            renewal_id=None, policy_status=None, lost_reason=None, claim_status=None):
         result = {}
         result['result'] = False
         result['msg'] = 'Something went wrong.'
@@ -520,6 +521,8 @@ class Policy_motor:
             policy['o_dap'] = o_dap
         if not lost_reason is None:
             policy['lost_reason'] = lost_reason
+        if not claim_status is None:
+            policy['claim_status'] = claim_status
         if not renewal_id is None:
             policy['renewal_id'] = None if str.strip(renewal_id) == '' else renewal_id
         if not policy_status is None:
@@ -529,6 +532,7 @@ class Policy_motor:
         })
         if update_policy.acknowledged:
             result['result'] = True
+            result['msg'] = 'Policy updated successfully.'
         return result
 
     # delete policy
@@ -564,6 +568,7 @@ class Policy_health:
                 self.idv = self.db_data['idv'] if 'idv' in self.db_data else None
                 self.ncb = self.db_data['ncb'] if 'ncb' in self.db_data else None
                 self.premium = self.db_data['premium'] if 'premium' in self.db_data else None
+                self.claim_status = self.db_data['claim_status'] if 'claim_status' in self.db_data else None
                 self.own_business = self.db_data['own_business'] if 'own_business' in self.db_data else None
                 self.created = self.db_data['created'] if 'created' in self.db_data else None
                 self.person_id = self.db_data['person_id'] if 'person_id' in self.db_data else None
@@ -645,7 +650,7 @@ class Policy_health:
     # update policy data
     def update_health_policy(self, expiry_date=None, policy_owner=None, policy_number=None, policy_type=None,
                              company=None, idv=None, ncb=None, premium=None, own_business=None,
-                             renewal_id=None, policy_status=None):
+                             renewal_id=None, policy_status=None, claim_status=None):
         result = {}
         result['result'] = False
         result['msg'] = 'Something went wrong.'
@@ -674,6 +679,8 @@ class Policy_health:
             policy['premium'] = None if str.strip(premium) == '' else str.strip(premium)
         if not own_business is None:
             policy['own_business'] = own_business
+        if not claim_status is None:
+            policy['claim_status'] = claim_status
         if not renewal_id is None:
             policy['renewal_id'] = None if str.strip(renewal_id) == '' else renewal_id
         if not policy_status is None:

@@ -44,7 +44,7 @@ def admin_contacts_page():
     if not session.get('logged_in'):
         return login_page()
     recent_added = models.Person().get().limit(10).sort('_id', -1)
-    return render_template('admin/contacts.html', recent_added=recent_added)
+    return render_template('admin/contacts.html', recent_added=recent_added, functions=functions)
 
 
 @app.route('/crm/view_person/<_id>')

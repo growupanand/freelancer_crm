@@ -287,10 +287,12 @@ def update_vehicle_policy_api():
     idv = request.form.get('idv')
     ncb = request.form.get('ncb')
     premium = request.form.get('premium')
+    claim_status = request.form.get('claim_status')
+    print(claim_status)
     own_business = True if 'own_business' in request.form else False
     o_dap = True if 'o_dap' in request.form else False
     result = policy.update_motor_policy(expiry_date, policy_number, policy_type, company, idv, ncb, premium,
-                                        own_business, o_dap)
+                                        own_business, o_dap, claim_status=claim_status)
     return dumps(result)
 
 
@@ -359,9 +361,10 @@ def update_health_policy():
     idv = request.form.get('idv')
     ncb = request.form.get('ncb')
     premium = request.form.get('premium')
+    claim_status = request.form.get('claim_status')
     own_business = True if 'own_business' in request.form else False
     result = policy.update_health_policy(expiry_date,policy_owner, policy_number, policy_type, company, idv, ncb, premium,
-                                        own_business)
+                                        own_business, claim_status=claim_status)
     return dumps(result)
 
 
@@ -478,4 +481,20 @@ def add_policy_reminder_api():
                                                   contact_detail)
     result['result'] = create_lead['result']
     result['msg'] = create_lead['msg']
+    return dumps(result)
+
+
+@app.route('/api/update_claim_status', methods=['POST'])
+def api_update_claim_status():
+    result = {
+        'result' : False,
+        'msg' : 'Something went wrong.'
+    }
+    policy_type = request.form.get('policy_type')
+    _id = ObjectId(request.form.get('_id'))
+    claim_status = request.form.get('claim_status')
+    if policy_type == 'motor':
+        result = models.Policy_motor(_id).update_motor_policy(claim_status=claim_status)
+    elif policy_type == 'health':
+        result = models.Policy_health(_id).update_health_policy(claim_status=claim_status)
     return dumps(result)

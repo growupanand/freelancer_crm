@@ -14,7 +14,7 @@
                     {% if current_policy_type == 'motor' %}
                         <div class="mb-3">
                             <div id="registration_number" class="fs-5 mb-2"></div>
-                            <table class="table table-borderless table-striped table-sm small">
+                            <table class="table table-borderless table-striped table-sm">
                                 <tbody>
                                 <tr>
                                     <td class="text-muted">Registration Name</td>
@@ -54,9 +54,9 @@
                         <div class="row mb-2">
                             <div class="col-8">
                                 <span id="policy_number" class="fs-5"></span>
+                                <small id="own_business" class="badge rounded-pill bg-success"></small>
                             </div>
                             <div class="col-4 text-end">
-                                <small id="own_business" class="badge rounded-pill bg-success"></small>
                                 <div class="btn-group" role="group">
                                     <button id="previous_policy_btn" class="btn btn-light text-dark"
                                             onclick="view_renewal(this.value)">
@@ -71,7 +71,7 @@
                         </div>
 
                         {% if current_policy_type == 'health' %}
-                            <table class="table table-borderless table-striped table-sm small">
+                            <table class="table table-borderless table-striped table-sm">
                                 <tbody>
                                 <tr>
                                     <td class="text-muted">Policy Owner</td>
@@ -107,7 +107,7 @@
                         {% endif %}
 
                         {% if current_policy_type == 'motor' %}
-                            <table class="table table-borderless table-striped table-sm small">
+                            <table class="table table-borderless table-striped table-sm">
                                 <tbody>
                                 <tr>
                                     <td class="text-muted">Policy Company</td>
@@ -144,9 +144,22 @@
                 </div>
             </div>
 
-            <div class="col-md-5">
+            <div class="col-md-5 mb-3">
                 <div class="card border-0 mb-3">
                     <div class="card-body">
+                        <span class="card-title text-muted">Claim Status</span>
+                        <form name="form_claim_status">
+
+                            <input type="radio" value="false" class="btn-check" onchange="submit_form_claim_status()"
+                                   name="claim_status" id="no_claim_status" autocomplete="off"
+                            >
+                            <label class="btn rounded-pill btn-sm btn-outline-primary" for="no_claim_status">NO CLAIM</label>
+                            <input type="radio" value="true" class="btn-check" onchange="submit_form_claim_status()"
+                                   name="claim_status" id="claimed_status" autocomplete="off"
+                            >
+                            <label class="btn rounded-pill btn-sm btn-outline-primary" for="claimed_status">CLAIMED</label>
+                        </form>
+                        <br/>
                         <div class="row">
                             <div class="col">
                                 <div class="d-grid">
@@ -159,12 +172,12 @@
                             <div class="col">
                                 <div class="d-grid">
                                     <button id="renewal_lost_btn" class="btn btn-light text-danger"
-                                    onclick="renewal_lost()" disabled>LOST</button>
+                                            onclick="renewal_lost()" disabled>LOST
+                                    </button>
                                 </div>
                             </div>
                         </div>
-                    </div>
-                    <div class="card-body">
+                        <br/>
                         {% include 'admin/followup_card.html' %}
                     </div>
                 </div>
@@ -184,10 +197,10 @@
             <div class="modal-body">
                 <form name="add_renewal_policy_form" onsubmit="submit_add_renewal_policy_form(this)">
                     <input name="own_business" type="hidden" value="True"
-                               id="own_business"/>
+                           id="own_business"/>
                     <div class="form-check mb-2">
                         <input class="form-check-input" type="checkbox" checked
-                                disabled>
+                               disabled>
                         <label class="form-check-label" for="own_business">
                             Own Business
                         </label>
@@ -252,10 +265,10 @@
             <div class="modal-body">
                 <form name="renewal_lost_form" onsubmit="submit_renewal_lost_form(this)">
                     <select class="form-select mb-3" id="lost_reason" name="lost_reason">
-                    <option value="">Select Lost Reason</option>
-                    {% for reason in ('Self done', 'car sold', 'car total loss', 'Not contactable', 'others') %}
-                    <option value="{{ reason }}">{{ reason }}</option>
-                    {% endfor %}
+                        <option value="">Select Lost Reason</option>
+                        {% for reason in ('Self done', 'car sold', 'car total loss', 'Not contactable', 'others') %}
+                            <option value="{{ reason }}">{{ reason }}</option>
+                        {% endfor %}
                     </select>
                     <div class="d-grid">
                         <button type="submit" class="btn btn-primary">SUBMIT</button>
@@ -341,6 +354,8 @@
                     for (i of policy_fields) {
                         document.getElementById(i).innerText = policy[i]
                     }
+                    document.form_claim_status.reset()
+                    document.form_claim_status.claim_status.value = policy['claim_status']
                     document.getElementById('policy_type').innerHTML = (current_policy_type == 'motor') ? policy_type[policy.policy_type] : policy.policy_type
                     document.getElementById('own_business').innerHTML = (policy['own_business'] === true) ? 'OWNED' : ''
                     if (current_policy_type == 'motor') {
@@ -501,6 +516,33 @@
                 } else {
                     alert(response.msg)
                 }
+            }
+        })
+    }
+
+    function submit_form_claim_status() {
+        event.preventDefault()
+        form = document.form_claim_status
+        claim_status = form.claim_status.value
+        $(form).find(" :input").prop("disabled", true);
+        $.ajax({
+            url: '/api/update_claim_status',
+            data: {
+                'policy_type': current_policy_type,
+                '_id': current_policy_id,
+                'claim_status': claim_status
+            },
+            type: 'POST',
+            dataType: 'JSON',
+            success: function (response) {
+                if (response.result == true) {
+                    show_alert('Claim status updated successfully.', 'success')
+                } else {
+                    show_alert(response.msg, 'error')
+                }
+            },
+            complete: function () {
+                $(form).find(" :input").prop("disabled", false);
             }
         })
     }
