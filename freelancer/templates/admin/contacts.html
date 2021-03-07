@@ -1,3 +1,4 @@
+{% set current_page = 'contacts' %}
 {% extends 'admin/base.html' %}
 {% block content %}
     <div class="card bg-transparent border-0">
@@ -85,7 +86,7 @@
                     <div class="card-body">
                         <form name="add_person_form" onsubmit="submit_add_person_form(this)">
                             <div class="row">
-                                <div class="col-md">
+                                <div class="col-md-5">
                                     <select class="form-select mb-3" name="source_type" id="source_type">
                                         <option value="">Source Type</option>
                                         <option value="cold_call">Cold Call</option>
@@ -93,26 +94,26 @@
                                         <option value="walkin">Walk In</option>
                                     </select>
                                 </div>
-                                <div class="col-md">
+                                <div class="col-md-7">
                                     <input placeholder="Source" type="text" name="source_data" id="source_data"
                                            class="form-control mb-3"/>
                                 </div>
                             </div>
                             <label for="name" class="form-label col-lg-4">Name</label>
-                            <input type="text" id="name" name="name" class="form-control mb-2" required/>
-                            <div class="row mb-2">
+                            <input type="text" id="name" name="name" class="form-control mb-3" required/>
+                            <div class="row mb-3">
                                 <div class="col">
                                     <label for="number" class="form-label">Number</label>
                                 </div>
                                 <div class="col text-end">
                                     <button type="button" class="btn btn-light text-primary"
-                                            onclick="add_number_list()">+
-                                        ADD NUMBER
+                                            onclick="add_number_list()">
+                                        <span class="bi bi-plus"></span> ADD NUMBER
                                     </button>
                                 </div>
                             </div>
                             <div id="number_list">
-                                <input type="text" class="form-control mb-2" name="number[]" id="number" required/>
+                                <input type="text" class="form-control mb-3" name="number[]" id="number" required/>
                             </div>
                             <div class="d-grid">
                                 <button type="submit" class="btn btn-lg btn-primary">SUBMIT</button>
@@ -164,7 +165,7 @@
         function add_number_list() {
             number_element = '<div class="input-group mb-2">' +
                 '<input type="text" class="form-control" name="number[]" id="number" required/>' +
-                '<button class="btn btn-light text-danger border-1 border-danger" onclick="remove_number_list(this)">REMOVE</button>' +
+                '<button class="btn btn-danger" onclick="remove_number_list(this)"><span class="bi bi-dash"></span> REMOVE</button>' +
                 '</div>'
             $('#number_list').append(number_element)
         }

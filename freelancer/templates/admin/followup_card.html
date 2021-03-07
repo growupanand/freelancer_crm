@@ -1,14 +1,15 @@
+
 <form name="followup_form" onsubmit="submit_followup_form(this)">
             <textarea placeholder="Remark" rows="4"
                       class="form-control border-light bg-light mb-3"
                       id="followup_remark"
                       name="followup_remark"></textarea>
-    <div class="d-grid">
+    <div class="d-grid mb-3">
         <button type="submit" name="submit" class="btn btn-primary">FOLLOW</button>
     </div>
 </form>
 
-<div id="followup_list" class="overflow-auto list-group list-group-flush"></div>
+<div id="followup_list" class="list-group list-group-flush"></div>
 
 
 <script>

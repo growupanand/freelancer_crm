@@ -14,6 +14,29 @@ def login_api():
     return dumps(result)
 
 
+@app.route('/ajax/submit_enquiry', methods=["POST"])
+def api_submit_enquiry():
+    result = {
+        'result' : False,
+        'msg': 'Something went wrong.'
+    }
+    data = {
+        'created' : datetime.utcnow(),
+        'source' : request.form.get('source'),
+        'name' : request.form.get('name'),
+        'contact' : request.form.get('contact'),
+        'query' : request.form.get('query')
+    }
+    post_enquiry = db.query_collection.insert_one(data)
+    if post_enquiry.acknowledged:
+        result = {
+            'result': True,
+            'msg': 'Enquiry submitted Successfully.',
+            'new_id' : post_enquiry.acknowledged
+        }
+    return dumps(result)
+
+
 @app.route('/api/add_person', methods=['POST'])
 def add_person_api():
     if not session.get('logged_in'):

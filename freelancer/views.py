@@ -2,6 +2,10 @@ from freelancer import app, render_template, session, db, functions, models, red
 from bson import ObjectId
 from datetime import datetime
 
+active_page = {
+    'contacts': None,
+    'motor_renewal' : None
+}
 
 @app.route('/')
 def index():
@@ -35,7 +39,15 @@ def admin_index_page():
                         motor_renewal_count[policy['policy_status']] += 1
                     else:
                         motor_renewal_count['not_touch'] +=1
-                return render_template('admin/index.html', motor_renewal_count=motor_renewal_count)
+                health_renewal_list = models.Policy_health().get_renewal_list(month, year)
+                health_renewal_count = {'total': 0, 'not_touch': 0, 'followup': 0, 'won': 0, 'lost': 0}
+                for policy in health_renewal_list:
+                    health_renewal_count['total'] += 1
+                    if 'policy_status' in policy:
+                        health_renewal_count[policy['policy_status']] += 1
+                    else:
+                        health_renewal_count['not_touch'] += 1
+                return render_template('admin/index.html', motor_renewal_count=motor_renewal_count, health_renewal_count=health_renewal_count)
     return render_template('login.html')
 
 
@@ -44,6 +56,7 @@ def admin_contacts_page():
     if not session.get('logged_in'):
         return login_page()
     recent_added = models.Person().get().limit(10).sort('_id', -1)
+    active_page['contacts'] = 'active'
     return render_template('admin/contacts.html', recent_added=recent_added, functions=functions)
 
 

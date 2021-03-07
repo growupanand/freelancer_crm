@@ -1,20 +1,68 @@
 {% extends 'admin/base.html' %}
 {% block content %}
 
-    <h1>Dashboard</h1>
+    <h1 class="my-3"><span class="bi bi-graph-up"></span> Dashboard</h1>
     <div class="row">
         <div class="col-md-6 mb-3">
             <div class="card">
                 <div class="card-body">
-                    <h5 class="card-title">MOTOR INSURANCE RENEWALS</h5>
-                    <table class="table table-borderless">
-                        <tr class="text-secondary"><td>NOT CONTACTED</td><th class="text-end">{{ motor_renewal_count['not_touch'] }}</th></tr>
-                        <tr class="text-dark"><td>FOLLOWUP</td><th class="text-end">{{ motor_renewal_count['followup'] }}</th></tr>
-                        <tr class="text-success"><td>WON</td><th class="text-end">{{ motor_renewal_count['won'] }}</th></tr>
-                        <tr class="text-danger"><td>LOST</td><th class="text-end">{{ motor_renewal_count['lost'] }}</th></tr>
-                        <tr class="fw-bold"><th>TOTAL</th><th class="text-end">{{ motor_renewal_count['total'] }}</th></tr>
-                    </table>
+                    <h5 class="card-title">
+                        MOTOR INSURANCE RENEWALS
+                        <span class="fs-6 badge rounded-circle bg-primary float-end">{{ motor_renewal_count['total'] }}</span>
+                    </h5>
+                    <br/>
+                    <div class="list-group list-group-flush">
+                        <div class="list-group-item">
+                            NOT CONTACTED <span
+                                class="fs-6 badge rounded-circle bg-light text-dark float-end">{{ motor_renewal_count['not_touch'] }}</span>
+                        </div>
+                        <div class="list-group-item">
+                            FOLLOWUP <span
+                                class="fs-6 badge rounded-circle bg-warning float-end">{{ motor_renewal_count['followup'] }}</span>
+
+                        </div>
+                        <div class="list-group-item">
+                            WON <span
+                                class="fs-6 badge rounded-circle bg-success float-end">{{ motor_renewal_count['won'] }}</span>
+                        </div>
+                        <div class="list-group-item">
+                            LOST <span
+                                class="fs-6 badge rounded-circle bg-danger float-end">{{ motor_renewal_count['lost'] }}</span>
+                        </div>
+                    </div>
                 </div>
+
+            </div>
+        </div>
+        <div class="col-md-6 mb-3">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">
+                        HEALTH INSURANCE RENEWALS
+                        <span class="fs-6 badge rounded-circle bg-primary float-end">{{ health_renewal_count['total'] }}</span>
+                    </h5>
+                    <br/>
+                    <div class="list-group list-group-flush">
+                        <div class="list-group-item">
+                            NOT CONTACTED <span
+                                class="fs-6 badge rounded-circle bg-light text-dark float-end">{{ health_renewal_count['not_touch'] }}</span>
+                        </div>
+                        <div class="list-group-item">
+                            FOLLOWUP <span
+                                class="fs-6 badge rounded-circle bg-warning float-end">{{ health_renewal_count['followup'] }}</span>
+
+                        </div>
+                        <div class="list-group-item">
+                            WON <span
+                                class="fs-6 badge rounded-circle bg-success float-end">{{ health_renewal_count['won'] }}</span>
+                        </div>
+                        <div class="list-group-item">
+                            LOST <span
+                                class="fs-6 badge rounded-circle bg-danger float-end">{{ health_renewal_count['lost'] }}</span>
+                        </div>
+                    </div>
+                </div>
+
             </div>
         </div>
     </div>

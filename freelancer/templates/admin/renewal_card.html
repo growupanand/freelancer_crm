@@ -53,7 +53,7 @@
                     <div class="mb-3">
                         <div class="row mb-2">
                             <div class="col-8">
-                                <span id="policy_number" class="fs-5"></span>
+                                <span class="card-title">Policy Detail</span>
                                 <small id="own_business" class="badge rounded-pill bg-success"></small>
                             </div>
                             <div class="col-4 text-end">
@@ -73,6 +73,10 @@
                         {% if current_policy_type == 'health' %}
                             <table class="table table-borderless table-striped table-sm">
                                 <tbody>
+                                <tr>
+                                    <td class="text-muted">Policy Number</td>
+                                    <td id="policy_number"></td>
+                                </tr>
                                 <tr>
                                     <td class="text-muted">Policy Owner</td>
                                     <td id="policy_owner"></td>
@@ -109,6 +113,10 @@
                         {% if current_policy_type == 'motor' %}
                             <table class="table table-borderless table-striped table-sm">
                                 <tbody>
+                                <tr>
+                                    <td class="text-muted">Policy Number</td>
+                                    <td id="policy_number"></td>
+                                </tr>
                                 <tr>
                                     <td class="text-muted">Policy Company</td>
                                     <td id="policy_company"></td>
@@ -147,20 +155,18 @@
             <div class="col-md-5 mb-3">
                 <div class="card border-0 mb-3">
                     <div class="card-body">
-                        <span class="card-title text-muted">Claim Status</span>
                         <form name="form_claim_status">
-
+                            <span class="card-title text-muted me-3">Claim Status</span>
                             <input type="radio" value="false" class="btn-check" onchange="submit_form_claim_status()"
                                    name="claim_status" id="no_claim_status" autocomplete="off"
                             >
-                            <label class="btn rounded-pill btn-sm btn-outline-primary" for="no_claim_status">NO CLAIM</label>
+                            <label class="btn btn-sm btn-outline-primary" for="no_claim_status">NO CLAIM</label>
                             <input type="radio" value="true" class="btn-check" onchange="submit_form_claim_status()"
                                    name="claim_status" id="claimed_status" autocomplete="off"
                             >
-                            <label class="btn rounded-pill btn-sm btn-outline-primary" for="claimed_status">CLAIMED</label>
+                            <label class="btn btn-sm btn-outline-primary" for="claimed_status">CLAIMED</label>
                         </form>
-                        <br/>
-                        <div class="row">
+                        <div class="row mb-3">
                             <div class="col">
                                 <div class="d-grid">
                                     <button id="renewal_done_btn" class="btn btn-light text-success" value=""
@@ -177,7 +183,6 @@
                                 </div>
                             </div>
                         </div>
-                        <br/>
                         {% include 'admin/followup_card.html' %}
                     </div>
                 </div>
@@ -369,7 +374,7 @@
                             }
                         }
                     }
-                    document.getElementById('name').innerHTML = '<a style="text-decoration: none" href="/crm/view_person/' + person._id.$oid + '">' + person.name + '</a>'
+                    document.getElementById('name').innerHTML = '<a style="text-decoration: none" target="_blank" href="/crm/view_person/' + person._id.$oid + '">' + person.name + ' <small class="bi bi-box-arrow-in-up-right"></small> </a>'
                     for (i of ['numbers']) {
                         document.getElementById(i).innerText = person[i]
                     }
