@@ -1,64 +1,69 @@
 {% extends 'admin/base.html' %}
 {% block content %}
 
-    <h1 class="my-3"><span class="bi bi-graph-up"></span> Dashboard</h1>
+    <h2 class="my-5"><span class="bi bi-graph-up"></span> Dashboard</h2>
     <div class="row">
         <div class="col-md-6 mb-3">
-            <div class="card">
+            <div class="card mb-3">
                 <div class="card-body">
-                    <h5 class="card-title">
-                        MOTOR INSURANCE RENEWALS
-                        <span class="fs-6 badge rounded-circle bg-primary float-end">{{ motor_renewal_count['total'] }}</span>
+                    <h5 class="card-title d-flex justify-content-between">
+                        <a class="text-decoration-none" href="/motor_insurance">MOTOR INSURANCE RENEWALS</a>
+                        <span class="fs-6 badge rounded-circle bg-primary">{{ motor_renewal_count['total'] }}</span>
                     </h5>
                     <br/>
                     <div class="list-group list-group-flush">
-                        <div class="list-group-item">
+                        <div class="list-group-item d-flex justify-content-between">
                             NOT CONTACTED <span
-                                class="fs-6 badge rounded-circle bg-light text-dark float-end">{{ motor_renewal_count['not_touch'] }}</span>
+                                class="fs-6 badge rounded-circle bg-light text-dark">{{ motor_renewal_count['not_touch'] }}</span>
                         </div>
-                        <div class="list-group-item">
+                        <div class="list-group-item d-flex justify-content-between">
                             FOLLOWUP <span
-                                class="fs-6 badge rounded-circle bg-warning float-end">{{ motor_renewal_count['followup'] }}</span>
-
+                                class="fs-6 badge rounded-circle bg-light text-warning">{{ motor_renewal_count['followup'] }}</span>
                         </div>
-                        <div class="list-group-item">
+                        <div class="list-group-item d-flex justify-content-between">
                             WON <span
-                                class="fs-6 badge rounded-circle bg-success float-end">{{ motor_renewal_count['won'] }}</span>
+                                class="fs-6 badge rounded-circle bg-light text-success">{{ motor_renewal_count['won'] }}</span>
                         </div>
-                        <div class="list-group-item">
+                        <div class="list-group-item d-flex justify-content-between">
                             LOST <span
-                                class="fs-6 badge rounded-circle bg-danger float-end">{{ motor_renewal_count['lost'] }}</span>
+                                class="fs-6 badge rounded-circle bg-light text-danger">{{ motor_renewal_count['lost'] }}</span>
                         </div>
                     </div>
                 </div>
 
             </div>
+            <div class="mb-3">
+                <a href="/manage_vehicles" class="btn btn-light text-primary">
+                    MANAGE VEHICLES
+                    <span class="bi bi-chevron-right"></span>
+                </a>
+            </div>
         </div>
         <div class="col-md-6 mb-3">
             <div class="card">
                 <div class="card-body">
-                    <h5 class="card-title">
-                        HEALTH INSURANCE RENEWALS
-                        <span class="fs-6 badge rounded-circle bg-primary float-end">{{ health_renewal_count['total'] }}</span>
+                    <h5 class="card-title d-flex justify-content-between">
+                        <a href="/health_insurance" class="text-decoration-none">HEALTH INSURANCE RENEWALS</a>
+                        <span class="fs-6 badge rounded-circle bg-primary">{{ health_renewal_count['total'] }}</span>
                     </h5>
                     <br/>
                     <div class="list-group list-group-flush">
-                        <div class="list-group-item">
+                        <div class="list-group-item d-flex justify-content-between">
                             NOT CONTACTED <span
-                                class="fs-6 badge rounded-circle bg-light text-dark float-end">{{ health_renewal_count['not_touch'] }}</span>
+                                class="fs-6 badge rounded-circle bg-light text-dark">{{ health_renewal_count['not_touch'] }}</span>
                         </div>
-                        <div class="list-group-item">
+                        <div class="list-group-item d-flex justify-content-between">
                             FOLLOWUP <span
-                                class="fs-6 badge rounded-circle bg-warning float-end">{{ health_renewal_count['followup'] }}</span>
+                                class="fs-6 badge rounded-circle bg-light text-warning">{{ health_renewal_count['followup'] }}</span>
 
                         </div>
-                        <div class="list-group-item">
+                        <div class="list-group-item d-flex justify-content-between">
                             WON <span
-                                class="fs-6 badge rounded-circle bg-success float-end">{{ health_renewal_count['won'] }}</span>
+                                class="fs-6 badge rounded-circle bg-light text-success">{{ health_renewal_count['won'] }}</span>
                         </div>
-                        <div class="list-group-item">
+                        <div class="list-group-item d-flex justify-content-between">
                             LOST <span
-                                class="fs-6 badge rounded-circle bg-danger float-end">{{ health_renewal_count['lost'] }}</span>
+                                class="fs-6 badge rounded-circle bg-light text-danger">{{ health_renewal_count['lost'] }}</span>
                         </div>
                     </div>
                 </div>
@@ -66,5 +71,4 @@
             </div>
         </div>
     </div>
-
 {% endblock %}

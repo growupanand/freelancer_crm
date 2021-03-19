@@ -5,37 +5,44 @@
             display: none;
         }
     </style>
-    <div class="card bg-transparent border-0">
-        <div class="card-body">
-            <nav aria-label="breadcrumb" style="--bs-breadcrumb-divider: '>';">
-                <ol class="breadcrumb">
-                    <li class="breadcrumb-item"><a href="/admin">Home</a></li>
-                    <li class="breadcrumb-item"><a href="/contacts">Contacts</a></li>
-                    <li class="breadcrumb-item active text-capitalize" aria-current="page">{{ person['name'] }}</li>
-                </ol>
-            </nav>
-        </div>
-    </div>
+    <nav aria-label="breadcrumb" class="my-3" style="--bs-breadcrumb-divider: '>';">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="/admin">Home</a></li>
+            <li class="breadcrumb-item"><a href="/contacts">Contacts</a></li>
+            <li class="breadcrumb-item active text-capitalize" aria-current="page">{{ person['name'] }}</li>
+        </ol>
+    </nav>
     <div id="alert"></div>
-    <h1 class="text-capitalize my-3">
-        {{ person['name'] }}
-    </h1>
+    <div class="my-5 d-flex justify-content-between">
+        <h1 class="text-capitalize ">{{ person['name'] }}</h1>
+    </div>
     <div class="row">
-        <div class="col-md-3">
-            <div class="d-grid">
-                <label class="btn mb-3" for="flexSwitchCheckChecked">
-                    <div class="form-check form-switch text-start fs-5">
-                        <input onclick="edit_control_toggle()" class="form-check-input" type="checkbox"
-                               id="flexSwitchCheckChecked">
-                        EDIT
-                    </div>
-                </label>
-            </div>
+        <div class="col-md-3 mb-3">
             <div class="card mb-3">
-                <div class="card-header"><span class="bi-phone"></span> MOBILE NUMBER</div>
-                <div class="card-body edit_control">
-                    <form name="add_contact_number_form" onsubmit="submit_add_contact_number_form(this)">
-                        <div class="input-group">
+                <div class="card-body">
+                    <label class="btn d-flex justify-content-start" for="flexSwitchCheckChecked">
+                        <div class="form-check form-switch">
+                            <input onclick="edit_control_toggle()" class="form-check-input" type="checkbox"
+                                   id="flexSwitchCheckChecked">
+                        </div>
+                        <span>EDIT</span>
+                    </label>
+                </div>
+                <div class="card-body">
+                    <h6 class="card-title"><span class="bi bi-phone"></span> MOBILE NUMBER</h6>
+                    <div id="contact_number_list" class="list-group list-group-flush">
+                        {% for number in person['numbers'] %}
+                            <div class="list-group-item d-flex justify-content-between">
+                                {{ number }}
+                                <button onclick="remove_contact_number(this, '{{ number }}')" class="btn edit_control">
+                                    <span class="bi bi-dash-circle-fill text-danger"></span>
+                                </button>
+                            </div>
+                        {% endfor %}
+                    </div>
+                    <form class="m-0 edit_control" name="add_contact_number_form"
+                          onsubmit="submit_add_contact_number_form(this)">
+                        <div class="input-group input-group-sm">
                             <input name="number" placeholder="Type Number here"
                                    class="form-control bg-light border-light"
                                    type="text" required/>
@@ -45,185 +52,167 @@
                         </div>
                     </form>
                 </div>
-                <div id="contact_number_list" class="list-group list-group-flush">
-                    {% for number in person['numbers'] %}
-                        <div class="list-group-item">
-                            {{ number }}
-                            <button onclick="remove_contact_number(this, '{{ number }}')" class="float-end btn ">
-                                <span class="edit_control bi bi-dash-circle-fill text-danger"></span>
-                            </button>
-                        </div>
-                    {% endfor %}
-                </div>
-            </div>
-            <div class="card mb-3">
-                <div class="card-header"><span class="bi-mailbox"></span> EMAIL</div>
-                <div class="card-body edit_control">
-                    <form name="add_email_form" onsubmit="submit_add_email_form(this)">
-                        <div class="input-group">
-                            <input name="email" placeholder="Type email here" class="bg-light border-light form-control"
+                <div class="card-body">
+                    <h6 class="card-title"><span class="bi bi-at"></span> EMAIL</h6>
+                    <div id="email_list" class="list-group list-group-flush">
+                        {% for email in person['emails'] %}
+                            <div class="list-group-item d-flex justify-content-between">
+                                {{ email }}
+                                <button onclick="remove_email(this, '{{ email }}')" class="btn edit_control">
+                                    <span class="bi bi-dash-circle-fill text-danger"></span>
+                                </button>
+                            </div>
+                        {% endfor %}
+                    </div>
+                    <form class="m-0 edit_control" name="add_email_form" onsubmit="submit_add_email_form(this)">
+                        <div class="input-group input-group-sm">
+                            <input name="email" placeholder="Type Email here" class="bg-light border-light form-control"
                                    type="text" required/>
                             <button type="submit" class=" btn btn-primary">
                                 ADD
                             </button>
                         </div>
                     </form>
-                </div>
-                <div id="email_list" class="list-group list-group-flush">
-                    {% for email in person['emails'] %}
-                        <div class="list-group-item">{{ email }}
-                            <button onclick="remove_email(this, '{{ email }}')" class="float-end btn edit_control">
-                                <span class="bi bi-dash-circle-fill text-danger"></span>
-                            </button>
-                        </div>
-                    {% endfor %}
-                </div>
-            </div>
-            <div class="card mb-3">
-                <ul class="list-group list-group-flush">
-                    <li class="list-group-item">
-                        <span class="text-capitalize">{{ functions.source_type[person['source_type']] }}</span><br/>
-                        <small class="text-muted">SOURCE TYPE</small>
-                    </li>
-                    <li class="list-group-item">
-                        <span class="text-capitalize">{{ person['source_data'] }}</span><br/>
-                        <small class="text-muted">SOURCE</small>
-                    </li>
-                </ul>
-            </div>
 
-            <div class="card bg-light border-0 mb-3">
-                <div class="card-body edit_control">
-                    <div class="d-grid">
-                        <button class="btn btn-danger" onclick="delete_person()">
-                            DELETE PERSON
-                        </button>
-                    </div>
                 </div>
+                <div class="card-body">
+                    <h6 class="card-title">Other Information</h6>
+                    <ul class="list-group list-group-flush">
+                        <li class="list-group-item">
+                            <span class="text-capitalize">{{ functions.source_type[person['source_type']] }}</span><br/>
+                            <small class="text-muted">SOURCE TYPE</small>
+                        </li>
+                        <li class="list-group-item">
+                            <span class="text-capitalize">{{ person['source_data'] }}</span><br/>
+                            <small class="text-muted">SOURCE</small>
+                        </li>
+                    </ul>
+                </div>
+
             </div>
-
-
+            <div class="my-3 d-grid">
+                <button class="btn btn-danger text-nowrap edit_control" onclick="delete_person()">
+                    DELETE PERSON DATA
+                </button>
+            </div>
         </div>
-        <div class="col-md-9">
-            <ul class="nav nav-pills nav-fill mb-3" id="pills-tab" role="tablist">
+        <div class="col-md-9 mb-3">
+            <ul class="nav nav-pills nav-fill mb-3" id="policy_type_navbar" role="tablist">
                 <li class="nav-item" role="presentation">
-                    <a class="nav-link active" data-bs-toggle="pill" href="#vehicle_list_tab"
-                       role="tab">
-                        MOTOR <span
-                            class="float-end badge rounded-pill bg-white border-primary text-primary">{{ person.registration_list|length }}</span>
+                    <a class="nav-link bg-gradient active" id="motor_card_tab" data-bs-toggle="pill"
+                       href="#motor_card" type="button">
+                        MOTOR
+                        <span class="float-end badge bg-white rounded-pill text-primary">{{ person.registration_list|length }}</span>
                     </a>
                 </li>
                 <li class="nav-item" role="presentation">
-                    <a class="nav-link" data-bs-toggle="pill" href="#health_list_tab"
-                       role="tab">
-                        HEALTH <span
-                            class="float-end badge rounded-pill bg-white border-primary text-primary">{{ person['health_policy_list']|length }}</span>
+                    <a class="nav-link bg-gradient" id="health_card_tab" data-bs-toggle="pill"
+                       href="#health_card" type="button">
+                        HEALTH
+                        <span class="float-end badge bg-white rounded-pill text-primary">{{ person.health_policy_list|length }}</span>
                     </a>
                 </li>
             </ul>
-            <div class="tab-content" id="pills-tabContent">
-                <div class="tab-pane fade show active" id="vehicle_list_tab" role="tabpanel">
-                    <div class="mb-3">
+            <div class="tab-content">
+                <div id="motor_card" class="card active show tab-pane fade mb-3">
+                    <h5 class="card-header">MOTOR INSURANCE</h5>
+                    <div class="card-body">
                         <button data-bs-toggle="modal" data-bs-target="#add_vehicle_modal"
-                                class="btn btn-primary">
-                            ADD VEHICLE
+                                class="btn btn-light text-primary fw-bold">
+                            <span class="bi bi-plus-circle-fill fw-bold"></span> ADD VEHICLE
                         </button>
-                    </div>
-
-                    <div class="list-group">
-                        {% for vehicle in person.registration_list %}
-                            <div class="list-group-item mb-3 border-1">
-                                <div class="row">
-                                    <div class="col-10">
+                        <div class="list-group list-group-flush">
+                            {% for vehicle in person.registration_list %}
+                                <div class="list-group-item">
+                                    <div class="mb-3 d-flex">
                                         <h4 class="card-title text-uppercase my-3">
-                                            {{ vehicle['registration_number'] }} <br/>
-                                            <small class="text-muted">{{ vehicle['registration_name'] }}</small>
+                                            {{ vehicle['registration_number'] }} -
+                                            <span class="">{{ vehicle['registration_name'] }}</span>
                                         </h4>
-                                    </div>
-                                    <div class="col-2">
-                                        <button class="btn text-primary float-end"
-                                                onclick="view_vehicle('{{ vehicle['_id'] }}')">
-                                            EDIT
+                                        <button class="btn text-primary"
+                                                onclick="view_vehicle('{{ vehicle['_id'] }}')">EDIT
                                         </button>
                                     </div>
-                                </div>
-
-                                <div class="row">
-                                    <div class="col-lg-6 mb-3">
-                                        <table class="text-uppercase table table-borderless table-striped table-sm">
-                                            <tr>
-                                                <td class="text-muted">Number</td>
-                                                <td>{{ vehicle['registration_number'] }}</td>
-                                            </tr>
-                                            <tr>
-                                                <td class="text-muted">Name</td>
-                                                <td>{{ vehicle['registration_name'] }}</td>
-                                            </tr>
-                                            <tr>
-                                                <td class="text-muted">Make - Model</td>
-                                                <td>
-                                                    {{ vehicle['company'] }} - {{ vehicle['model'] }}
-                                                </td>
-                                            </tr>
-                                            <tr>
-                                                <td class="text-muted">Reg Date</td>
-                                                <td>{{ functions.format_timestamp(vehicle['registration_date'], '%d-%m-%Y') }}</td>
-                                            </tr>
-                                            <tr>
-                                                <td class="text-muted">MFG Year</td>
-                                                <td>{{ vehicle['mfg'] }}</td>
-                                            </tr>
-                                            <tr>
-                                                <td class="text-muted">CC</td>
-                                                <td>{{ vehicle['cc'] }}</td>
-                                            </tr>
-                                            <tr>
-                                                <td class="text-muted">Fuel Type</td>
-                                                <td>{{ vehicle['fuel'] }}</td>
-                                            </tr>
-                                        </table>
-                                    </div>
-                                    <div class="col-lg-6 mb-3">
-                                        <p>
-                                            <span class="fs-5">Policy List</span>
-                                            <button class="btn btn-light text-primary float-end"
-                                                    onclick="add_vehicle_policy('{{ vehicle['registration_number'] }}', '{{ vehicle['_id'] }}')">
-                                                ADD POLICY
-                                            </button>
-                                        </p>
-                                        <div class="list-group list-group-flush">
-                                            {% for policy in vehicle.motor_policy_list %}
-                                                <button onclick="view_vehicle_policy('{{ policy['_id'] }}')"
-                                                        class="border-0 list-group-item list-group-item-action">
-                                                    <span class="text-muted d-inline-block">{{ functions.format_timestamp(policy['expiry_date'], '%d-%m-%Y') }}</span>
-                                                    <span class="d-inline-block float-end">{{ policy['policy_number'] }}</span>
+                                    <div class="row">
+                                        <div class="col-lg-6 mb-3">
+                                            <table class="text-uppercase table table-borderless table-striped table-sm align-middle">
+                                                <tr>
+                                                    <td class="text-muted text-nowrap">Number</td>
+                                                    <td>{{ vehicle['registration_number'] }}</td>
+                                                </tr>
+                                                <tr>
+                                                    <td class="text-muted text-nowrap">Name</td>
+                                                    <td>{{ vehicle['registration_name'] }}</td>
+                                                </tr>
+                                                <tr>
+                                                    <td class="text-muted text-nowrap">Make - Model</td>
+                                                    <td>
+                                                        {{ vehicle['company'] }} - {{ vehicle['model'] }}
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <td class="text-muted text-nowrap">Reg Date</td>
+                                                    <td>{{ functions.format_timestamp(vehicle['registration_date'], '%d-%m-%Y') }}</td>
+                                                </tr>
+                                                <tr>
+                                                    <td class="text-muted text-nowrap">MFG Year</td>
+                                                    <td>{{ vehicle['mfg'] }}</td>
+                                                </tr>
+                                                <tr>
+                                                    <td class="text-muted text-nowrap">CC</td>
+                                                    <td>{{ vehicle['cc'] }}</td>
+                                                </tr>
+                                                <tr>
+                                                    <td class="text-muted text-nowrap">Fuel Type</td>
+                                                    <td>{{ vehicle['fuel'] }}</td>
+                                                </tr>
+                                            </table>
+                                        </div>
+                                        <div class="col-lg-6 mb-3">
+                                            <div class="d-flex justify-content-between">
+                                                <h6 class=" my-auto">Policy List</h6>
+                                                <button class="btn btn-light text-primary btn-sm"
+                                                        onclick="add_vehicle_policy('{{ vehicle['registration_number'] }}', '{{ vehicle['_id'] }}')">
+                                                    <span class="bi bi-plus"></span> ADD POLICY
                                                 </button>
-                                            {% endfor %}
+                                            </div>
+                                            <div class="list-group list-group-flush">
+                                                {% for policy in vehicle.motor_policy_list %}
+                                                    <button onclick="view_vehicle_policy('{{ policy['_id'] }}')"
+                                                            class="border-0 list-group-item list-group-item-action">
+                                                        <span class="d-inline-block">{{ policy['policy_number'] }}</span>
+                                                        <span class="text-muted d-inline-block float-end">{{ functions.format_timestamp(policy['expiry_date'], '%d-%m-%Y') }}</span>
+                                                    </button>
+                                                {% endfor %}
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
-                            </div>
-                        {% endfor %}
+                            {% endfor %}
+                        </div>
                     </div>
                 </div>
-                <div class="tab-pane fade" id="health_list_tab" role="tabpanel">
-                    <div class="mb-3">
+                <div id="health_card" class="card tab-pane fade mb-3">
+                    <h5 class="card-header">HEALTH INSURANCE</h5>
+                    <div class="card-body">
                         <button data-bs-toggle="modal" data-bs-target="#add_health_policy_modal"
-                                class="btn btn-primary">
-                            ADD HEALTH POLICY
+                                class="btn btn-light text-primary fw-bold">
+                            <span class="bi bi-plus-circle-fill fw-bold"></span> ADD POLICY
                         </button>
                     </div>
-                    <div class="list-group">
+                    <div class="list-group list-group-flush">
                         {% for policy in person['health_policy_list'] %}
                             <button onclick="view_health_policy('{{ policy['_id'] }}')"
                                     class="list-group-item list-group-item-action">
-                                <span class="text-muted d-inline-block">{{ functions.format_timestamp(policy['expiry_date'], '%d-%m-%Y') }}</span>
                                 <span class="d-inline-block">{{ policy['policy_owner'] }}</span>
+                                <span class="text-muted d-inline-block float-end">{{ functions.format_timestamp(policy['expiry_date'], '%d-%m-%Y') }}</span>
+
                             </button>
                         {% endfor %}
                     </div>
                 </div>
             </div>
+
         </div>
     </div>
 
@@ -244,9 +233,20 @@
                         <label for="registration_date" class="form-label">Registration Date</label>
                         <input type="date" id="registration_date" name="registration_date" class="form-control mb-2"/>
                         <label for="company" class="form-label">Company</label>
-                        <input type="text" id="company" name="company" class="form-control mb-2"/>
+                        <select onchange="check_select(this);load_vehicle_models(this);" id="company" name="company"
+                                class="form-select mb-2">
+                            <option value="">Select Company</option>
+                            <option value="other">Other</option>
+                        </select>
+                        <input style="display: none" type="text" class="form-control mb-3" name="company_other"
+                               placeholder="Type Company name here" disabled/>
                         <label for="model" class="form-label">Model</label>
-                        <input type="text" id="model" name="model" class="form-control mb-2"/>
+                        <select onchange="check_select(this);" id="model" name="model" class="form-select mb-2">
+                            <option value="">Select Model</option>
+                            <option value="other">Other</option>
+                        </select>
+                        <input style="display: none" type="text" class="form-control mb-3" name="model_other"
+                               placeholder="Type vehicle model" disabled/>
                         <label for="cc" class="form-label">CC</label>
                         <input type="text" id="cc" name="cc" class="form-control mb-2"/>
                         <label for="fuel" class="form-label">Fuel Type</label>
@@ -386,15 +386,11 @@
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
-                    <p>
-                        <button class="btn btn-light text-primary" onclick="view_edit_motor_policy_modal()">EDIT
+                    <p class="d-flex justify-content-between">
+                        <span id="motor_policy_table_own_business"></span>
+                        <button class="btn btn-outline-primary btn-sm" onclick="view_edit_motor_policy_modal()">EDIT
                         </button>
-                        <a href="#" class="btn btn-link float-end" target="_blank" id="view_motor_renewal_button">VIEW
-                            RENEWAL
-                            PAGE
-                            <span class="bi bi-box-arrow-in-up-right"></span> </a>
                     </p>
-                    <p id="motor_policy_table_own_business"></p>
                     <table id="motor_policy_table" class="table table-borderless table-striped text-uppercase">
                         <tbody>
                         <tr>
@@ -435,6 +431,12 @@
                         </tr>
                         </tbody>
                     </table>
+                    <p class="d-grid">
+                        <a href="#" class="btn btn-link" target="_blank" id="view_motor_renewal_button">VIEW
+                            RENEWAL
+                            PAGE
+                            <span class="bi bi-box-arrow-in-up-right"></span> </a>
+                    </p>
                 </div>
             </div>
         </div>
@@ -983,7 +985,7 @@
                         }
                         expiry_date = response.data.expiry_date
                         if (expiry_date != null) {
-                            expiry_date = formatdateinput(expiry_date.$date)
+                            expiry_date = formatdate(expiry_date.$date)
                         }
                         form.expiry_date.value = document.getElementById('motor_policy_table_expiry_date').innerHTML = expiry_date
                         $('#view_vehicle_policy_modal').modal('show')
@@ -1133,9 +1135,50 @@
         function view_edit_health_policy_modal() {
             $('#view_health_policy_modal').modal('hide').on('hidden.bs.modal', function (e) {
                 $('#edit_health_policy_modal').modal('show');
-
                 $(this).off('hidden.bs.modal'); // Remove the 'on' event binding
             });
+        }
+
+        var vehicles = []
+
+        var add_vehicle_modal = document.getElementById('add_vehicle_modal')
+        add_vehicle_modal.addEventListener('show.bs.modal', function (event) {
+            $.ajax({
+                url: '/api/get_vehicle_company_list',
+                type: 'POST',
+                dataType: 'JSON',
+                success: function (response) {
+                    if (response.result == true) {
+                        vehicles = []
+                        document.add_vehicle_form.company.innerHTML = '<option value="">Select Company</option>'
+                        for (i in response.data) {
+                            vehicles.push(response.data[i])
+                        }
+                        for (i in vehicles) {
+                            document.add_vehicle_form.company.innerHTML += '<option value="' + vehicles[i].company_name + '">' + vehicles[i].company_name + '</option>'
+                        }
+                        document.add_vehicle_form.company.innerHTML += '<option value="other">Other</option>'
+                    }
+                }
+            })
+        })
+
+        function load_vehicle_models(e) {
+            selected_vehicle = e.value
+            models = []
+            for (i in vehicles) {
+                if (vehicles[i]['company_name'] == selected_vehicle) {
+                    if ('models' in vehicles[i]) {
+                        models = vehicles[i]['models']
+                    }
+                }
+            }
+
+            document.add_vehicle_form.model.innerHTML = '<option value="">Select Model</option>'
+            for (i in models) {
+                document.add_vehicle_form.model.innerHTML += '<option value="' + models[i].name + '">' + models[i].name + '</option>'
+            }
+            document.add_vehicle_form.model.innerHTML += '<option value="other">Other</option>'
         }
     </script>
 {% endblock %}

@@ -1,0 +1,96 @@
+{% extends 'admin/base.html' %}
+{% block content %}
+    <nav aria-label="breadcrumb" class="my-3" style="--bs-breadcrumb-divider: '>';">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="/admin">Home</a></li>
+            <li class="breadcrumb-item"><a href="/manage_vehicles">Manage Vehicles</a></li>
+            <li class="breadcrumb-item active text-capitalize"
+                aria-current="page">{{ vehicle.db_data['company_name'] }}</li>
+        </ol>
+    </nav>
+    <h1 class="my-5 text-capitalize">{{ vehicle.db_data['company_name'] }}</h1>
+    <div class="mb-3">
+        <button class="btn btn-primary" data-bs-target="#modal_add_vehicle_model" data-bs-toggle="modal">
+            <span class="bi bi-plus fw-bold"></span>
+            NEW MODEL
+        </button>
+    </div>
+    <div id="list_group_vehicles_models" class="list-group mb-3">
+        {% for model in vehicle.models %}
+            <div class="list-group-item d-flex justify-content-between text-capitalize">
+                {{ model['name'] }}
+                <button onclick="delete_vehicle_model('{{ model['name'] }}')"
+                        class="btn btn-sm rounded-pill btn-danger">
+                    <span class="bi bi-dash"></span> Remove
+                </button>
+            </div>
+        {% endfor %}
+    </div>
+
+    <div class="modal fade" id="modal_add_vehicle_model">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">ADD NEW VEHICLE MODEL</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div id="alert"></div>
+                    <form name="form_add_vehicle_model" onsubmit="submit_form_add_vehicle_model(this)">
+                        <label for="model_name" class="form-label">Model Name</label>
+                        <input type="text" class="form-control mb-3" name="model_name" id="model_name" required/>
+                        <div class="d-grid">
+                            <button class="btn btn-primary btn-lg">SUBMIT</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        var company_name = '{{ vehicle.db_data['company_name'] }}'
+        var company_id = '{{ vehicle.db_data['_id'] }}'
+
+        function submit_form_add_vehicle_model(form) {
+            event.preventDefault()
+            model_name = form.model_name.value
+            $.ajax({
+                url: '/api/add_vehicle_model',
+                data: {'company_id': company_id, 'model_name': model_name},
+                type: 'POST',
+                dataType: 'JSON',
+                success: function (response) {
+                    if (response.result === true) {
+                        form.reset()
+                        show_alert('Model Successfully added.', 'success')
+                        location.reload()
+                    } else {
+                        alert(response.msg)
+                    }
+                }
+            })
+        }
+
+
+        function delete_vehicle_model(model_name) {
+            $.ajax({
+                url: '/api/delete_vehicle_model',
+                data: {'company_id': company_id, 'model_name': model_name},
+                type: 'POST',
+                dataType: 'JSON',
+                success: function (response) {
+                    if (response.result === true) {
+                        show_alert('Model Successfully deleted.', 'success')
+                        location.reload()
+                    } else {
+                        alert(response.msg)
+                    }
+                }
+            })
+        }
+
+
+    </script>
+
+{% endblock %}

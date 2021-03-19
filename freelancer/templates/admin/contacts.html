@@ -11,23 +11,23 @@
             </nav>
         </div>
     </div>
+    <div id="alert"></div>
     <h1 class="my-3">Contacts</h1>
     <div class="row">
         <div class="col-md-4 col-lg-3">
             <div class="card bg-transparent border-0 mb-3 d-none d-md-block">
                 <div class="card-body">
-                    <h5 class="card-title">RECENTLY ADDED</h5>
-                </div>
-                <div id="recent_person_list" class="list-group list-group-flush small">
+                    <h6 class="card-title text-center">RECENTLY ADDED</h6>
+                    <div id="recent_person_list" class="list-group list-group-flush small">
                     {% for person in recent_added %}
-                        <a class="text-capitalize bg-transparent list-group-item list-group-item-action"
+                        <a class="text-capitalize list-group-item bg-transparent"
                            href="/crm/view_person/{{ person['_id'] }}">
-                            {{ person['name'] }}<br/>
-                            <span class="text-muted">{{ functions.format_timestamp(person['created'], '%d-%m-%Y') }}</span>
-                        </a>
+                            <span class="">{{ person['name'] }}</span><br/>
+                            <small class="text-muted">{{ functions.format_timestamp(person['created'], '%d-%m-%Y') }}</small>
+                            </a>
                     {% endfor %}
                 </div>
-
+                </div>
             </div>
         </div>
         <div class="col-md-8 col-lg-9">
@@ -44,13 +44,14 @@
                         <div class="col-lg-8 mb-3">
                             <form onsubmit="submit_find_person(this)" name="find_person">
                                 <div class="input-group mb-3">
+                                    <span class="input-group-text border-secondary border-end-0 bg-light">
+                                <label for="query" class="bi bi-search"></label>
+                            </span>
                                     <input placeholder="Search by Name or Mobile Number" type="text"
-                                           class="form-control bg-light border-0"
+                                           class="form-control bg-light border-secondary border-start-0"
                                            name="query"
                                            id="query" required/>
-                                    <span class="input-group-text border-0 bg-light">
-                                <span class="bi bi-search"></span>
-                            </span>
+                                    <button type="submit" class="btn btn-outline-primary">FIND</button>
                                 </div>
                             </form>
                         </div>
@@ -83,8 +84,7 @@
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
-                    <div class="card-body">
-                        <form name="add_person_form" onsubmit="submit_add_person_form(this)">
+                     <form name="add_person_form" onsubmit="submit_add_person_form(this)">
                             <div class="row">
                                 <div class="col-md-5">
                                     <select class="form-select mb-3" name="source_type" id="source_type">
@@ -120,7 +120,6 @@
                             </div>
                         </form>
 
-                    </div>
                 </div>
             </div>
         </div>
@@ -198,9 +197,10 @@
                         }
                         $('#person_list').html('')
                         for (i in persons) {
-                            html = '<a class="text-capitalize d-flex align-items-center border-0 list-group-item list-group-item-action" href="/crm/view_person/' + persons[i]._id.$oid + '">' +
-                                '<span class="bi bi-person-fill fs-1 me-2"></span> <span class="d-inline-block"> ' + persons[i].name +
-                                '<br/><span class="text-center text-muted">' + persons[i].numbers.join(', ') + '</span></span>' +
+                            html = '<a class="text-capitalize d-flex align-items-center border-0 list-group-item list-group-item-action d-flex" href="/crm/view_person/' + persons[i]._id.$oid + '">' +
+                                '<span class="bi bi-person-fill fs-1 me-2 my-auto align-self-stretch"></span>' +
+                                '<span class=""> ' + persons[i].name + '<br/>' +
+                                '<span class="text-muted">' + persons[i].numbers.join(', ') + '</span></span>' +
                                 '</a>'
                             $('#person_list').append(html)
                         }

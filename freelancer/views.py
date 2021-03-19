@@ -27,6 +27,7 @@ def logout_page():
 def admin_index_page():
     if 'logged_in' in session:
         if session['logged_in'] == True:
+            user_id = ObjectId(session['user']['_id'])
             if session['user']['type'] == 'admin':
                 today = datetime.today()
                 month = today.month
@@ -92,4 +93,19 @@ def view_health_insurance_page(policy_id = None):
     current_policy_type = 'health'
     return render_template('admin/insurance_renewal.html', current_policy_id=current_policy_id, current_policy_type=current_policy_type)
 
+
+@app.route('/manage_vehicles')
+def view_manage_vehicles_page():
+    if not session.get('logged_in'):
+        return login_page()
+    return render_template('admin/manage_vehicles.html')
+
+
+@app.route('/manage_vehicle/<vehicle_id>')
+def view_manage_vehicles_models_page(vehicle_id):
+    if not session.get('logged_in'):
+        return login_page()
+    user_id = ObjectId(session['user']['_id'])
+    vehicle = models.vehicle(ObjectId(vehicle_id))
+    return render_template('admin/manage_vehicle_models.html', vehicle=vehicle)
 

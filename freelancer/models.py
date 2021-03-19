@@ -6,7 +6,7 @@ import re
 class user:
 
     def __init__(self, _id=None):
-        self._id = _id
+        self._id = self.user_id = _id
 
     def login(self, username, password):
         session['logged_in'] = False
@@ -169,7 +169,7 @@ class Person:
         if registration_number == '' or registration_number == None:
             result['msg'] = 'Registration number cannot be empty.'
             return result
-        elif not re.match("[a-zA-Z]{2}[0-9]{2}[a-zA-Z]{1,2}[0-9]{4}", registration_number):
+        elif not re.match("[a-zA-Z]{2}[0-9]{1,2}[a-zA-Z]{1,3}[0-9]{4}", registration_number):
             result['msg'] = 'Registration number is not valid.'
             return result
         company = None if str.strip(company) == '' else str.strip(company)
@@ -347,7 +347,7 @@ class Registration:
             if registration_number == '':
                 result['msg'] = 'Registration number cannot be empty.'
                 return result
-            elif not re.match("[a-zA-Z]{2}[0-9]{2}[a-zA-Z]{1,2}[0-9]{4}", registration_number):
+            elif not re.match("[a-zA-Z]{2}[0-9]{1,2}[a-zA-Z]{1,3}[0-9]{4}", registration_number):
                 result['msg'] = 'Registration number is not valid.'
                 return result
             else:
@@ -465,7 +465,7 @@ class Policy_motor:
         return renewal_list
 
     # post policy followup
-    def post_policy_followup(self, remark):
+    def post_policy_followup(self, remark, status='followup'):
         result = {}
         result['result'] = False
         followup = {
@@ -474,17 +474,14 @@ class Policy_motor:
             'registration_id': self.registration_id,
             'remark': str.strip(remark),
             'created': datetime.utcnow(),
-            'policy_type': 'motor'
+            'policy_type': 'motor',
+            'status': status
         }
         insert_followup = db.followup_collection.insert_one(followup)
+        self.update_motor_policy(policy_status=status)
         if insert_followup.acknowledged:
             result['result'] = True
             result['new_id'] = insert_followup.inserted_id
-            if self.renewal_id is None:
-                policy_status = 'renewed'
-                db.motor_policy_collection.update_one({'_id': self._id}, {
-                    '$set': {'policy_status': 'followup'}
-                })
         return result
 
     # update policy data
@@ -626,7 +623,7 @@ class Policy_health:
         return renewal_list
 
     # post policy followup
-    def post_policy_followup(self, remark):
+    def post_policy_followup(self, remark, status='followup'):
         result = {}
         result['result'] = False
         followup = {
@@ -634,17 +631,14 @@ class Policy_health:
             'person_id': self.person_id,
             'remark': str.strip(remark),
             'created': datetime.utcnow(),
-            'policy_type': 'health'
+            'policy_type': 'health',
+            'status': status
         }
         insert_followup = db.followup_collection.insert_one(followup)
+        self.update_health_policy(policy_status=status)
         if insert_followup.acknowledged:
             result['result'] = True
             result['new_id'] = insert_followup.inserted_id
-            if self.renewal_id is None:
-                policy_status = 'renewed'
-                db.health_policy_collection.update_one({'_id': self._id}, {
-                    '$set': {'policy_status': 'followup'}
-                })
         return result
 
     # update policy data
@@ -716,9 +710,9 @@ class Lead:
     def create_policy_lead(self, policy_type, source, name, expiry_date, contact_detail):
         create_lead = db.lead_collection.insert_one({
             'created': datetime.utcnow(),
-            'type' : 'insurance',
-            'policy_type' : policy_type,
-            'source' : source,
+            'type': 'insurance',
+            'policy_type': policy_type,
+            'source': source,
             'name': name,
             'expiry_date': expiry_date,
             'contact_detail': contact_detail
@@ -728,3 +722,109 @@ class Lead:
         else:
             result = {'result': False, 'msg': 'Lead not created for some reason.'}
         return result
+
+
+class vehicle:
+
+    def __init__(self, _id=None):
+        self._id = _id
+        # get vehicle models list automaticaly if vehicle_id is given
+        if not self._id == None:
+            self.db_data = db.vehicle_collection.find_one({'_id': self._id})
+            self.models = self.db_data['models'] if 'models' in self.db_data else []
+
+    # add vehicle company
+    def add_vehicle_company(self, user_id, company_name):
+        result = {
+            'result': False,
+            'msg': 'Something went wrong'
+        }
+        if company_name in ('', None):
+            return result
+        # check if vehicle company is not already exist in db
+        if not db.vehicle_collection.find({'company_name': company_name}).count() > 0:
+            # if not exist insert company
+            add_vehicle_company = db.vehicle_collection.insert_one({
+                'user_id': user_id,
+                'company_name': company_name
+            })
+            if add_vehicle_company.acknowledged:
+                result = {
+                    'result': True,
+                    'new_id': add_vehicle_company.inserted_id,
+                    'msg': 'successfully added vehicle company.'
+                }
+        else:
+            result['msg'] = 'Company already exist.'
+        return result
+
+    # get vehicle company list
+    def get_vehicle_list(self, user_id=None):
+        result = []
+        query = {}
+        if not user_id == None:
+            query['user_id'] = user_id
+        for vehicle in db.vehicle_collection.find(query).sort('company_name', 1):
+            result.append(vehicle)
+        return result
+
+    # add vehicle company
+    def add_vehicle_model(self, user_id, company_id, model_name):
+        result = {
+            'result': False,
+            'msg': 'Something went wrong'
+        }
+        if model_name in ('', None) or company_id in ('', None):
+            return result
+        model_exist = False
+        vehicle = db.vehicle_collection.find_one({'user_id': user_id, '_id': company_id})
+        if 'models' in vehicle:
+            for model in vehicle['models']:
+                if model['name'] == model_name:
+                    model_exist = True
+        if not model_exist:
+            add_vehicle_model = db.vehicle_collection.update_one(
+                {
+                    'user_id': user_id,
+                    '_id': company_id
+                },
+                {
+                    '$push': {
+                        'models': {
+                            'name': model_name
+                        }
+                    }
+                })
+            if add_vehicle_model.acknowledged:
+                result = {
+                    'result': True,
+                    'msg': 'successfully added vehicle model.'
+                }
+        else:
+            result['msg'] = 'Model already exist.'
+        return result
+
+    # get vehicle model list
+    def get_vehicle_model_list(self, company_name):
+        result = []
+        vehicle = db.vehicle_collection.find_one({'company_name': company_name})
+        if 'models' in vehicle:
+            for model in vehicle['models']:
+                result.append(model)
+        return result
+
+    # delete vehicle model
+    def delete_vehicle_model(self, company_id, model_name):
+        result = {
+            'result': False,
+            'msg': 'Something went wrong'
+        }
+        delete_model = db.vehicle_collection.update_one({'_id': company_id}, {
+            '$pull': {
+                'models': {'name': model_name}
+            }})
+
+        if delete_model.acknowledged:
+            result['result'] = True
+            result['msg'] = 'Successfully deleted model.'
+        return  result

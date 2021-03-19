@@ -46,7 +46,8 @@ var loading_html = '<span class="spinner-border spinner-border-sm" role="status"
 
 
 function formatdate(date) {
-    var now = new Date(date);
+    now = new Date()
+    var now = new Date(date + now.getTimezoneOffset() * 60000);
     var day = ("0" + now.getDate()).slice(-2);
     var month = ("0" + (now.getMonth() + 1)).slice(-2);
     var formatedate = (day) + "-" + (month) + "-" + now.getFullYear();
@@ -54,7 +55,8 @@ function formatdate(date) {
 }
 
 function formatdateinput(date) {
-    var now = new Date(date);
+    now = new Date()
+    var now = new Date(date + now.getTimezoneOffset() * 60000);
     var day = ("0" + now.getDate()).slice(-2);
     var month = ("0" + (now.getMonth() + 1)).slice(-2);
     var formatedate = now.getFullYear() + '-' + (month) + "-" + (day);
@@ -69,8 +71,13 @@ function format_timestamp(timestamp) {
     return new_timestamp
 }
 
-
-
+function check_select(e) {
+    select_value = e.value
+    $(e).next('input').prop('disabled', true).hide()
+    if (select_value == 'other') {
+        $(e).next('input').prop('disabled', false).show()
+    }
+}
 
 
 $(document).ajaxError(function myErrorHandler(event, xhr, ajaxOptions, thrownError) {

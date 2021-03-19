@@ -1,11 +1,23 @@
 {% set current_page = current_policy_type+'_renewal'  %}
 {% extends 'admin/base.html' %}
 {% block content %}
+    <div class="card bg-transparent border-0">
+        <div class="card-body">
+            <nav aria-label="breadcrumb" style="--bs-breadcrumb-divider: '>';">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="/admin">Home</a></li>
+                    <li class="breadcrumb-item active text-capitalize" aria-current="page">
+                        {{ current_policy_type }} Insurance Renewals
+                    </li>
+                </ol>
+            </nav>
+        </div>
+    </div>
     <h1 class="my-3 text-capitalize">{{ current_policy_type }} Insurance Renewals</h1>
     <div id="alert"></div>
     <div class="row">
         <div class="col-md-3">
-            <div class="card bg-light border-0 mb-3">
+            <div class="card bg-transparent border-0">
                 <div id="renewal_list_period" class="card-header border-0 bg-transparent text-center align-middle">
                     <label class="fw-bold" id="current_period"></label>
                     <button onclick="prev_renewal_month()" class="float-start btn"><span
@@ -16,9 +28,10 @@
                 <div style="max-height: 70vh;" id="policy_list" class="overflow-auto list-group list-group-flush"></div>
             </div>
         </div>
-        <div class="col-md-9 mb-3">
+        <div class="col-md-9">
             {% include 'admin/renewal_card.html' %}
         </div>
     </div>
+
 
 {% endblock %}

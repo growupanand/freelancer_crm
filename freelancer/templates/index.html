@@ -7,7 +7,7 @@
     </style>
     <div class="bg-light position-relative">
         <div id="alert"></div>
-        <div class="navbar bg-white py-3">
+        <div class="navbar bg-white py-3 border-bottom">
             <div class="container-xl">
                 <span style="" class="navbar-brand fs-2 text-dark text-capitalize">
                     Utkarsh Anand Financial Services
@@ -15,25 +15,28 @@
                 <a href="/login" class="btn btn-outline-primary">LOGIN</a>
             </div>
         </div>
-        <div class="container-xl">
+        <div class="container-fluid mt-3">
             <div class="row">
-                <div class="col-md-8 mb-3">
-                    <div class="card bg-transparent border-0 mb-3">
+                <div class="col-md-9 mb-3">
+                    <div class="card mb-3">
                         <div class="card-body">
-                            <h1 class="card-title"><span class="fs-1 bi bi-person-circle"></span> UTKARSH ANAND</h1>
+                            <h1 class="card-title">UTKARSH ANAND</h1>
                             <div class="row">
                                 <div class="col-md">
                                     <p><span class="bi bi-phone"></span> +91-8439493930
-                                        <br/><span class="bi bi-mailbox"></span> uafinancialservices@gmail.com</p>
+                                        <br/><span class="bi bi-at"></span> uafinancialservices@gmail.com</p>
                                 </div>
                                 <div class="col-md text-center">
-                                    <div class="btn-group">
+                                    <div class="btn-group btn-group-sm">
                                         <a href="tel:8439493930"
-                                           class="btn px-5 bg-white border-success text-success"><span
-                                                class="bi bi-telephone-fill"></span> CALL
+                                           class="btn btn-outline-success px-5 d-flex ">
+                                            <span class="align-self-center">
+                                                <span class="bi bi-telephone-fill"></span>
+                                                CALL
+                                            </span>
                                         </a>
                                         <a target="_blank" href="https://api.whatsapp.com/send?phone=8439493930"
-                                           class="btn px-4 btn-success border-success">
+                                           class="btn px-4 btn-success border-success bg-gradient">
                                             <img width="30px"
                                                  src="{{ url_for('static', filename='img/icon_whatsapp.png') }}">
                                             WhatsApp
@@ -55,7 +58,7 @@
                     <div class="card mb-3">
                         <h2 class="card-header text-center">INSURANCE</h2>
                         <div class="card-body">
-                            <figure >
+                            <figure>
                                 <blockquote class="blockquote">
                                     "Getting insurance is YOUR responsibility to your family and loved
                                     ones.
@@ -67,98 +70,138 @@
                                 </figcaption>
                             </figure>
                         </div>
-                        <div class="card-body sticky-top">
-                            <div id="navbar-example" class="navbar px-3 bg-white">
-                           <ul class="nav nav-pills">
-                                    <li class="nav-item">
-                                        <a class="nav-link" href="#heading_motor">MOTOR INSURANCE</a>
-                                    </li>
-                                    <li class="nav-item">
-                                        <a class="nav-link" href="#heading_health">HEALTH INSURANCE</a>
-                                    </li>
-                                </ul>
-                            <button class="btn btn-light rounded-pill text-primary"
+                        <div class="card-body">
+
+                            <div class="text-center fw-bold fs-2 position-relative border-bottom border-5 border-dark">
+                                HOW TO GET
+                            </div>
+                            <div class="d-flex flex-column flex-md-row justify-content-evenly">
+                                <div class="text-center my-3">
+                                        <span class="fs-3 mb-2 badge bg-dark position-relative">
+                                            1
+                                        <span class="text-dark bi bi-arrow-down position-absolute top-100 start-50 translate-middle bi bi-caret-down-fill"></span>
+                                        </span>
+                                    <br/>
+                                    <span class="badge border-3 bg-transparent text-dark border-dark border rounded-pill fs-5 position-relative">
+                                        SEND DOCUMENTS
+                                    </span>
+                                </div>
+                                <div class="text-center my-3">
+                                    <span class="fs-3 badge mb-2 bg-dark position-relative">
+                                            2
+                                        <span class="text-dark bi bi-arrow-down position-absolute top-100 start-50 translate-middle bi bi-caret-down-fill"></span>
+                                        </span><br/>
+                                    <span class="badge border-3 bg-transparent text-dark border-dark border rounded-pill fs-5 ">
+                                            PAY PREMIUM
+                                        </span>
+
+                                </div>
+                                <div class="text-center my-3">
+                                    <span class="fs-3 mb-2 badge bg-dark position-relative">
+                                            3
+                                        <span class="text-dark bi bi-arrow-down position-absolute top-100 start-50 translate-middle bi bi-caret-down-fill"></span>
+
+                                        </span><br/>
+                                    <span class="badge border-3 bg-transparent text-dark border-dark border rounded-pill fs-5">
+                                            DOWNLOAD POLICY
+                                        </span>
+                                </div>
+                            </div>
+                            <div class="row text-center my-3">
+                                <div class="col-md mb-3">
+
+
+                                </div>
+                                <div class="col-md mb-3">
+                                </div>
+                                <div class="col-md mb-3 ">
+
+                                </div>
+                            </div>
+                            <div class="text-end">
+                                <button class="btn rounded-pill btn-outline-primary"
                                         type="button" data-bs-toggle="modal"
                                         data-bs-target="#policy_reminder_modal">
                                     <span class="bi bi-bell-fill"></span> SET REMINDER
                                 </button>
+                            </div>
                         </div>
-                        </div>
-                        <div id="heading_motor" class="card-body">
-                            <h4 class="card-title">MOTOR INSURANCE</h4>
-                            <p>Motor Insurance is an
-                                insurance policy that covers the
-                                policyholder
-                                in
-                                case of financial losses – resulting from an accident or
-                                other
-                                damages –
-                                sustained by the insured vehicle. A comprehensive motor
-                                insurance
-                                policy
-                                covers damages to
-                                third-party and third-party property along with
-                                compensating for
-                                own
-                                losses as well.</p>
-                            <figure class="p-3">
-                                <blockquote class="blockquote">
-                                    <p>"Driving race cars is risky, not having motor
-                                        insurance is riskier."</p>
-                                </blockquote>
-
-                            </figure>
-
+                        <div class="card-body">
                             <div class="row">
-                                <div class="col-lg-6">
-
-                                    <h5 class="card-title">COVERED:</h5>
-                                    <ul>
-                                        <li>BIKE</li>
-                                        <li>SCOOTER / ACTIVA</li>
-                                        <li>CAR</li>
-                                        <li>THREE WHEELER / CHOTA HAATI</li>
-                                        <li>BUS / TRUCK</li>
-                                    </ul>
+                                <div class="col-md-4">
+                                    <div class="pt-3 sticky-top">
+                                        <div id="navbar-example" class="card">
+                                            <h5 class="card-header text-center">SERVICES</h5>
+                                            <div class="list-group list-group-flush">
+                                                <a class="list-group-item list-group-item-action" href="#heading_motor">MOTOR
+                                                    INSURANCE</a>
+                                                <a class="list-group-item list-group-item-action"
+                                                   href="#heading_health">HEALTH
+                                                    INSURANCE</a>
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
-                                <div class="col-lg-6">
-                                    <h5 class="card-title">COVER TYPE:</h5>
-                                    <ul>
-                                        <li>Package Policy</li>
-                                        <li>Package Policy + Addon Covers <span>(Nil depreciation, consumable, return to invoice)</span>
-                                        </li>
-                                        <li>Third Party Policy</li>
-                                        <li>Standalone OD Policy</li>
-                                    </ul>
+                                <div class="col-md-8">
+                                    <div id="heading_motor" class="card-body">
+                                        <h4 class="card-title">MOTOR INSURANCE</h4>
+                                        <p>Motor Insurance is an
+                                            insurance policy that covers the
+                                            policyholder
+                                            in
+                                            case of financial losses – resulting from an accident or
+                                            other
+                                            damages –
+                                            sustained by the insured vehicle. A comprehensive motor
+                                            insurance
+                                            policy
+                                            covers damages to
+                                            third-party and third-party property along with
+                                            compensating for
+                                            own
+                                            losses as well.</p>
+                                        <figure class="p-3">
+                                            <blockquote class="blockquote">
+                                                <p>"Driving race cars is risky, not having motor
+                                                    insurance is riskier."</p>
+                                            </blockquote>
+
+                                        </figure>
+
+                                        <h5 class="card-title">COVERED:</h5>
+                                        <ul>
+                                            <li>BIKE</li>
+                                            <li>SCOOTER / ACTIVA</li>
+                                            <li>CAR</li>
+                                            <li>THREE WHEELER / CHOTA HAATI</li>
+                                            <li>BUS / TRUCK</li>
+                                        </ul>
+                                        <h5 class="card-title">COVER TYPE:</h5>
+                                        <ul>
+                                            <li>Package Policy</li>
+                                            <li>Package Policy + Addon Covers <span>(Nil depreciation, consumable, return to invoice)</span>
+                                            </li>
+                                            <li>Third Party Policy</li>
+                                            <li>Standalone OD Policy</li>
+                                        </ul>
+                                        <h5 class="card-title">BENEFITS</h5>
+                                        <ul>
+                                            <li>Lowest Premium</li>
+                                            <li>Smooth claim process</li>
+                                            <li>Best renewal offer with reminder</li>
+                                        </ul>
+                                    </div>
+                                    <div id="heading_health" class="card-body">
+                                        <h4 class="card-title">HEALTH INSURANCE</h4>
+                                    </div>
                                 </div>
                             </div>
-                            <h5 class="card-title">BENEFITS</h5>
-                            <ul>
-                                <li>Lowest Premium</li>
-                                <li>Smooth claim process</li>
-                                <li>Best renewal offer with reminder</li>
-                            </ul>
-                            <h5 class="card-title">How to get</h5>
-                            <ol>
-                                <li>Send Vehicle Documents
-                                    <ul>
-                                        <li>Registration (RC)</li>
-                                        <li>Current Insurance Policy</li>
-                                        <li>Pollution Certificate</li>
-                                    </ul>
-                                </li>
-                                <li>Pay Premium</li>
-                                <li>Download Policy</li>
-                            </ol>
-                        </div>
-                        <div id="heading_health" class="card-body">
-                            <h4 class="card-title">HEALTH INSURANCE</h4>
                         </div>
                     </div>
                 </div>
-                <div class="col-md-4 mb-3 ">
+                <div class="col-md-3 mb-3 ">
                     <div class="pt-3 sticky-top">
-                        <div class="card shadow mb-3">
+                        <div class="card mb-3 shadow">
                             <h5 class="card-header text-center">
                                 ENQUIRY NOW
                             </h5>
@@ -175,7 +218,7 @@
                                               class="form-control mb-3"
                                               required></textarea>
                                     <div class="d-grid">
-                                        <button class="btn rounded-pill btn-primary btn-lg" type="submit">SUBMIT
+                                        <button class="btn btn-primary btn-lg" type="submit">SUBMIT
                                         </button>
                                     </div>
                                 </form>
@@ -194,7 +237,7 @@
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="exampleModalLabel">GET POLICY REMINDER</h5>
+                    <h5 class="modal-title" id="exampleModalLabel">SET POLICY REMINDER</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
@@ -284,6 +327,7 @@
             })
 
         }
+
 
     </script>
 {% endblock %}

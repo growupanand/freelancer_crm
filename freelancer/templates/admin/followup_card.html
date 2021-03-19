@@ -26,9 +26,17 @@
                     $('#followup_list').html('')
                     for (i in followup_list) {
                         remark = followup_list[i].remark.replace(/\r\n|\n|\r/gm, '<br/>')
+                        label_badges = ''
+                        if (remark.includes('[whatsapp]')) {
+                            label_badges += '<span class="badge bg-success">WhatsApp</span>'
+                            remark = remark.replaceAll('[whatsapp]','')
+                        }
                         followup_html = '<div style="border-radius: 10px" class="list-group-item bg-light mb-2 border-0 border-bottom border-3 fs-6">' +
-                            '<small class="text-muted">' + formatdate(followup_list[i].created.$date) + '</small>' +
-                            '<p>' + remark + '</p>' +
+                            '' +
+                            '<p>'+label_badges+'' +
+                            '<span class="text-muted small float-end"><span class="bi bi-clock"></span> ' + formatdate(followup_list[i].created.$date) + '</span>' +
+                            '</p>' +
+                            '<p>' + remark +'</p>' +
                             '</div>'
                         $(followup_html).prependTo($('#followup_list')).hide().slideDown()
                     }

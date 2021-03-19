@@ -173,10 +173,18 @@ def add_vehicle_api():
     registration_name = request.form.get('registration_name')
     registration_date = request.form.get('registration_date')
     company = request.form.get('company')
+    company_other = request.form.get('company_other')
     model = request.form.get('model')
+    model_other = request.form.get('model_other')
     cc = request.form.get('cc')
     fuel = request.form.get('fuel')
     mfg = request.form.get('mfg')
+    if company_other not in ('', None):
+        add_company = models.user(user_id).vehicle.add_vehicle_company(company_other)
+        company = company_other
+    if model_other not in ('', None):
+        add_model = models.user(user_id).vehicle.add_vehicle_model(user_id, company, model_other)
+        model = model_other
     return dumps(models.Person(person_id).add_registration(registration_number, registration_name,
                                                            registration_date,
                                                            company, model, cc, fuel, mfg))
@@ -271,11 +279,11 @@ def add_renewal_motor_policy_api():
         result['new_id'] = insert_new_policy['new_id']
         # add new policy id & policy status in old policy data
         db.motor_policy_collection.update_one({'_id': policy._id}, {
-            '$set': {'policy_status': 'renewed', 'renewal_id': result['new_id']}
+            '$set': {'renewal_id': result['new_id']}
         })
         # add followup
         remark = 'Policy renewed!\n' + str.strip(remark)
-        models.Policy_motor(policy_id).post_policy_followup(remark)
+        models.Policy_motor(policy_id).post_policy_followup(remark, 'renewed')
     return dumps(result)
 
 @app.route('/api/renewal_lost_motor', methods=['POST'])
@@ -289,11 +297,8 @@ def renewal_lost_motor_api():
     remark = request.form.get('remark')
     lost_reason = request.form.get('lost_reason')
     policy = models.Policy_motor(policy_id)
-    post_lost_followup = policy.post_policy_followup('Policy lost! Reason is ' + lost_reason + '. ' + remark)
-    if post_lost_followup['result']:
-        result['result'] = True
-        policy.update_motor_policy(policy_status='lost', lost_reason=lost_reason)
-
+    post_lost_followup = policy.post_policy_followup('[lost reason:' + str(lost_reason).lower() + ']\n' + remark, 'lost')
+    result['result'] = post_lost_followup['result']
     return dumps(result)
 
 
@@ -460,11 +465,11 @@ def add_renewal_health_policy():
         result['new_id'] = insert_new_policy['new_id']
         # add new policy id & policy status in old policy data
         db.health_policy_collection.update_one({'_id': policy._id}, {
-            '$set': {'policy_status': 'renewed', 'renewal_id': result['new_id']}
+            '$set': {'renewal_id': result['new_id']}
         })
         # add followup
         remark = 'Policy renewed!\n' + str.strip(remark)
-        models.Policy_health(policy_id).post_policy_followup(remark)
+        models.Policy_health(policy_id).post_policy_followup(remark, 'renewed')
     return dumps(result)
 
 
@@ -520,4 +525,61 @@ def api_update_claim_status():
         result = models.Policy_motor(_id).update_motor_policy(claim_status=claim_status)
     elif policy_type == 'health':
         result = models.Policy_health(_id).update_health_policy(claim_status=claim_status)
+    return dumps(result)
+
+
+@app.route('/api/get_vehicle_company_list', methods=['POST'])
+def api_get_vehicle_company_list():
+    result = {
+        'result' : False,
+        'msg' : 'Something went wrong',
+        'data' : []
+    }
+    user_id = ObjectId(session['user']['_id'])
+    data = models.vehicle().get_vehicle_list()
+    result = {
+        'result' : True,
+        'data' : data
+    }
+    return dumps(result)
+
+
+@app.route('/api/add_vehicle_company', methods=['POST'])
+def api_add_vehicle_company():
+    user_id = ObjectId(session['user']['_id'])
+    result = {
+        'result' : False,
+        'msg' : 'Something went wrong'
+    }
+    company_name = request.form.get('company_name')
+    add_company_name = models.vehicle().add_vehicle_company(user_id=user_id, company_name=company_name)
+    result = add_company_name
+    return dumps(result)
+
+
+@app.route('/api/add_vehicle_model', methods=['POST'])
+def api_add_vehicle_model():
+    user_id = ObjectId(session['user']['_id'])
+    result = {
+        'result' : False,
+        'msg' : 'Something went wrong'
+    }
+    company_id = ObjectId(request.form.get('company_id'))
+    model_name = request.form.get('model_name')
+    add_vehicle_model = models.vehicle().add_vehicle_model(user_id=user_id, company_id=company_id, model_name=model_name)
+    result = add_vehicle_model
+    return dumps(result)
+
+
+@app.route('/api/delete_vehicle_model', methods=['POST'])
+def api_delete_vehicle_model():
+    user_id = ObjectId(session['user']['_id'])
+    result = {
+        'result' : False,
+        'msg' : 'Something went wrong'
+    }
+    company_id = ObjectId(request.form.get('company_id'))
+    model_name = request.form.get('model_name')
+    delete_vehicle_model = models.vehicle().delete_vehicle_model(company_id=company_id, model_name=model_name)
+    result = delete_vehicle_model
     return dumps(result)
