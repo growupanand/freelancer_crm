@@ -180,10 +180,13 @@ def add_vehicle_api():
     fuel = request.form.get('fuel')
     mfg = request.form.get('mfg')
     if company_other not in ('', None):
-        add_company = models.user(user_id).vehicle.add_vehicle_company(company_other)
+        add_company = models.vehicle().add_vehicle_company(user_id=user_id, company_name=company_other)
+        company_id = add_company['new_id']
         company = company_other
+    else:
+        company_id = db.vehicle_collection.find_one({'company_name': company})['_id']
     if model_other not in ('', None):
-        add_model = models.user(user_id).vehicle.add_vehicle_model(user_id, company, model_other)
+        add_model = models.vehicle().add_vehicle_model(user_id=user_id, company_id=company_id, model_name=model_other)
         model = model_other
     return dumps(models.Person(person_id).add_registration(registration_number, registration_name,
                                                            registration_date,
@@ -582,4 +585,17 @@ def api_delete_vehicle_model():
     model_name = request.form.get('model_name')
     delete_vehicle_model = models.vehicle().delete_vehicle_model(company_id=company_id, model_name=model_name)
     result = delete_vehicle_model
+    return dumps(result)
+
+
+@app.route('/api/delete_vehicle_company', methods=['POST'])
+def api_delete_vehicle_company():
+    user_id = ObjectId(session['user']['_id'])
+    result = {
+        'result' : False,
+        'msg' : 'Something went wrong'
+    }
+    company_id = ObjectId(request.form.get('company_id'))
+    delete_vehicle_company = models.vehicle().delete_vehicle_company(company_id=company_id)
+    result = delete_vehicle_company
     return dumps(result)

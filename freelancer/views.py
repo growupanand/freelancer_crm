@@ -30,9 +30,15 @@ def admin_index_page():
             user_id = ObjectId(session['user']['_id'])
             if session['user']['type'] == 'admin':
                 today = datetime.today()
+                day = today.day
                 month = today.month
                 year = today.year
                 motor_renewal_list = models.Policy_motor().get_renewal_list(month, year)
+                policy_list_expiry_today = []
+                for policy in motor_renewal_list:
+                    if policy['day'] == day:
+                        policy['type'] = 'motor'
+                        policy_list_expiry_today.append(policy)
                 motor_renewal_count = {'total':0, 'not_touch':0, 'followup':0, 'won':0, 'lost':0}
                 for policy in motor_renewal_list:
                     motor_renewal_count['total'] += 1
@@ -41,6 +47,10 @@ def admin_index_page():
                     else:
                         motor_renewal_count['not_touch'] +=1
                 health_renewal_list = models.Policy_health().get_renewal_list(month, year)
+                for policy in health_renewal_list:
+                    if policy['day'] == day:
+                        policy['type'] = 'health'
+                        policy_list_expiry_today.append(policy)
                 health_renewal_count = {'total': 0, 'not_touch': 0, 'followup': 0, 'won': 0, 'lost': 0}
                 for policy in health_renewal_list:
                     health_renewal_count['total'] += 1
@@ -48,7 +58,7 @@ def admin_index_page():
                         health_renewal_count[policy['policy_status']] += 1
                     else:
                         health_renewal_count['not_touch'] += 1
-                return render_template('admin/index.html', motor_renewal_count=motor_renewal_count, health_renewal_count=health_renewal_count)
+                return render_template('admin/index.html', motor_renewal_count=motor_renewal_count, health_renewal_count=health_renewal_count, policy_list_expiry_today=policy_list_expiry_today)
     return render_template('login.html')
 
 

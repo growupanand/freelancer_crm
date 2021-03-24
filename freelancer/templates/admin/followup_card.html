@@ -13,7 +13,6 @@
 
 
 <script>
-
     function get_followup_list(policy_id, type) {
         $('#followup_list').html('<div class="list-group-item text-center">Loading Followups ' + loading_html + '</div>')
         $.ajax({
@@ -22,21 +21,21 @@
             type: 'POST',
             dataType: 'JSON',
             success: function (response) {
+                console.log(response)
                 if (response.result == true) {
+                    followup_list = response.followup_list
                     $('#followup_list').html('')
                     for (i in followup_list) {
                         remark = followup_list[i].remark.replace(/\r\n|\n|\r/gm, '<br/>')
                         label_badges = ''
                         if (remark.includes('[whatsapp]')) {
                             label_badges += '<span class="badge bg-success">WhatsApp</span>'
-                            remark = remark.replaceAll('[whatsapp]','')
+                            remark = remark.replaceAll('[whatsapp]<br/>','')
                         }
-                        followup_html = '<div style="border-radius: 10px" class="list-group-item bg-light mb-2 border-0 border-bottom border-3 fs-6">' +
-                            '' +
-                            '<p>'+label_badges+'' +
-                            '<span class="text-muted small float-end"><span class="bi bi-clock"></span> ' + formatdate(followup_list[i].created.$date) + '</span>' +
-                            '</p>' +
-                            '<p>' + remark +'</p>' +
+                        followup_html = '<div style="border-radius: 10px" class="list-group-item bg-light mb-2 border-0 border-bottom border-3">'+
+                            '<div class="text-muted small my-2"><span class="bi bi-clock"></span> ' + formatdate(followup_list[i].created.$date) + '</div>' +
+                            '<div class="my-2">'+label_badges +'</div>'+
+                            '<div class="my-2">' + remark +'</div>' +
                             '</div>'
                         $(followup_html).prependTo($('#followup_list')).hide().slideDown()
                     }

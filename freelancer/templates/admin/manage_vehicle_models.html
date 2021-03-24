@@ -8,12 +8,16 @@
                 aria-current="page">{{ vehicle.db_data['company_name'] }}</li>
         </ol>
     </nav>
+    <div id="alert"></div>
     <h1 class="my-5 text-capitalize">{{ vehicle.db_data['company_name'] }}</h1>
-    <div class="mb-3">
-        <button class="btn btn-primary" data-bs-target="#modal_add_vehicle_model" data-bs-toggle="modal">
-            <span class="bi bi-plus fw-bold"></span>
+    <div class="d-flex justify-content-between mb-3">
+    <button class="btn btn-primary" data-bs-target="#modal_add_vehicle_model" data-bs-toggle="modal">
+            <span class="bi bi-plus fw-bold fs-5"></span>
             NEW MODEL
         </button>
+    <button class="btn btn-danger align-self-center" onclick="delete_vehicle_company()">
+        <span class="bi bi-trash-fill"></span> DELETE COMPANY
+    </button>
     </div>
     <div id="list_group_vehicles_models" class="list-group mb-3">
         {% for model in vehicle.models %}
@@ -83,6 +87,23 @@
                     if (response.result === true) {
                         show_alert('Model Successfully deleted.', 'success')
                         location.reload()
+                    } else {
+                        alert(response.msg)
+                    }
+                }
+            })
+        }
+
+        function delete_vehicle_company() {
+            $.ajax({
+                url: '/api/delete_vehicle_company',
+                data: {'company_id': company_id},
+                type: 'POST',
+                dataType: 'JSON',
+                success: function (response) {
+                    if (response.result === true) {
+                        show_alert('Company Successfully deleted.', 'success')
+                        location.href ='/manage_vehicles'
                     } else {
                         alert(response.msg)
                     }

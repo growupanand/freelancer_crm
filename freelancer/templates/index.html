@@ -7,59 +7,61 @@
     </style>
     <div class="bg-light position-relative">
         <div id="alert"></div>
-        <div class="navbar bg-white py-3 border-bottom">
-            <div class="container-xl">
-                <span style="" class="navbar-brand fs-2 text-dark text-capitalize">
+        <div style="background-color: green" class="navbar bg-gradient text-white py-3">
+            <div class="container-xl d-flex justify-content-between">
+                <span class="navbar-brand fs-2 text-capitalize">
                     Utkarsh Anand Financial Services
                 </span>
-                <a href="/login" class="btn btn-outline-primary">LOGIN</a>
+                <a href="/login" class="btn btn-outline-light ms-auto">LOGIN</a>
             </div>
         </div>
-        <div class="container-fluid mt-3">
-            <div class="row">
-                <div class="col-md-9 mb-3">
-                    <div class="card mb-3">
-                        <div class="card-body">
-                            <h1 class="card-title">UTKARSH ANAND</h1>
-                            <div class="row">
-                                <div class="col-md">
-                                    <p><span class="bi bi-phone"></span> +91-8439493930
-                                        <br/><span class="bi bi-at"></span> uafinancialservices@gmail.com</p>
-                                </div>
-                                <div class="col-md text-center">
-                                    <div class="btn-group btn-group-sm">
-                                        <a href="tel:8439493930"
-                                           class="btn btn-outline-success px-5 d-flex ">
+        <div class="card mb-5 shadow-sm">
+            <div class="container">
+                <div class="card-header bg-transparent border-0 d-flex flex-column  flex-md-row justify-content-md-between">
+                <div>
+                    <h1 class="text-capitalize my-3">Utkarsh Anand</h1>
+                    <p>
+                        <span class="bi bi-phone"></span> +91-8439493930
+                        <br/><span class="bi bi-at"></span> uafinancialservices@gmail.com
+                    </p>
+                </div>
+                <div class="align-self-center btn-group btn-group-sm">
+                    <a href="tel:8439493930"
+                       class="btn btn-outline-success px-5 d-flex ">
                                             <span class="align-self-center">
                                                 <span class="bi bi-telephone-fill"></span>
                                                 CALL
                                             </span>
-                                        </a>
-                                        <a target="_blank" href="https://api.whatsapp.com/send?phone=8439493930"
-                                           class="btn px-4 btn-success border-success bg-gradient">
-                                            <img width="30px"
-                                                 src="{{ url_for('static', filename='img/icon_whatsapp.png') }}">
-                                            WhatsApp
-                                        </a>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="card-body">
-                            <p class="lead">
-                                We here to fully insure you by doing insurance of your all vehicle, health, life and
-                                business.
-                                Also we here to support to get financial strong by providing loan from banks for
-                                your personal
-                                or business needs.
-                            </p>
-                        </div>
-                    </div>
-                    <div class="card mb-3">
+                    </a>
+                    <a target="_blank" href="https://api.whatsapp.com/send?phone=8439493930"
+                       class="btn px-4 btn-success border-success bg-gradient">
+                        <img width="30px"
+                             src="{{ url_for('static', filename='img/icon_whatsapp.png') }}">
+                        WhatsApp
+                    </a>
+                </div>
+            </div>
+            <div class="card-body">
+                <p class="lead">
+                    We here to fully insure you by doing insurance of your all vehicle, health, life and
+                    business.
+                    Also we here to support to get financial strong by providing loan from banks for
+                    your personal
+                    or business needs.
+                </p>
+            </div>
+            </div>
+
+        </div>
+        <div class="container-fluid mt-3">
+            <div class="row">
+                <div class="col-md-9 mb-3">
+                    <div class="card mb-3 shadow-sm">
                         <h2 class="card-header text-center">INSURANCE</h2>
                         <div class="card-body">
-                            <figure>
-                                <blockquote class="blockquote">
+                            <div class="px-3 my-3">
+                                <figure>
+                                <blockquote class="blockquote text-success">
                                     "Getting insurance is YOUR responsibility to your family and loved
                                     ones.
                                     You
@@ -69,40 +71,40 @@
                                     Jeremiah
                                 </figcaption>
                             </figure>
+                            </div>
                         </div>
                         <div class="card-body">
-
                             <div class="text-center fw-bold fs-2 position-relative border-bottom border-5 border-dark">
                                 HOW TO GET
                             </div>
                             <div class="d-flex flex-column flex-md-row justify-content-evenly">
                                 <div class="text-center my-3">
-                                        <span class="fs-3 mb-2 badge bg-dark position-relative">
+                                        <span class="fs-3 mb-2 badge bg-warning position-relative">
                                             1
-                                        <span class="text-dark bi bi-arrow-down position-absolute top-100 start-50 translate-middle bi bi-caret-down-fill"></span>
+                                        <span class="text-warning bi bi-arrow-down position-absolute top-100 start-50 translate-middle bi bi-caret-down-fill"></span>
                                         </span>
                                     <br/>
-                                    <span class="badge border-3 bg-transparent text-dark border-dark border rounded-pill fs-5 position-relative">
+                                    <span class="badge border-3 bg-transparent text-warning border-warning border rounded-pill fs-5 position-relative">
                                         SEND DOCUMENTS
                                     </span>
                                 </div>
                                 <div class="text-center my-3">
-                                    <span class="fs-3 badge mb-2 bg-dark position-relative">
+                                    <span class="fs-3 badge mb-2 bg-primary position-relative">
                                             2
-                                        <span class="text-dark bi bi-arrow-down position-absolute top-100 start-50 translate-middle bi bi-caret-down-fill"></span>
+                                        <span class="text-primary bi bi-arrow-down position-absolute top-100 start-50 translate-middle bi bi-caret-down-fill"></span>
                                         </span><br/>
-                                    <span class="badge border-3 bg-transparent text-dark border-dark border rounded-pill fs-5 ">
+                                    <span class="badge border-3 bg-transparent text-primary border-primary border rounded-pill fs-5 ">
                                             PAY PREMIUM
                                         </span>
 
                                 </div>
                                 <div class="text-center my-3">
-                                    <span class="fs-3 mb-2 badge bg-dark position-relative">
+                                    <span class="fs-3 mb-2 badge bg-success position-relative">
                                             3
-                                        <span class="text-dark bi bi-arrow-down position-absolute top-100 start-50 translate-middle bi bi-caret-down-fill"></span>
+                                        <span class="text-success bi bi-arrow-down position-absolute top-100 start-50 translate-middle bi bi-caret-down-fill"></span>
 
                                         </span><br/>
-                                    <span class="badge border-3 bg-transparent text-dark border-dark border rounded-pill fs-5">
+                                    <span class="badge border-3 bg-transparent text-success border-success border rounded-pill fs-5">
                                             DOWNLOAD POLICY
                                         </span>
                                 </div>
@@ -160,13 +162,15 @@
                                             compensating for
                                             own
                                             losses as well.</p>
-                                        <figure class="p-3">
-                                            <blockquote class="blockquote">
+                                        <div class="px-3 my-3">
+                                            <figure>
+                                            <blockquote class="blockquote text-success">
                                                 <p>"Driving race cars is risky, not having motor
                                                     insurance is riskier."</p>
                                             </blockquote>
-
+                                        <figcaption class="blockquote-footer">Unkown</figcaption>
                                         </figure>
+                                        </div>
 
                                         <h5 class="card-title">COVERED:</h5>
                                         <ul>
@@ -200,8 +204,8 @@
                     </div>
                 </div>
                 <div class="col-md-3 mb-3 ">
-                    <div class="pt-3 sticky-top">
-                        <div class="card mb-3 shadow">
+                    <div class="sticky-top">
+                        <div class="card shadow-sm mb-3">
                             <h5 class="card-header text-center">
                                 ENQUIRY NOW
                             </h5>

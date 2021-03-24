@@ -828,3 +828,15 @@ class vehicle:
             result['result'] = True
             result['msg'] = 'Successfully deleted model.'
         return  result
+
+    # delete vehicle company
+    def delete_vehicle_company(self, company_id):
+        result = {
+            'result': False,
+            'msg': 'Something went wrong'
+        }
+        delete_company = db.vehicle_collection.delete_one({'_id': company_id})
+        if delete_company.acknowledged:
+            result['result'] = True
+            result['msg'] = 'Successfully deleted company.'
+        return result

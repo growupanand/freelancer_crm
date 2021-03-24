@@ -1,23 +1,19 @@
 {% set current_page = 'contacts' %}
 {% extends 'admin/base.html' %}
 {% block content %}
-    <div class="card bg-transparent border-0">
-        <div class="card-body">
-            <nav aria-label="breadcrumb" style="--bs-breadcrumb-divider: '>';">
+    <nav aria-label="breadcrumb" class="my-3" style="--bs-breadcrumb-divider: '>';">
                 <ol class="breadcrumb">
                     <li class="breadcrumb-item"><a href="/admin">Home</a></li>
                     <li class="breadcrumb-item active text-capitalize" aria-current="page">Contacts</li>
                 </ol>
             </nav>
-        </div>
-    </div>
     <div id="alert"></div>
-    <h1 class="my-3">Contacts</h1>
+    <h1 class="my-5">Contacts</h1>
     <div class="row">
         <div class="col-md-4 col-lg-3">
             <div class="card bg-transparent border-0 mb-3 d-none d-md-block">
                 <div class="card-body">
-                    <h6 class="card-title text-center">RECENTLY ADDED</h6>
+                    <h5 class="card-title text-center">RECENTLY ADDED</h5>
                     <div id="recent_person_list" class="list-group list-group-flush small">
                     {% for person in recent_added %}
                         <a class="text-capitalize list-group-item bg-transparent"

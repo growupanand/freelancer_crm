@@ -169,7 +169,7 @@
                                             </table>
                                         </div>
                                         <div class="col-lg-6 mb-3">
-                                            <div class="d-flex justify-content-between">
+                                            <div class="d-flex justify-content-between mb-3">
                                                 <h6 class=" my-auto">Policy List</h6>
                                                 <button class="btn btn-light text-primary btn-sm"
                                                         onclick="add_vehicle_policy('{{ vehicle['registration_number'] }}', '{{ vehicle['_id'] }}')">
@@ -179,9 +179,9 @@
                                             <div class="list-group list-group-flush">
                                                 {% for policy in vehicle.motor_policy_list %}
                                                     <button onclick="view_vehicle_policy('{{ policy['_id'] }}')"
-                                                            class="border-0 list-group-item list-group-item-action">
+                                                            class="border-0 list-group-item list-group-item-action d-flex justify-content-between">
                                                         <span class="d-inline-block">{{ policy['policy_number'] }}</span>
-                                                        <span class="text-muted d-inline-block float-end">{{ functions.format_timestamp(policy['expiry_date'], '%d-%m-%Y') }}</span>
+                                                        <span class="text-muted d-inline-block">{{ functions.format_timestamp(policy['expiry_date'], '%d-%m-%Y') }}</span>
                                                     </button>
                                                 {% endfor %}
                                             </div>
@@ -234,14 +234,14 @@
                         <input type="date" id="registration_date" name="registration_date" class="form-control mb-2"/>
                         <label for="company" class="form-label">Company</label>
                         <select onchange="check_select(this);load_vehicle_models(this);" id="company" name="company"
-                                class="form-select mb-2">
+                                class="form-select mb-2" required>
                             <option value="">Select Company</option>
                             <option value="other">Other</option>
                         </select>
                         <input style="display: none" type="text" class="form-control mb-3" name="company_other"
                                placeholder="Type Company name here" disabled/>
                         <label for="model" class="form-label">Model</label>
-                        <select onchange="check_select(this);" id="model" name="model" class="form-select mb-2">
+                        <select onchange="check_select(this);" id="model" name="model" class="form-select mb-2" required>
                             <option value="">Select Model</option>
                             <option value="other">Other</option>
                         </select>
@@ -437,6 +437,7 @@
                             PAGE
                             <span class="bi bi-box-arrow-in-up-right"></span> </a>
                     </p>
+                    {% include 'admin/followup_card.html' %}
                 </div>
             </div>
         </div>
@@ -719,6 +720,7 @@
         var current_vehicle_registration_number = ''
         var current_vehicle_registration_id = ''
         var current_vehicle_policy_id = ''
+        var current_policy_id = ''
 
         function submit_add_contact_number_form(form) {
             event.preventDefault()
@@ -954,8 +956,10 @@
         }
 
         function view_vehicle_policy(policy_id) {
-            current_vehicle_policy_id = null
+            current_vehicle_policy_id = current_policy_id = policy_id
+            current_followup_type = 'motor'
             form = document.edit_vehicle_policy_form
+            get_followup_list(policy_id, 'motor')
             $.ajax({
                 url: '/api/view_vehicle_policy/' + policy_id,
                 dataType: 'JSON',
@@ -984,10 +988,11 @@
                             form[i].value = document.getElementById('motor_policy_table_' + i).innerHTML = response.data[i]
                         }
                         expiry_date = response.data.expiry_date
+                        form.expiry_date.value = formatdateinput(expiry_date.$date)
                         if (expiry_date != null) {
                             expiry_date = formatdate(expiry_date.$date)
                         }
-                        form.expiry_date.value = document.getElementById('motor_policy_table_expiry_date').innerHTML = expiry_date
+                        document.getElementById('motor_policy_table_expiry_date').innerHTML = expiry_date
                         $('#view_vehicle_policy_modal').modal('show')
                     } else {
                         alert(response.msg)
