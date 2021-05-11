@@ -54,6 +54,7 @@ function formatdate(date) {
     return formatedate;
 }
 
+
 function formatdateinput(date) {
     now = new Date()
     var now = new Date(date + now.getTimezoneOffset() * 60000);

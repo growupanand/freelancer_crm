@@ -1,5 +1,7 @@
 {% extends 'admin/base.html' %}
 {% block content %}
+    <div class="bg-white overflow-auto">
+    <div class="container-xl">
     <nav aria-label="breadcrumb" class="my-3" style="--bs-breadcrumb-divider: '>';">
         <ol class="breadcrumb">
             <li class="breadcrumb-item"><a href="/admin">Home</a></li>
@@ -8,6 +10,9 @@
                 aria-current="page">{{ vehicle.db_data['company_name'] }}</li>
         </ol>
     </nav>
+    </div>
+    </div>
+    <div class="container-xl">
     <div id="alert"></div>
     <h1 class="my-5 text-capitalize">{{ vehicle.db_data['company_name'] }}</h1>
     <div class="d-flex justify-content-between mb-3">
@@ -30,7 +35,7 @@
             </div>
         {% endfor %}
     </div>
-
+    </div>
     <div class="modal fade" id="modal_add_vehicle_model">
         <div class="modal-dialog">
             <div class="modal-content">

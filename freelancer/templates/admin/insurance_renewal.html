@@ -1,33 +1,38 @@
-{% set current_page = current_policy_type+'_renewal'  %}
+{% set current_page = current_policy_type+'_renewal' %}
 {% extends 'admin/base.html' %}
 {% block content %}
-    <nav aria-label="breadcrumb" class="my-3" style="--bs-breadcrumb-divider: '>';">
-                <ol class="breadcrumb">
-                    <li class="breadcrumb-item"><a href="/admin">Home</a></li>
-                    <li class="breadcrumb-item active text-capitalize" aria-current="page">
-                        {{ current_policy_type }} Insurance Renewals
-                    </li>
-                </ol>
-            </nav>
-    <h1 class="my-5 text-capitalize">{{ current_policy_type }} Insurance Renewals</h1>
-    <div id="alert"></div>
-    <div class="row">
-        <div class="col-md-3 mb-3">
-            <div class="card">
-                <div id="renewal_list_period" class="sticky-top card-header border-0 bg-white d-flex justify-content-between">
-                    <button onclick="prev_renewal_month()" class="btn"><span
-                            class="bi-caret-left"></span></button>
-                    <label class="fw-bold" id="current_period"></label>
-                    <button onclick="next_renewal_month()" class="btn"><span
-                            class="bi-caret-right"></span></button>
+    <div class="bg-white overflow-auto">
+    <div class="container-xl">
+        <nav aria-label="breadcrumb" class="my-3" style="--bs-breadcrumb-divider: '>';">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="/admin">Home</a></li>
+                <li class="breadcrumb-item active text-capitalize" aria-current="page">
+                    {{ current_policy_type }} Insurance Renewals
+                </li>
+            </ol>
+        </nav>
+    </div>
+    </div>
+    <div class="container-xl">
+        <h1 class="my-5 text-capitalize">{{ current_policy_type }} Insurance Renewals</h1>
+        <div id="alert"></div>
+        <div class="row">
+            <div class="col-md-3 mb-3">
+                <div class="card">
+                    <div id="renewal_list_period"
+                         class="sticky-top card-header border-0 bg-white d-flex justify-content-between">
+                        <button onclick="prev_renewal_month()" class="btn"><span
+                                class="bi-caret-left"></span></button>
+                        <label class="fw-bold" id="current_period"></label>
+                        <button onclick="next_renewal_month()" class="btn"><span
+                                class="bi-caret-right"></span></button>
+                    </div>
+                    <div id="policy_list" class="list-group list-group-flush"></div>
                 </div>
-                <div id="policy_list" class="list-group list-group-flush"></div>
+            </div>
+            <div class="col-md-9 mb-3">
+                {% include 'admin/renewal_card.html' %}
             </div>
         </div>
-        <div class="col-md-9 mb-3">
-            {% include 'admin/renewal_card.html' %}
-        </div>
     </div>
-
-
 {% endblock %}

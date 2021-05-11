@@ -5,258 +5,285 @@
             display: none;
         }
     </style>
-    <nav aria-label="breadcrumb" class="my-3" style="--bs-breadcrumb-divider: '>';">
-        <ol class="breadcrumb">
-            <li class="breadcrumb-item"><a href="/admin">Home</a></li>
-            <li class="breadcrumb-item"><a href="/contacts">Contacts</a></li>
-            <li class="breadcrumb-item active text-capitalize" aria-current="page">{{ person['name'] }}</li>
-        </ol>
-    </nav>
-    <div id="alert"></div>
-    <div class="my-5 d-flex justify-content-between">
-        <h1 class="text-capitalize ">{{ person['name'] }}</h1>
+    <div class="bg-white overflow-auto">
+        <div class="container-xl">
+            <nav aria-label="breadcrumb" class="my-3" style="--bs-breadcrumb-divider: '>';">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="/admin">Home</a></li>
+                    <li class="breadcrumb-item"><a href="/contacts">Contacts</a></li>
+                    <li class="breadcrumb-item active text-capitalize" aria-current="page">{{ person['name'] }}</li>
+                </ol>
+            </nav>
+        </div>
     </div>
-    <div class="row">
-        <div class="col-md-3 mb-3">
-            <div class="card mb-3">
-                <div class="card-body">
-                    <label class="btn d-flex justify-content-start" for="flexSwitchCheckChecked">
-                        <div class="form-check form-switch">
-                            <input onclick="edit_control_toggle()" class="form-check-input" type="checkbox"
-                                   id="flexSwitchCheckChecked">
-                        </div>
-                        <span>EDIT</span>
-                    </label>
+    <div class="container-xl">
+        <div id="alert"></div>
+        <div class="my-5 d-flex justify-content-between">
+            <h1 class="text-capitalize ">{{ person['name'] }}</h1>
+            <label class="btn d-flex justify-content-start mb-3" for="flexSwitchCheckChecked">
+                <div class="form-check form-switch">
+                    <input onclick="edit_control_toggle()" class="form-check-input" type="checkbox"
+                           id="flexSwitchCheckChecked">
                 </div>
-                <div class="card-body">
-                    <h6 class="card-title"><span class="bi bi-phone"></span> MOBILE NUMBER</h6>
-                    <div id="contact_number_list" class="list-group list-group-flush">
-                        {% for number in person['numbers'] %}
-                            <div class="list-group-item d-flex justify-content-between">
-                                {{ number }}
-                                <button onclick="remove_contact_number(this, '{{ number }}')" class="btn edit_control">
-                                    <span class="bi bi-dash-circle-fill text-danger"></span>
-                                </button>
-                            </div>
-                        {% endfor %}
-                    </div>
-                    <form class="m-0 edit_control" name="add_contact_number_form"
-                          onsubmit="submit_add_contact_number_form(this)">
-                        <div class="input-group input-group-sm">
-                            <input name="number" placeholder="Type Number here"
-                                   class="form-control bg-light border-light"
-                                   type="text" required/>
-                            <button type="submit" class=" btn btn-primary">
-                                ADD
-                            </button>
-                        </div>
-                    </form>
-                </div>
-                <div class="card-body">
-                    <h6 class="card-title"><span class="bi bi-at"></span> EMAIL</h6>
-                    <div id="email_list" class="list-group list-group-flush">
-                        {% for email in person['emails'] %}
-                            <div class="list-group-item d-flex justify-content-between">
-                                {{ email }}
-                                <button onclick="remove_email(this, '{{ email }}')" class="btn edit_control">
-                                    <span class="bi bi-dash-circle-fill text-danger"></span>
-                                </button>
-                            </div>
-                        {% endfor %}
-                    </div>
-                    <form class="m-0 edit_control" name="add_email_form" onsubmit="submit_add_email_form(this)">
-                        <div class="input-group input-group-sm">
-                            <input name="email" placeholder="Type Email here" class="bg-light border-light form-control"
-                                   type="text" required/>
-                            <button type="submit" class=" btn btn-primary">
-                                ADD
-                            </button>
-                        </div>
-                    </form>
+                <span>EDIT</span>
+            </label>
+        </div>
+        <div class="row">
+            <div class="col-md-3 mb-3">
 
-                </div>
-                <div class="card-body">
-                    <h6 class="card-title">Other Information</h6>
+                <div class="card mb-3 py-3">
                     <ul class="list-group list-group-flush">
-                        <li class="list-group-item">
-                            <span class="text-capitalize">{{ functions.source_type[person['source_type']] }}</span><br/>
+                        <li class="list-group-item border-0 mb-2">
+                            <h6 class="card-title">Mobile Numbers</h6>
+                            <div id="contact_number_list" class="list-group list-group-flush text-nowrap">
+                                {% for number in person['numbers'] %}
+                                    <div class="list-group-item px-0 py-1 border-0">
+                                        <button onclick="remove_contact_number(this, '{{ number }}')"
+                                                class="btn edit_control">
+                                            <span class="bi bi-dash-circle-fill text-danger"></span>
+                                        </button>
+                                        <span class="bi bi-phone"></span> {{ number }}
+
+                                    </div>
+                                {% endfor %}
+                            </div>
+                            <form class="m-0 edit_control" name="add_contact_number_form"
+                                  onsubmit="submit_add_contact_number_form(this)">
+                                <div class="input-group input-group-sm">
+                                    <input name="number" placeholder="Type Number here"
+                                           class="form-control bg-light border-light"
+                                           type="text" required/>
+                                    <button type="submit" class=" btn btn-primary">
+                                        ADD
+                                    </button>
+                                </div>
+                            </form>
+                        </li>
+                        <li class="list-group-item border-0 mb-2">
+                            <h6 class="card-title">Email <span class="bi bi-at"></span></h6>
+                            <div id="email_list" class="list-group list-group-flush text-nowrap">
+                                {% for email in person['emails'] %}
+                                    <div class="list-group-item px-0 py-1 border-0">
+                                        <button onclick="remove_email(this, '{{ email }}')" class="btn edit_control">
+                                            <span class="bi bi-dash-circle-fill text-danger"></span>
+                                        </button>
+                                        {{ email }}
+                                    </div>
+                                {% endfor %}
+                            </div>
+                            <form class="m-0 edit_control" name="add_email_form" onsubmit="submit_add_email_form(this)">
+                                <div class="input-group input-group-sm">
+                                    <input name="email" placeholder="Type Email here"
+                                           class="bg-light border-light form-control"
+                                           type="text" required/>
+                                    <button type="submit" class=" btn btn-primary">
+                                        ADD
+                                    </button>
+                                </div>
+                            </form>
+                        </li>
+                        <li class="list-group-item border-0 mb-2">
+                            <h6 class="card-title">Date of Birth</h6>
+                            <div id="dob_value"
+                                 class=" edit_value text-capitalize">{{ functions.format_timestamp(person['dob'], '%d-%m-%Y') }}</div>
+                            <form class="m-0 edit_control" name="update_dob_form"
+                                  onsubmit="submit_update_dob_form(this)">
+                                <div class="input-group input-group-sm">
+                                    <input name="dob"
+                                           value="{{ functions.format_timestamp(person['dob'], '%Y-%m-%d') }}"
+                                           class="bg-light border-light form-control"
+                                           type="date" required/>
+                                    <button type="submit" class=" btn btn-primary">
+                                        UPDATE
+                                    </button>
+                                </div>
+                            </form>
+                        </li>
+                        <li class="list-group-item border-0 mb-2">
+                            <span class="text-capitalize">{{ person['source_type'] }}</span><br/>
                             <small class="text-muted">SOURCE TYPE</small>
                         </li>
-                        <li class="list-group-item">
+                        <li class="list-group-item border-0 mb-2">
                             <span class="text-capitalize">{{ person['source_data'] }}</span><br/>
                             <small class="text-muted">SOURCE</small>
                         </li>
                     </ul>
                 </div>
+                <div class="my-3 d-grid">
+                    <button class="btn btn-danger text-nowrap edit_control" onclick="delete_person()">
+                        DELETE PERSON
+                    </button>
+                </div>
 
             </div>
-            <div class="my-3 d-grid">
-                <button class="btn btn-danger text-nowrap edit_control" onclick="delete_person()">
-                    DELETE PERSON DATA
-                </button>
-            </div>
-        </div>
-        <div class="col-md-9 mb-3">
-            <ul class="nav nav-pills nav-fill mb-3" id="policy_type_navbar" role="tablist">
-                <li class="nav-item" role="presentation">
-                    <a class="nav-link bg-gradient active" id="motor_card_tab" data-bs-toggle="pill"
-                       href="#motor_card" type="button">
-                        MOTOR
-                        <span class="float-end badge bg-white rounded-pill text-primary">{{ person.registration_list|length }}</span>
-                    </a>
-                </li>
-                <li class="nav-item" role="presentation">
-                    <a class="nav-link bg-gradient" id="health_card_tab" data-bs-toggle="pill"
-                       href="#health_card" type="button">
-                        HEALTH
-                        <span class="float-end badge bg-white rounded-pill text-primary">{{ person.health_policy_list|length }}</span>
-                    </a>
-                </li>
-            </ul>
-            <div class="tab-content">
-                <div id="motor_card" class="card active show tab-pane fade mb-3">
-                    <h5 class="card-header">MOTOR INSURANCE</h5>
-                    <div class="card-body">
-                        <button data-bs-toggle="modal" data-bs-target="#add_vehicle_modal"
-                                class="btn btn-light text-primary fw-bold">
-                            <span class="bi bi-plus-circle-fill fw-bold"></span> ADD VEHICLE
-                        </button>
-                        <div class="list-group list-group-flush">
-                            {% for vehicle in person.registration_list %}
-                                <div class="list-group-item">
-                                    <div class="mb-3 d-flex">
-                                        <h4 class="card-title text-uppercase my-3">
-                                            {{ vehicle['registration_number'] }} -
-                                            <span class="">{{ vehicle['registration_name'] }}</span>
-                                        </h4>
-                                        <button class="btn text-primary"
-                                                onclick="view_vehicle('{{ vehicle['_id'] }}')">EDIT
-                                        </button>
-                                    </div>
-                                    <div class="row">
-                                        <div class="col-lg-6 mb-3">
-                                            <table class="text-uppercase table table-borderless table-striped table-sm align-middle">
-                                                <tr>
-                                                    <td class="text-muted text-nowrap">Number</td>
-                                                    <td>{{ vehicle['registration_number'] }}</td>
-                                                </tr>
-                                                <tr>
-                                                    <td class="text-muted text-nowrap">Name</td>
-                                                    <td>{{ vehicle['registration_name'] }}</td>
-                                                </tr>
-                                                <tr>
-                                                    <td class="text-muted text-nowrap">Make - Model</td>
-                                                    <td>
-                                                        {{ vehicle['company'] }} - {{ vehicle['model'] }}
-                                                    </td>
-                                                </tr>
-                                                <tr>
-                                                    <td class="text-muted text-nowrap">Reg Date</td>
-                                                    <td>{{ functions.format_timestamp(vehicle['registration_date'], '%d-%m-%Y') }}</td>
-                                                </tr>
-                                                <tr>
-                                                    <td class="text-muted text-nowrap">MFG Year</td>
-                                                    <td>{{ vehicle['mfg'] }}</td>
-                                                </tr>
-                                                <tr>
-                                                    <td class="text-muted text-nowrap">CC</td>
-                                                    <td>{{ vehicle['cc'] }}</td>
-                                                </tr>
-                                                <tr>
-                                                    <td class="text-muted text-nowrap">Fuel Type</td>
-                                                    <td>{{ vehicle['fuel'] }}</td>
-                                                </tr>
-                                            </table>
+            <div class="col-md-9 mb-3">
+                <div class="d-flex justify-content-center my-3">
+                    <ul class="nav nav-pills mb-3 border border-primary bg-white" id="policy_type_navbar"
+                        role="tablist">
+                        <li class="nav-item " role="presentation">
+                            <a class="px-5 nav-link rounded-0 active" id="motor_card_tab" data-bs-toggle="pill"
+                               href="#motor_card" type="button">
+                                MOTOR
+                            </a>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <a class="px-5 nav-link rounded-0" id="health_card_tab" data-bs-toggle="pill"
+                               href="#health_card" type="button">
+                                HEALTH
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+
+                <div class="tab-content">
+
+                    <div id="motor_card" class=" active show tab-pane fade">
+                        <div class="mb-3">
+                            <button data-bs-toggle="modal" data-bs-target="#add_vehicle_modal"
+                                    class="btn border-primary text-primary bg-white fw-bold">
+                                <span class="bi bi-plus "></span> ADD VEHICLE
+                            </button>
+                        </div>
+                        {% for vehicle in person.registration_list %}
+                            <div class="card mb-3">
+                            <div class="card-body">
+                                 <div class="mb-3">
+                                    <h4 class="card-title text-uppercase">
+                                        {{ vehicle['registration_number'] }} -
+                                        <span class="">{{ vehicle['registration_name'] }}</span>
+                                    </h4>
+                                </div>
+                                <div class="row">
+                                    <div class="col-lg-6 mb-3">
+                                        <div class="d-flex justify-content-between mb-2">
+                                            <h6 class="my-auto text-muted">Vehicle Details</h6>
+                                            <button class="btn btn-sm text-primary"
+                                            onclick="view_vehicle('{{ vehicle['_id'] }}')">EDIT
+                                    </button>
                                         </div>
-                                        <div class="col-lg-6 mb-3">
-                                            <div class="d-flex justify-content-between mb-3">
-                                                <h6 class=" my-auto">Policy List</h6>
-                                                <button class="btn btn-light text-primary btn-sm"
-                                                        onclick="add_vehicle_policy('{{ vehicle['registration_number'] }}', '{{ vehicle['_id'] }}')">
-                                                    <span class="bi bi-plus"></span> ADD POLICY
+                                        <table class="text-uppercase table table-borderless table-striped table-sm align-middle">
+                                            <tr>
+                                                <td class="text-muted text-nowrap">Number</td>
+                                                <td>{{ vehicle['registration_number'] }}</td>
+                                            </tr>
+                                            <tr>
+                                                <td class="text-muted text-nowrap">Name</td>
+                                                <td>{{ vehicle['registration_name'] }}</td>
+                                            </tr>
+                                            <tr>
+                                                <td class="text-muted text-nowrap">Make - Model</td>
+                                                <td>
+                                                    {{ vehicle['company'] }} - {{ vehicle['model'] }}
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td class="text-muted text-nowrap">Reg Date</td>
+                                                <td>{{ functions.format_timestamp(vehicle['registration_date'], '%d-%m-%Y') }}</td>
+                                            </tr>
+                                            <tr>
+                                                <td class="text-muted text-nowrap">MFG Year</td>
+                                                <td>{{ vehicle['mfg'] }}</td>
+                                            </tr>
+                                            <tr>
+                                                <td class="text-muted text-nowrap">CC</td>
+                                                <td>{{ vehicle['cc'] }}</td>
+                                            </tr>
+                                            <tr>
+                                                <td class="text-muted text-nowrap">Fuel Type</td>
+                                                <td>{{ vehicle['fuel'] }}</td>
+                                            </tr>
+                                        </table>
+                                    </div>
+                                    <div class="col-lg-6 mb-3">
+                                        <div class="d-flex justify-content-between mb-3">
+                                            <h6 class=" my-auto text-muted">Policy List</h6>
+                                            <button class="btn border-primary text-primary btn-sm"
+                                                    onclick="add_vehicle_policy('{{ vehicle['registration_number'] }}', '{{ vehicle['_id'] }}')">
+                                                <span class="bi bi-plus"></span> ADD POLICY
+                                            </button>
+                                        </div>
+                                        <div class="list-group list-group-flush">
+                                            {% for policy in vehicle.motor_policy_list %}
+                                                <button onclick="view_vehicle_policy('{{ policy['_id'] }}')"
+                                                        class="border-0 list-group-item list-group-item-action d-flex justify-content-between">
+                                                    <span class="d-inline-block">{{ policy['policy_number'] }}</span>
+                                                    <span class="text-muted d-inline-block">{{ functions.format_timestamp(policy['expiry_date'], '%d-%m-%Y') }}</span>
                                                 </button>
-                                            </div>
-                                            <div class="list-group list-group-flush">
-                                                {% for policy in vehicle.motor_policy_list %}
-                                                    <button onclick="view_vehicle_policy('{{ policy['_id'] }}')"
-                                                            class="border-0 list-group-item list-group-item-action d-flex justify-content-between">
-                                                        <span class="d-inline-block">{{ policy['policy_number'] }}</span>
-                                                        <span class="text-muted d-inline-block">{{ functions.format_timestamp(policy['expiry_date'], '%d-%m-%Y') }}</span>
-                                                    </button>
-                                                {% endfor %}
-                                            </div>
+                                            {% endfor %}
                                         </div>
                                     </div>
                                 </div>
+                            </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+
+                    <div id="health_card" class="tab-pane fade mb-3">
+                    <div class="mb-3">
+                        <button data-bs-toggle="modal" data-bs-target="#add_health_policy_modal"
+                                    class="btn bg-white border-primary text-primary fw-bold">
+                                <span class="bi bi-plus "></span> ADD POLICY
+                            </button>
+                    </div>
+
+                        <div class="list-group">
+                            {% for policy in person['health_policy_list'] %}
+                                <button onclick="view_health_policy('{{ policy['_id'] }}')"
+                                        class="list-group-item list-group-item-action">
+                                    <span class="d-inline-block">{{ policy['policy_owner'] }}</span>
+                                    <span class="text-muted d-inline-block float-end">{{ functions.format_timestamp(policy['expiry_date'], '%d-%m-%Y') }}</span>
+
+                                </button>
                             {% endfor %}
                         </div>
                     </div>
                 </div>
-                <div id="health_card" class="card tab-pane fade mb-3">
-                    <h5 class="card-header">HEALTH INSURANCE</h5>
-                    <div class="card-body">
-                        <button data-bs-toggle="modal" data-bs-target="#add_health_policy_modal"
-                                class="btn btn-light text-primary fw-bold">
-                            <span class="bi bi-plus-circle-fill fw-bold"></span> ADD POLICY
-                        </button>
-                    </div>
-                    <div class="list-group list-group-flush">
-                        {% for policy in person['health_policy_list'] %}
-                            <button onclick="view_health_policy('{{ policy['_id'] }}')"
-                                    class="list-group-item list-group-item-action">
-                                <span class="d-inline-block">{{ policy['policy_owner'] }}</span>
-                                <span class="text-muted d-inline-block float-end">{{ functions.format_timestamp(policy['expiry_date'], '%d-%m-%Y') }}</span>
 
-                            </button>
-                        {% endfor %}
-                    </div>
-                </div>
             </div>
-
         </div>
     </div>
-
     <div class="modal fade" id="add_vehicle_modal">
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title">ADD VEHICLE</h5>
+                    <h5 class="modal-title">Add Vehicle</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
                     <form onsubmit="submit_add_vehicle_form(this)" name="add_vehicle_form">
                         <label for="registration_number" class="form-label">Registraion Number</label>
-                        <input type="text" id="registration_number" name="registration_number" class="form-control mb-2"
+                        <input type="text" id="registration_number" name="registration_number" class="form-control mb-3"
                                required/>
                         <label for="registration_name" class="form-label">Registration Name</label>
-                        <input type="text" id="registration_name" name="registration_name" class="form-control mb-2"/>
+                        <input type="text" id="registration_name" name="registration_name" class="form-control mb-3"/>
                         <label for="registration_date" class="form-label">Registration Date</label>
-                        <input type="date" id="registration_date" name="registration_date" class="form-control mb-2"/>
+                        <input type="date" id="registration_date" name="registration_date" class="form-control mb-3"/>
                         <label for="company" class="form-label">Company</label>
                         <select onchange="check_select(this);load_vehicle_models(this);" id="company" name="company"
-                                class="form-select mb-2" required>
+                                class="form-select mb-3" required>
                             <option value="">Select Company</option>
                             <option value="other">Other</option>
                         </select>
                         <input style="display: none" type="text" class="form-control mb-3" name="company_other"
                                placeholder="Type Company name here" disabled/>
                         <label for="model" class="form-label">Model</label>
-                        <select onchange="check_select(this);" id="model" name="model" class="form-select mb-2" required>
+                        <select onchange="check_select(this);" id="model" name="model" class="form-select mb-3"
+                                required>
                             <option value="">Select Model</option>
                             <option value="other">Other</option>
                         </select>
                         <input style="display: none" type="text" class="form-control mb-3" name="model_other"
                                placeholder="Type vehicle model" disabled/>
                         <label for="cc" class="form-label">CC</label>
-                        <input type="text" id="cc" name="cc" class="form-control mb-2"/>
+                        <input type="text" id="cc" name="cc" class="form-control mb-3"/>
                         <label for="fuel" class="form-label">Fuel Type</label>
-                        <select class="form-select mb-2" name="fuel" id="fuel">
+                        <select class="form-select mb-3" name="fuel" id="fuel">
                             <option value="">Select Fuel Type</option>
                             <option value="petrol">Petrol</option>
                             <option value="diesel">Diesel</option>
                         </select>
                         <label for="mfg" class="form-label">MFG Year</label>
-                        <input type="text" id="mfg" name="mfg" class="form-control mb-2"/>
+                        <input type="text" id="mfg" name="mfg" class="form-control mb-3"/>
                         <div class="d-grid">
                             <button type="submit" class="btn btn-primary">SUBMIT</button>
                         </div>
@@ -271,33 +298,33 @@
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5>EDIT VEHICLE</h5>
+                    <h5>Edit Vehicle Details</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
                     <form onsubmit="submit_update_vehicle_form(this)" name="update_vehicle_form">
                         <input type="hidden" name="registration_id" value="">
                         <label for="registration_number" class="form-label">Registraion Number</label>
-                        <input type="text" id="registration_number" name="registration_number" class="form-control mb-2"
+                        <input type="text" id="registration_number" name="registration_number" class="form-control mb-3"
                                required/>
                         <label for="registration_name" class="form-label">Registration Name</label>
-                        <input type="text" id="registration_name" name="registration_name" class="form-control mb-2"/>
+                        <input type="text" id="registration_name" name="registration_name" class="form-control mb-3"/>
                         <label for="registration_date" class="form-label">Registration Date</label>
-                        <input type="date" id="registration_date" name="registration_date" class="form-control mb-2"/>
+                        <input type="date" id="registration_date" name="registration_date" class="form-control mb-3"/>
                         <label for="company" class="form-label">Company</label>
-                        <input type="text" id="company" name="company" class="form-control mb-2"/>
+                        <input type="text" id="company" name="company" class="form-control mb-3"/>
                         <label for="model" class="form-label">Model</label>
-                        <input type="text" id="model" name="model" class="form-control mb-2"/>
+                        <input type="text" id="model" name="model" class="form-control mb-3"/>
                         <label for="cc" class="form-label">CC</label>
-                        <input type="text" id="cc" name="cc" class="form-control mb-2"/>
+                        <input type="text" id="cc" name="cc" class="form-control mb-3"/>
                         <label for="fuel" class="form-label">Fuel Type</label>
-                        <select class="form-select mb-2" name="fuel" id="fuel">
+                        <select class="form-select mb-3" name="fuel" id="fuel">
                             <option value="">Select Fuel Type</option>
                             <option value="petrol">Petrol</option>
                             <option value="diesel">Diesel</option>
                         </select>
                         <label for="mfg" class="form-label">MFG Year</label>
-                        <input type="number" class="form-control mb-2" name="mfg" id="mfg"/>
+                        <input type="number" class="form-control mb-3" name="mfg" id="mfg"/>
                         <div class="d-grid mb-3">
                             <button type="submit" class="btn btn-primary">
                                 UPDATE
@@ -305,7 +332,7 @@
                         </div>
                         <div class="text-end">
                             <button type="button" onclick="delete_vehicle()"
-                                    class="btn btn-light text-danger">
+                                    class="btn btn-danger">
                                 <span class="bi bi-trash"></span> DELETE
                             </button>
                         </div>
@@ -319,45 +346,46 @@
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5>ADD VEHICLE POLICY</h5>
+                    <h5>Add Motor Policy</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
                     <form name="add_vehicle_policy_form" onsubmit="submit_add_vehicle_policy_form(this)">
-                        <div class="form-check mb-2">
+                        <label class="form-label" for="registration_number">Registration Number</label>
+                        <input type="text" class="form-control mb-3" name="registration_number" id="registration_number"
+                               disabled/>
+                        <div class="form-check mb-3">
                             <input class="form-check-input" name="own_business" type="checkbox" value="True"
                                    id="own_business">
                             <label class="form-check-label" for="own_business">
                                 Own Business
                             </label>
                         </div>
-                        <label class="form-label" for="registration_number">Registration Number</label>
-                        <input type="text" class="form-control mb-2" name="registration_number" id="registration_number"
-                               disabled/>
                         <label for="expiry_date" class="form-label">Expiry Date</label>
-                        <input type="date" class="form-control mb-2" name="expiry_date" id="expiry_date" required/>
+                        <input type="date" class="form-control mb-3" name="expiry_date" id="expiry_date" required/>
                         <label for="policy_number" class="form-label">Policy Number</label>
-                        <input type="text" class="form-control mb-2" name="policy_number" id="policy_number"/>
+                        <input type="text" class="form-control mb-3" name="policy_number" id="policy_number"/>
                         <label for="policy_type" class="form-label">Policy Type</label>
-                        <select class="form-select mb-2" name="policy_type" id="policy_type">
+                        <select class="form-select mb-3" name="policy_type" id="policy_type">
                             <option value="" selected>Select Type</option>
                             <option value="od_tp">Normal (OD+TP)</option>
                             <option value="tp">Third Party Only</option>
                             <option value="tentative">Tentative</option>
                             <option value="od">Own Damange Only</option>
                         </select>
-                        <div class="form-check mb-2">
+                        <label class="form-label">Addon Covers</label>
+                        <div class="form-check mb-3">
                             <input class="form-check-input" name="o_dap" type="checkbox" value="True" id="o_dap">
                             <label class="form-check-label" for="o_dap">
                                 0 DAP Cover
                             </label>
                         </div>
                         <label for="company" class="form-label">Company</label>
-                        <input type="text" class="form-control mb-2" name="company" id="company"/>
+                        <input type="text" class="form-control mb-3" name="company" id="company"/>
                         <label for="idv" class="form-label">IDV</label>
-                        <input type="text" class="form-control mb-2" name="idv" id="idv"/>
+                        <input type="text" class="form-control mb-3" name="idv" id="idv"/>
                         <label for="ncb" class="form-label">NCB %</label>
-                        <select class="form-select mb-2" name="ncb" id="ncb">
+                        <select class="form-select mb-3" name="ncb" id="ncb">
                             <option value="" selected>SELECT</option>
                             <option value="0">0%</option>
                             <option value="20">20%</option>
@@ -367,7 +395,7 @@
                             <option value="50">50%</option>
                         </select>
                         <label for="premium" class="form-label">Premium</label>
-                        <input type="text" class="form-control mb-2" name="premium" id="premium"/>
+                        <input type="text" class="form-control mb-3" name="premium" id="premium"/>
                         <div class="d-grid">
                             <button type="submit" class="btn btn-primary">SUBMIT</button>
                         </div>
@@ -382,15 +410,15 @@
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5>MOTOR POLICY DETAILS</h5>
+                    <h5>Policy Details</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
-                    <p class="d-flex justify-content-between">
+                    <div class="d-flex justify-content-between mb-3">
                         <span id="motor_policy_table_own_business"></span>
-                        <button class="btn btn-outline-primary btn-sm" onclick="view_edit_motor_policy_modal()">EDIT
+                        <button class="btn text-primary btn-sm" onclick="view_edit_motor_policy_modal()">EDIT DETAILS
                         </button>
-                    </p>
+                    </div>
                     <table id="motor_policy_table" class="table table-borderless table-striped text-uppercase">
                         <tbody>
                         <tr>
@@ -447,7 +475,7 @@
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5>EDIT VEHICLE POLICY</h5>
+                    <h5>Edit Policy Details</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
@@ -530,12 +558,12 @@
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5>ADD HEALTH POLICY</h5>
+                    <h5>Add Health Policy</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
                     <form name="add_health_policy_form" onsubmit="submit_add_health_policy_form(this)">
-                        <div class="form-check mb-2">
+                        <div class="form-check mb-3">
                             <input class="form-check-input" name="own_business" type="checkbox" value="True"
                                    id="own_business">
                             <label class="form-check-label" for="own_business">
@@ -543,19 +571,19 @@
                             </label>
                         </div>
                         <label for="expiry_date" class="form-label">Expiry Date</label>
-                        <input type="date" class="form-control mb-2" name="expiry_date" id="expiry_date" required/>
+                        <input type="date" class="form-control mb-3" name="expiry_date" id="expiry_date" required/>
                         <label for="policy_owner" class="form-label">Policy Owner Name</label>
-                        <input type="text" class="form-control mb-2" name="policy_owner" id="policy_owner"/>
+                        <input type="text" class="form-control mb-3" name="policy_owner" id="policy_owner"/>
                         <label for="policy_number" class="form-label">Policy Number</label>
-                        <input type="text" class="form-control mb-2" name="policy_number" id="policy_number"/>
+                        <input type="text" class="form-control mb-3" name="policy_number" id="policy_number"/>
                         <label for="company" class="form-label">Company</label>
-                        <input type="text" class="form-control mb-2" name="company" id="company"/>
+                        <input type="text" class="form-control mb-3" name="company" id="company"/>
                         <label for="policy_type" class="form-label">Plan Name</label>
-                        <input type="text" class="form-control mb-2" name="policy_type" id="policy_type"/>
+                        <input type="text" class="form-control mb-3" name="policy_type" id="policy_type"/>
                         <label for="idv" class="form-label">Sum Insured Value</label>
-                        <input type="text" class="form-control mb-2" name="idv" id="idv"/>
+                        <input type="text" class="form-control mb-3" name="idv" id="idv"/>
                         <label for="ncb" class="form-label">NCB %</label>
-                        <select class="form-select mb-2" name="ncb" id="ncb">
+                        <select class="form-select mb-3" name="ncb" id="ncb">
                             <option value="" selected>SELECT</option>
                             <option value="0">0%</option>
                             <option value="20">20%</option>
@@ -565,7 +593,7 @@
                             <option value="50">50%</option>
                         </select>
                         <label for="premium" class="form-label">Premium</label>
-                        <input type="text" class="form-control mb-2" name="premium" id="premium"/>
+                        <input type="text" class="form-control mb-3" name="premium" id="premium"/>
                         <div class="d-grid">
                             <button type="submit" class="btn btn-primary">SUBMIT</button>
                         </div>
@@ -580,18 +608,15 @@
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5>HEALTH POLICY DETAILS</h5>
+                    <h5>Policy Details</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
-                    <p>
-                        <button class="btn btn-light text-primary" onclick="view_edit_health_policy_modal()">EDIT
+                    <div class="d-flex justify-content-between mb-3">
+                        <span id="health_policy_table_own_business"></span>
+                        <button class="btn btn-sm text-primary" onclick="view_edit_health_policy_modal()">EDIT DETAILS
                         </button>
-                        <a href="#" class="btn btn-link float-end" target="_blank" id="view_health_renewal_button">VIEW
-                            RENEWAL
-                            PAGE
-                            <span class="bi bi-box-arrow-in-up-right"></span> </a>
-                    </p>
+                    </div>
                     <table id="motor_policy_table" class="table table-borderless table-striped text-uppercase">
                         <tbody>
                         <tr>
@@ -632,6 +657,12 @@
                         </tr>
                         </tbody>
                     </table>
+                    <div class="text-center">
+                        <a href="#" class="btn btn-link" target="_blank" id="view_health_renewal_button">VIEW
+                            RENEWAL
+                            PAGE
+                            <span class="bi bi-box-arrow-in-up-right"></span> </a>
+                    </div>
 
                 </div>
             </div>
@@ -642,13 +673,13 @@
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5>EDIT HEALTH POLICY</h5>
+                    <h5>Edit Policy Details</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
                     <form name="edit_health_policy_form" onsubmit="submit_edit_health_policy_form(this)">
                         <input type="hidden" name="policy_id" id="policy_id" value=""/>
-                        <div class="form-check mb-2">
+                        <div class="form-check mb-3">
                             <input class="form-check-input" name="own_business" type="checkbox" value="True"
                                    id="own_business">
                             <label class="form-check-label" for="own_business">
@@ -656,17 +687,17 @@
                             </label>
                         </div>
                         <label class="form-label" for="policy_number">Policy Number</label>
-                        <input type="text" class="form-control mb-2" name="policy_number" id="policy_number"/>
+                        <input type="text" class="form-control mb-3" name="policy_number" id="policy_number"/>
                         <label class="form-label" for="policy_owner">Policy Owner</label>
-                        <input type="text" class="form-control mb-2" name="policy_owner" id="policy_owner"/>
+                        <input type="text" class="form-control mb-3" name="policy_owner" id="policy_owner"/>
                         <label for="expiry_date" class="form-label">Expiry Date</label>
-                        <input type="date" class="form-control mb-2" name="expiry_date" id="expiry_date" required/>
+                        <input type="date" class="form-control mb-3" name="expiry_date" id="expiry_date" required/>
                         <label for="policy_type" class="form-label">Policy Plan</label>
-                        <input type="text" class="form-control mb-2" name="policy_type" id="policy_type"/>
+                        <input type="text" class="form-control mb-3" name="policy_type" id="policy_type"/>
                         <label for="company" class="form-label">Company</label>
-                        <input type="text" class="form-control mb-2" name="company" id="company"/>
+                        <input type="text" class="form-control mb-3" name="company" id="company"/>
                         <label for="idv" class="form-label">IDV</label>
-                        <input type="text" class="form-control mb-2" name="idv" id="idv"/>
+                        <input type="text" class="form-control mb-3" name="idv" id="idv"/>
                         <div class="">
                             <label class="form-label fw-bold">Claim Status - </label>
                             <div class="form-check form-check-inline">
@@ -685,7 +716,7 @@
                             </div>
                         </div>
                         <label for="ncb" class="form-label">NCB %</label>
-                        <select class="form-select mb-2" name="ncb" id="ncb">
+                        <select class="form-select mb-3" name="ncb" id="ncb">
                             <option value="" selected>SELECT</option>
                             <option value="0">0%</option>
                             <option value="20">20%</option>
@@ -695,7 +726,7 @@
                             <option value="50">50%</option>
                         </select>
                         <label for="premium" class="form-label">Premium</label>
-                        <input type="text" class="form-control mb-2" name="premium" id="premium"/>
+                        <input type="text" class="form-control mb-3" name="premium" id="premium"/>
                         <div class="d-grid mb-3">
                             <button type="submit" class="btn btn-primary">UPDATE</button>
                         </div>
@@ -736,9 +767,11 @@
                     success: function (response) {
                         if (response.result == true) {
                             $('#add_contact_number_collapse').collapse('hide')
-                            html = '<li class="list-group-item">' + number +
-                                '<button onclick="remove_contact_number(this, \'' + number + '\')" class="float-end btn ">' +
-                                '<span class="bi bi-dash-circle-fill text-danger edit_control" style="display: block"></span></button></li>'
+                            html = '<li class="list-group-item px-0 py-1 border-0">' +
+                                '<button onclick="remove_contact_number(this, \'' + number + '\')" class="btn edit_control" style="display: inline-block">' +
+                                '<span class="bi bi-dash-circle-fill text-danger" ></span></button>' +
+                                '<span class="bi bi-phone"></span> ' + number +
+                                '</li>'
                             $(html).appendTo($('#contact_number_list')).hide().slideDown('slow').effect('highlight')
                             form.reset()
                         } else {
@@ -784,10 +817,11 @@
                     dataType: 'JSON',
                     success: function (response) {
                         if (response.result == true) {
-                            $('#add_email_collapse').collapse('hide')
-                            html = '<li class="list-group-item">' + email +
-                                '<button onclick="remove_email(this, \'' + email + '\')" class="float-end btn ">' +
-                                '<span class="bi bi-dash-circle-fill text-danger edit_control" style="display: block"></span></button></li>'
+                            html = '<li class="list-group-item px-0 py-1 border-0">' +
+                                '<button onclick="remove_email(this, \'' + email + '\')" class="btn edit_control" style="display:inline-block">' +
+                                '<span class="bi bi-dash-circle-fill text-danger"></span></button>' +
+                                '' + email +
+                                '</li>'
                             $(html).appendTo($('#email_list')).hide().slideDown('slow').effect('highlight')
                             form.reset()
                         } else {
@@ -819,6 +853,32 @@
                 })
             }
         }
+
+
+        function submit_update_dob_form(form) {
+            event.preventDefault()
+            dob = form.dob.value.trim()
+            if (dob == '') {
+                show_alert('Date of Birth cannot be empty!', 'warning')
+            } else {
+                $.ajax({
+                    url: '/api/update_contact_dob',
+                    type: 'POST',
+                    data: {'_id': person_id, 'dob': dob},
+                    dataType: 'JSON',
+                    success: function (response) {
+                        if (response.result == true) {
+                            $("#dob_value").text(formatdate(response.dob.$date))
+                            show_alert('Date of Birth Updated successfully!', 'success')
+                        } else {
+                            show_alert('Error: ' + response.msg, 'error')
+                        }
+                    }
+                })
+
+            }
+        }
+
 
         function delete_person() {
             if (confirm('This will delete all data related to ' + person_name + '.\nAre you sure ?')) {
@@ -1070,6 +1130,11 @@
                         form.policy_id.value = current_health_policy_id
                         document.getElementById('view_health_renewal_button').setAttribute('href', '/view_health_policy/' + current_health_policy_id)
                         form.own_business.checked = (response.data['own_business'] === true)
+                        if (response.data['own_business'] === true) {
+                            document.getElementById('health_policy_table_own_business').innerHTML = '<span class="badge bg-success fs-6">OWNED POLICY</span>'
+                        } else {
+                            document.getElementById('health_policy_table_own_business').innerHTML = ''
+                        }
                         form.claim_status.value = response.data['claim_status']
                         document.getElementById('health_policy_table_claim_status').innerText = response.data['claim_status']
                         for (i of ['policy_owner', 'policy_number', 'policy_type', 'company', 'idv', 'ncb', 'premium']) {
@@ -1126,7 +1191,8 @@
         }
 
         function edit_control_toggle() {
-            $('.edit_control').toggle('animated')
+            $('.edit_control').toggle('slid')
+            $('.edit_value').toggle('slid')
         }
 
         function view_edit_motor_policy_modal() {

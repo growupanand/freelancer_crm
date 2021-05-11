@@ -73,6 +73,7 @@ class Person:
                 self.name = self.db_data['name'] if 'name' in self.db_data else None
                 self.numbers = self.db_data['numbers'] if 'numbers' in self.db_data else []
                 self.emails = self.db_data['emails'] if 'emails' in self.db_data else []
+                self.dob = self.db_data['dob'] if 'dob' in self.db_data else None
                 self.source_type = self.db_data['source_type'] if 'source_type' in self.db_data else None
                 self.source_data = self.db_data['source_data'] if 'source_data' in self.db_data else None
 
@@ -93,6 +94,17 @@ class Person:
                 )
         db_data = db.persons_collection.find(query)
         return db_data
+
+    # update date of birth
+    def update_dob(self, dob):
+        result = {'result' : False}
+        dob = None if str.strip(dob) in (
+            None, '') else datetime.strptime(dob, "%Y-%m-%d")
+        if db.persons_collection.update_one({'_id': self._id}, {'$set':{'dob' : dob}}).acknowledged:
+            result['result'] = True
+            result['dob'] = dob
+        return result
+
 
     # add contact number
     def add_contact_number(self, number):

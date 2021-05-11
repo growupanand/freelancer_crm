@@ -58,10 +58,13 @@ def get_person_list_api():
     if not session.get('logged_in'):
         return dumps({'result': False, 'msg': 'Login required.'})
     query = request.form['query']
+    search_filter = request.form['search_filter']
     if query == None:
         result = models.Person().get()
     else:
-        result = models.Person().find(['name', 'numbers'], query)
+        if search_filter in ('number', 'email'):
+            search_filter += 's'
+        result = models.Person().find([search_filter], query)
     return dumps({'result': True, 'data': result.sort('name', 1)})
 
 
@@ -118,6 +121,14 @@ def post_policy_followup():
         policy = models.Policy_health(policy_id)
     return dumps(policy.post_policy_followup(remark))
 
+
+@app.route('/api/update_contact_dob', methods=['POST'])
+def update_contact_dob_api():
+    if not session.get('logged_in'):
+        return json.dumps({'result': False, 'msg': 'Login required.'})
+    person_id = ObjectId(request.form.get('_id'))
+    dob = request.form.get('dob')
+    return dumps(models.Person(person_id).update_dob(dob))
 
 @app.route('/api/add_contact_number', methods=['POST'])
 def add_contact_number_api():

@@ -1,11 +1,16 @@
 {% extends 'admin/base.html' %}
 {% block content %}
+    <div class="bg-white overflow-auto">
+    <div class="container-xl">
     <nav aria-label="breadcrumb" class="my-3" style="--bs-breadcrumb-divider: '>';">
         <ol class="breadcrumb">
             <li class="breadcrumb-item"><a href="/admin">Home</a></li>
             <li class="breadcrumb-item active text-capitalize" aria-current="page">Manage Vehicles</li>
         </ol>
     </nav>
+    </div>
+    </div>
+    <div class="container-xl">
     <h1 class="my-5">Manage Vehicles
         <small class="text-muted">(<span id="count_vehicles"></span>)</small>
     </h1>
@@ -16,7 +21,7 @@
         </button>
     </div>
     <div id="list_group_vehicles" class="list-group mb-3"></div>
-
+    </div>
     <div class="modal fade" id="modal_add_vehicle_company">
     <div class="modal-dialog">
         <div class="modal-content">

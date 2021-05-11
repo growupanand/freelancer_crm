@@ -5,7 +5,7 @@
             <span class="bi bi-phone-fill fs-6"></span> <span id="numbers"></span>
         </p>
     </div>
-<div class="card-body">
+    <div class="card-body">
         <div class="row">
             <div class="col-md-7 mb-3">
 
@@ -13,7 +13,7 @@
 
                     {# Registration detail card #}
                     {% if current_policy_type == 'motor' %}
-                        <div class="mb-3">
+                        <div class="mb-5">
                             <div id="registration_number" class="fs-5 mb-2"></div>
                             <table class="table table-borderless table-striped table-sm">
                                 <tbody>
@@ -74,6 +74,7 @@
                         {% if current_policy_type == 'health' %}
                             <table class="table table-borderless table-striped table-sm">
                                 <tbody>
+
                                 <tr>
                                     <td class="text-muted">Policy Number</td>
                                     <td id="policy_number"></td>
@@ -110,7 +111,6 @@
                                 </tbody>
                             </table>
                         {% endif %}
-
                         {% if current_policy_type == 'motor' %}
                             <table class="table table-borderless table-striped table-sm">
                                 <tbody>
@@ -149,6 +149,23 @@
                                 </tbody>
                             </table>
                         {% endif %}
+                        <form name="form_claim_status">
+                            <div class="d-flex justify-content-between">
+                                <span class="text-muted">Claim Status</span>
+                                <span>
+                                    <input type="radio" value="false" class="btn-check"
+                                           onchange="submit_form_claim_status()"
+                                           name="claim_status" id="no_claim_status" autocomplete="off"
+                                    >
+                            <label class="btn btn-sm btn-outline-primary" for="no_claim_status">NO CLAIM</label>
+                            <input type="radio" value="true" class="btn-check" onchange="submit_form_claim_status()"
+                                   name="claim_status" id="claimed_status" autocomplete="off"
+                            >
+                            <label class="btn btn-sm btn-outline-primary" for="claimed_status">CLAIMED</label>
+                                </span>
+
+                            </div>
+                        </form>
                     </div>
                 </div>
             </div>
@@ -156,21 +173,11 @@
             <div class="col-md-5 mb-3">
                 <div class="card border-0 mb-3">
                     <div class="card-body">
-                        <form name="form_claim_status">
-                            <span class="card-title text-muted me-3">Claim Status</span>
-                            <input type="radio" value="false" class="btn-check" onchange="submit_form_claim_status()"
-                                   name="claim_status" id="no_claim_status" autocomplete="off"
-                            >
-                            <label class="btn btn-sm btn-outline-primary" for="no_claim_status">NO CLAIM</label>
-                            <input type="radio" value="true" class="btn-check" onchange="submit_form_claim_status()"
-                                   name="claim_status" id="claimed_status" autocomplete="off"
-                            >
-                            <label class="btn btn-sm btn-outline-primary" for="claimed_status">CLAIMED</label>
-                        </form>
+
                         <div class="row mb-3">
                             <div class="col">
                                 <div class="d-grid">
-                                    <button id="renewal_done_btn" class="btn btn-light text-success" value=""
+                                    <button id="renewal_done_btn" class="btn btn-outline-light text-success" value=""
                                             onclick="renewal_done()"
                                             disabled>WON
                                     </button>
@@ -327,95 +334,95 @@
         $(e).addClass('active')
         $('#renewal_card').hide()
         $.ajax({
-                url: '/api/view_' + current_policy_type + '_renewal/' + _id,
-                type: 'POST',
-                dataType: 'JSON',
-                success: function (response) {
-                    if (response.result == false) {
-                        show_alert(response.msg, 'error')
+            url: '/api/view_' + current_policy_type + '_renewal/' + _id,
+            type: 'POST',
+            dataType: 'JSON',
+            success: function (response) {
+                if (response.result == false) {
+                    show_alert(response.msg, 'error')
+                } else {
+                    policy = response.data.policy
+                    person = response.data.person
+                    renewal_policy = response.data.renewal_policy
+                    old_policy = response.data.old_policy
+                    if (current_policy_type == 'motor') {
+                        registration = response.data.registration
+                        registration.vehicle_company = registration.company
+                        registration.vehicle_model = registration.model
+                        registration.vehicle_mfg_year = registration.mfg
+                        registration.vehicle_cc = registration.cc
+                        if (registration.registration_date != null) {
+                            registration.registration_date = formatdate(registration.registration_date.$date)
+                        }
+                        current_registration_id = registration._id.$oid
+                    }
+                    policy.policy_company = policy.company
+                    if (policy.expiry_date != null) {
+                        policy.expiry_date = formatdate(policy.expiry_date.$date)
+                    }
+
+                    current_policy_id = policy._id.$oid
+                    current_person_id = person._id.$oid
+                    person.numbers = person.numbers.join(', ')
+                    for (i of policy_fields) {
+                        document.getElementById(i).innerText = policy[i]
+                    }
+                    document.form_claim_status.reset()
+                    document.form_claim_status.claim_status.value = policy['claim_status']
+                    document.getElementById('policy_type').innerHTML = (current_policy_type == 'motor') ? policy_type[policy.policy_type] : policy.policy_type
+                    document.getElementById('own_business').innerHTML = (policy['own_business'] === true) ? 'OWNED' : ''
+                    if (current_policy_type == 'motor') {
+                        for (i of registration_fields) {
+                            document.getElementById(i).innerText = registration[i]
+                        }
+                        document.getElementById('addon_cover').innerHTML = ''
+                        for (cover of ['o_dap']) {
+                            if (policy[cover] === true) {
+                                document.getElementById('addon_cover').innerHTML += '<span class="badge bg-primary">' + cover + '</span>'
+                            }
+                        }
+                    }
+                    document.getElementById('name').innerHTML = '<a style="text-decoration: none" target="_blank" href="/crm/view_person/' + person._id.$oid + '">' + person.name + ' <small class="bi bi-box-arrow-in-up-right"></small> </a>'
+                    for (i of ['numbers']) {
+                        document.getElementById(i).innerText = person[i]
+                    }
+
+                    if (old_policy == null) {
+                        document.getElementById('previous_policy_btn').disabled = true
+                        document.getElementById('previous_policy_btn').value = null
                     } else {
-                        policy = response.data.policy
-                        person = response.data.person
-                        renewal_policy = response.data.renewal_policy
-                        old_policy = response.data.old_policy
-                        if (current_policy_type == 'motor') {
-                            registration = response.data.registration
-                            registration.vehicle_company = registration.company
-                            registration.vehicle_model = registration.model
-                            registration.vehicle_mfg_year = registration.mfg
-                            registration.vehicle_cc = registration.cc
-                            if (registration.registration_date != null) {
-                                registration.registration_date = formatdate(registration.registration_date.$date)
-                            }
-                            current_registration_id = registration._id.$oid
-                        }
-                        policy.policy_company = policy.company
-                        if (policy.expiry_date != null) {
-                            policy.expiry_date = formatdate(policy.expiry_date.$date)
-                        }
+                        document.getElementById('previous_policy_btn').disabled = false
+                        document.getElementById('previous_policy_btn').value = old_policy._id.$oid
+                    }
 
-                        current_policy_id = policy._id.$oid
-                        current_person_id = person._id.$oid
-                        person.numbers = person.numbers.join(', ')
-                        for (i of policy_fields) {
-                            document.getElementById(i).innerText = policy[i]
-                        }
-                        document.form_claim_status.reset()
-                        document.form_claim_status.claim_status.value = policy['claim_status']
-                        document.getElementById('policy_type').innerHTML = (current_policy_type == 'motor') ? policy_type[policy.policy_type] : policy.policy_type
-                        document.getElementById('own_business').innerHTML = (policy['own_business'] === true) ? 'OWNED' : ''
-                        if (current_policy_type == 'motor') {
-                            for (i of registration_fields) {
-                                document.getElementById(i).innerText = registration[i]
-                            }
-                            document.getElementById('addon_cover').innerHTML = ''
-                            for (cover of ['o_dap']) {
-                                if (policy[cover] === true) {
-                                    document.getElementById('addon_cover').innerHTML += '<span class="badge bg-primary">' + cover + '</span>'
-                                }
-                            }
-                        }
-                        document.getElementById('name').innerHTML = '<a style="text-decoration: none" target="_blank" href="/crm/view_person/' + person._id.$oid + '">' + person.name + ' <small class="bi bi-box-arrow-in-up-right"></small> </a>'
-                        for (i of ['numbers']) {
-                            document.getElementById(i).innerText = person[i]
-                        }
-
-                        if (old_policy == null) {
-                            document.getElementById('previous_policy_btn').disabled = true
-                            document.getElementById('previous_policy_btn').value = null
-                        } else {
-                            document.getElementById('previous_policy_btn').disabled = false
-                            document.getElementById('previous_policy_btn').value = old_policy._id.$oid
-                        }
-
-                        if (renewal_policy == null) {
-                            document.getElementById('next_policy_btn').disabled = true
-                            document.getElementById('next_policy_btn').value = null
-                            document.getElementById('renewal_done_btn').disabled = false
-                            document.getElementById('renewal_done_btn').className = "btn btn-light text-success"
-                            if (policy.policy_status == 'lost') {
-                                document.getElementById('renewal_lost_btn').disabled = true
-                                document.getElementById('renewal_lost_btn').className = "btn btn-danger"
-                            } else {
-                                document.getElementById('renewal_lost_btn').disabled = false
-                                document.getElementById('renewal_lost_btn').className = "btn btn-light text-danger"
-                            }
-
-                        } else {
-                            document.getElementById('next_policy_btn').disabled = false
-                            document.getElementById('next_policy_btn').value = renewal_policy._id.$oid
-                            document.getElementById('renewal_done_btn').disabled = true
-                            document.getElementById('renewal_done_btn').className = "btn btn-success"
+                    if (renewal_policy == null) {
+                        document.getElementById('next_policy_btn').disabled = true
+                        document.getElementById('next_policy_btn').value = null
+                        document.getElementById('renewal_done_btn').disabled = false
+                        document.getElementById('renewal_done_btn').className = "btn btn-light text-success"
+                        if (policy.policy_status == 'lost') {
                             document.getElementById('renewal_lost_btn').disabled = true
+                            document.getElementById('renewal_lost_btn').className = "btn btn-danger"
+                        } else {
+                            document.getElementById('renewal_lost_btn').disabled = false
                             document.getElementById('renewal_lost_btn').className = "btn btn-light text-danger"
                         }
-                        get_followup_list(current_policy_id, current_policy_type)
-                        $('#renewal_card').fadeIn()
+
+                    } else {
+                        document.getElementById('next_policy_btn').disabled = false
+                        document.getElementById('next_policy_btn').value = renewal_policy._id.$oid
+                        document.getElementById('renewal_done_btn').disabled = true
+                        document.getElementById('renewal_done_btn').className = "btn btn-success"
+                        document.getElementById('renewal_lost_btn').disabled = true
+                        document.getElementById('renewal_lost_btn').className = "btn btn-light text-danger"
                     }
-                    $('#policy_list button').prop('disabled', false)
-                    $(e).find(".loading").fadeOut()
+                    get_followup_list(current_policy_id, current_policy_type)
+                    $('#renewal_card').fadeIn()
                 }
-            })
+                $('#policy_list button').prop('disabled', false)
+                $(e).find(".loading").fadeOut()
+            }
+        })
     }
 
 
@@ -465,8 +472,8 @@
                     renewal_list = response.data
                     for (i in response.data) {
                         html = '<button class="' + policy_status_class[renewal_list[i].policy_status] + ' text-capitalize list-group-item list-group-item-action d-flex justify-content-between" onclick="view_renewal(\'' + renewal_list[i]._id.$oid + '\', this)">' +
-                            '<span>'+renewal_list[i].name + ' ' +
-                            '<span style="display: none" class="loading spinner-border spinner-border-sm" role="status" aria-hidden="true"></span></span>'+
+                            '<span>' + renewal_list[i].name + ' ' +
+                            '<span style="display: none" class="loading spinner-border spinner-border-sm" role="status" aria-hidden="true"></span></span>' +
                             '<small class="fw-bold align-self-center">' +
                             renewal_list[i].day +
                             '</small></button>'
