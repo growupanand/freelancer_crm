@@ -85,13 +85,45 @@ def view_person_page(_id):
 
 
 @app.route('/motor_insurance')
+def view_motor_insurance_page():
+    if not session.get('logged_in'):
+        return login_page()
+    today = datetime.today()
+    day = today.day
+    month = today.month
+    current_period = today.strftime("%B %Y")
+    year = today.year
+    renewal_list = models.Policy_motor().get_renewal_list(month, year)
+    policy_list_expiry_today = []
+    for policy in renewal_list:
+        if policy['day'] == day:
+            policy_list_expiry_today.append(policy)
+    renewal_count = {'total': 0, 'not_touch': 0, 'followup': 0, 'won': 0, 'lost': 0}
+    for policy in renewal_list:
+        renewal_count['total'] += 1
+        if 'policy_status' in policy:
+            if policy['policy_status'] is not None:
+                renewal_count[policy['policy_status']] += 1
+        else:
+            renewal_count['not_touch'] += 1
+    return render_template('admin/motor_insurance.html', policy_list_expiry_today=policy_list_expiry_today, renewal_count=renewal_count, current_period=current_period)
+
+
+@app.route('/manage_motor_insurance_companies')
+def view_manage_motor_insurance_companies_page():
+    if not session.get('logged_in'):
+        return login_page()
+    user_id = ObjectId(session['user']['_id'])
+    company_list = models.user(user_id).get_motor_insurance_company_list()
+    return render_template('admin/manage_motor_insurance_companies.html', company_list=company_list)
+
+@app.route('/motor_insurance_renewals')
 @app.route('/view_motor_policy/<policy_id>')
-def view_motor_insurance_page(policy_id = None):
+def view_motor_insurance_policy_page(policy_id = None):
     if not session.get('logged_in'):
         return login_page()
     current_policy_id = policy_id
-    current_policy_type = 'motor'
-    return render_template('admin/insurance_renewal.html', current_policy_id=current_policy_id, current_policy_type=current_policy_type)
+    return render_template('admin/view_motor_renewals.html', current_policy_id=current_policy_id)
 
 
 @app.route('/health_insurance')

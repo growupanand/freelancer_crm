@@ -1,0 +1,120 @@
+{% extends 'admin/base.html' %}
+{% set policy_status_class= {'followup':'bg-warning', 'lost':'bg-danger', 'won':'bg-success'} %}
+{% block content %}
+    <div class="container-xl">
+        <div id="alert"></div>
+        <h2 class="my-5">Motor Insurance</h2>
+        <div class="d-flex justify-content-center mb-5">
+            <div class="card">
+                <div class="nav nav-pills ">
+                    <div class="nav-item d-grid">
+                        <a href="/motor_insurance" class="btn btn-outline-secondary border-0 rounded-0 ">Dashboard</a>
+                    </div>
+                    <div class="nav-item d-grid">
+                        <a href="/motor_insurance_renewals" class="btn btn-outline-secondary border-0 rounded-0">Insurance
+                            Renewals</a>
+                    </div>
+                    <div class="nav-item d-grid">
+                        <a href="#" class="btn btn-outline-secondary border-0 rounded-0 active">Manage
+                            Companies</a>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-md-4 col-lg-3 mb-3 text-center">
+                <div class="d-grid d-md-inline-block">
+                    <button class="btn btn-primary px-5 fw-bold" type="button" data-bs-toggle="modal"
+                            data-bs-target="#add_company_modal">
+                        NEW COMPANY
+                    </button>
+                </div>
+            </div>
+            <div class="col-md-8 col-lg-9 mb-3">
+                <div id="company_list" class="list-group">
+                    {% for company in company_list %}
+                        <div class="list-group-item d-flex justify-content-between">
+                            <span>{{ company['company_name'] }}</span>
+                            <button data-id="{{ company['_id'] }}" class="btn fw-bold" onclick="delete_company(this)">
+                                <span class="bi bi-dash-circle-fill text-danger"></span>
+                            </button>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal" id="add_company_modal">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-body">
+                    <div class="d-flex justify-content-between mb-5">
+                        <h5>Add Motor Insurance Company</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <form name="add_company_form" onsubmit="submit_add_company_form(this)">
+                        <label class="form-label">Company Name</label>
+                        <input name="company_name" type="text" class="form-control mb-3" required/>
+                        <div class="d-grid">
+                            <button type="submit" class="btn btn-lg btn-primary">ADD</button>
+                        </div>
+                    </form>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function submit_add_company_form(form) {
+            event.preventDefault()
+            $("form :input").prop("disabled", true);
+            company_name = form.company_name.value
+            $.ajax({
+                url: "/api/add_motor_insurance_company",
+                data: {"company_name": company_name},
+                dataType: "json",
+                type: "POST",
+                success: function (response) {
+                    if (response.result == true) {
+                        $("#company_list").prepend("<div class='new list-group-item d-flex justify-content-between'>" +
+                            "<span>" + company_name + "</span>" +
+                            '<button data-id="' + response.new_id.$oid + '" class="btn fw-bold" onclick="delete_company(this)"><span class="bi bi-dash-circle-fill text-danger"></span></button>' +
+                            "</div>")
+                        show_alert('Company added successfully.', 'success')
+                        form.reset()
+                        $('#add_company_modal').modal('hide')
+                        $(".new").effect("highlight").removeClass('new')
+                    } else {
+                        show_alert(response.msg, 'error')
+                    }
+                },
+                complete: function () {
+                    $("form :input").prop("disabled", false);
+                }
+            })
+        }
+
+        function delete_company(e) {
+            if (confirm('Do you want to delete this company ?')) {
+                company_id = e.getAttribute("data-id")
+                $.ajax({
+                    url: "/api/delete_motor_insurance_company",
+                    data: {"company_id": company_id},
+                    dataType: "json",
+                    type: "POST",
+                    success: function (response) {
+                        if (response.result == true) {
+                            $(e).parent().remove()
+                        } else {
+                            show_alert(response.msg, 'error')
+                        }
+                    }
+                })
+            }
+        }
+    </script>
+{% endblock %}

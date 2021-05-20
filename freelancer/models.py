@@ -61,6 +61,45 @@ class user:
             result['new_id'] = insert_person.inserted_id
         return result
 
+    # add new motor insurance company
+    def add_motor_insurance_company(self, company_name):
+        company_name = str.lower(company_name)
+        #check if compnay_name already exist
+        company_exist = db.motor_insurance_companies_collection.find_one({"user_id":self.user_id, "company_name":company_name})
+        if company_exist is not None:
+            return {"result" : False, "msg" : "Company already exist."}
+        #add compnay name in database
+        add_company = db.motor_insurance_companies_collection.insert_one({
+            "user_id":self.user_id,
+            "company_name" : company_name
+        })
+        if add_company.acknowledged:
+            return {"result":True, "new_id" : add_company.inserted_id}
+        else:
+            return {"result":False, "msg" : "Something went wrong."}
+
+    # get all motor insurance company list
+    def get_motor_insurance_company_list(self):
+        company_list = db.motor_insurance_companies_collection.find({"user_id":self.user_id}, {"user_id":0})
+        return company_list
+
+    # delete motor insurance company
+    def delete_motor_insurance_company(self, company_id):
+        # check if company exist
+        company_exist = db.motor_insurance_companies_collection.find_one(
+            {"user_id": self.user_id, "_id": company_id})
+        if company_exist is None:
+            return {"result": False, "msg": "Company not exist."}
+        # delete company
+        delete_company = db.motor_insurance_companies_collection.delete_one({
+            "user_id":self.user_id,
+            "_id":company_id
+        })
+        if delete_company.acknowledged:
+            return {"result":True}
+        else:
+            return {"result":False, "msg": "something went wrong."}
+
 
 class Person:
 
@@ -90,7 +129,7 @@ class Person:
             query['$or'] = []
             for field in query_fields:
                 query['$or'].append(
-                    {field: {'$regex': '.*' + query_value + '.*'}}
+                    {field: {'$regex':query_value, '$options' : 'i'}}
                 )
         db_data = db.persons_collection.find(query)
         return db_data
@@ -427,6 +466,32 @@ class Policy_motor:
                 self.renewal_id = self.db_data['renewal_id'] if 'renewal_id' in self.db_data else None
                 self.renewal_policy = Policy_motor(self.renewal_id)
                 self.old_policy = db.motor_policy_collection.find_one({'renewal_id': self._id})
+
+    # find motor policy
+    def find(self, query, search_filter):
+        policy_list = []
+        if search_filter == 'policy_number':
+            policy_list = db.motor_policy_collection.find({
+                'policy_number': {'$regex':'^'+query+'$', '$options' : 'i'}
+            })
+        elif search_filter == 'reg_number':
+            #find registration_id
+            registration = db.motor_registration_collection.find_one({
+                'registration_number':{'$regex':'^'+query+'$', '$options' : 'i'}
+            })
+            if registration is not None:
+                policy_list = db.motor_policy_collection.find({
+                    'registration_id': registration['_id']
+                })
+        result = []
+        for policy in policy_list:
+            result.append({
+                'policy_id':policy['_id'],
+                'name':db.persons_collection.find_one({'_id':policy['person_id']})['name'],
+                'policy_number':policy['policy_number'],
+                'expiry_date':policy['expiry_date']
+            })
+        return result
 
     # get follow up data
     def get_followup_list(self):

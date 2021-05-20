@@ -17,22 +17,22 @@ def login_api():
 @app.route('/ajax/submit_enquiry', methods=["POST"])
 def api_submit_enquiry():
     result = {
-        'result' : False,
+        'result': False,
         'msg': 'Something went wrong.'
     }
     data = {
-        'created' : datetime.utcnow(),
-        'source' : request.form.get('source'),
-        'name' : request.form.get('name'),
-        'contact' : request.form.get('contact'),
-        'query' : request.form.get('query')
+        'created': datetime.utcnow(),
+        'source': request.form.get('source'),
+        'name': request.form.get('name'),
+        'contact': request.form.get('contact'),
+        'query': request.form.get('query')
     }
     post_enquiry = db.query_collection.insert_one(data)
     if post_enquiry.acknowledged:
         result = {
             'result': True,
             'msg': 'Enquiry submitted Successfully.',
-            'new_id' : post_enquiry.acknowledged
+            'new_id': post_enquiry.acknowledged
         }
     return dumps(result)
 
@@ -105,6 +105,32 @@ def view_motor_renewal_api(_id):
     return dumps(result)
 
 
+@app.route('/api/add_motor_insurance_company', methods=['POST'])
+def api_add_motor_insurance_company():
+    if not session.get('logged_in'):
+        return json.dumps({'result': False, 'msg': 'Login required.'})
+    user_id = ObjectId(session['user']['_id'])
+    company_name = str.lower(request.form.get('company_name'))
+    return dumps(models.user(user_id).add_motor_insurance_company(company_name))
+
+
+@app.route('/api/delete_motor_insurance_company', methods=['POST'])
+def api_delete_motor_insurance_company():
+    if not session.get('logged_in'):
+        return json.dumps({'result': False, 'msg': 'Login required.'})
+    user_id = ObjectId(session['user']['_id'])
+    company_id = ObjectId(request.form.get('company_id'))
+    return dumps(models.user(user_id).delete_motor_insurance_company(company_id))
+
+@app.route('/api/get_motor_insurance_company_list', methods=['POST'])
+def api_get_motor_insurance_company_list():
+    if not session.get('logged_in'):
+        return login_page()
+    user_id = ObjectId(session['user']['_id'])
+    company_list = models.user(user_id).get_motor_insurance_company_list()
+    return dumps(company_list)
+
+
 @app.route('/api/post_policy_followup', methods=['POST'])
 def post_policy_followup():
     if not session.get('logged_in'):
@@ -113,7 +139,7 @@ def post_policy_followup():
     remark = request.form.get('remark')
     type = request.form.get('type')
     if str.strip(remark) == '':
-        return dumps({'result':False, 'msg': 'Remark cannot be empty.'})
+        return dumps({'result': False, 'msg': 'Remark cannot be empty.'})
     policy = None
     if type == 'motor':
         policy = models.Policy_motor(policy_id)
@@ -129,6 +155,7 @@ def update_contact_dob_api():
     person_id = ObjectId(request.form.get('_id'))
     dob = request.form.get('dob')
     return dumps(models.Person(person_id).update_dob(dob))
+
 
 @app.route('/api/add_contact_number', methods=['POST'])
 def add_contact_number_api():
@@ -225,15 +252,34 @@ def delete_vehicle_api():
     return dumps(models.Registration(registration_id).delete_registration())
 
 
+@app.route('/api/find_motor_policy', methods=['POST'])
+def api_find_motor_policy():
+    if not session.get('logged_in'):
+        return json.dumps({'result': False, 'msg': 'Login required.'})
+    query = request.form.get('query')
+    search_filter = request.form.get('search_filter')
+    result = {'result': True, 'data': models.Policy_motor().find(query, search_filter)}
+    return dumps(result)
+
+
 @app.route('/api/add_motor_policy', methods=['POST'])
 def add_motor_policy_api():
     if not session.get('logged_in'):
         return json.dumps({'result': False, 'msg': 'Login required.'})
+    user_id = ObjectId(session['user']['_id'])
     registration_id = ObjectId(request.form.get('registration_id'))
     expiry_date = request.form.get('expiry_date')
     policy_number = request.form.get('policy_number')
     policy_type = request.form.get('policy_type')
     company = request.form.get('company')
+    if company == 'new_company':
+        company = str.strip(request.form.get('new_company'))
+        if company == '':
+            return dumps({"result":False, "msg": "New company name cannot be empty."})
+    # add new company
+    add_new_company = models.user(user_id).add_motor_insurance_company(company)
+    if add_new_company['result'] is not True:
+        return dumps(add_new_company)
     idv = request.form.get('idv')
     ncb = request.form.get('ncb')
     premium = request.form.get('premium')
@@ -300,6 +346,7 @@ def add_renewal_motor_policy_api():
         models.Policy_motor(policy_id).post_policy_followup(remark, 'renewed')
     return dumps(result)
 
+
 @app.route('/api/renewal_lost_motor', methods=['POST'])
 def renewal_lost_motor_api():
     if not session.get('logged_in'):
@@ -311,7 +358,8 @@ def renewal_lost_motor_api():
     remark = request.form.get('remark')
     lost_reason = request.form.get('lost_reason')
     policy = models.Policy_motor(policy_id)
-    post_lost_followup = policy.post_policy_followup('[lost reason:' + str(lost_reason).lower() + ']\n' + remark, 'lost')
+    post_lost_followup = policy.post_policy_followup('[lost reason:' + str(lost_reason).lower() + ']\n' + remark,
+                                                     'lost')
     result['result'] = post_lost_followup['result']
     return dumps(result)
 
@@ -372,8 +420,8 @@ def add_health_policy_api():
     premium = request.form.get('premium')
     own_business = True if 'own_business' in request.form else False
     return dumps(
-        models.Person(person_id).add_health_policy(expiry_date,policy_owner, policy_number, policy_type, company, idv,
-                                                              ncb, premium, own_business))
+        models.Person(person_id).add_health_policy(expiry_date, policy_owner, policy_number, policy_type, company, idv,
+                                                   ncb, premium, own_business))
 
 
 @app.route('/api/view_health_policy/<policy_id>')
@@ -405,8 +453,9 @@ def update_health_policy():
     premium = request.form.get('premium')
     claim_status = request.form.get('claim_status')
     own_business = True if 'own_business' in request.form else False
-    result = policy.update_health_policy(expiry_date,policy_owner, policy_number, policy_type, company, idv, ncb, premium,
-                                        own_business, claim_status=claim_status)
+    result = policy.update_health_policy(expiry_date, policy_owner, policy_number, policy_type, company, idv, ncb,
+                                         premium,
+                                         own_business, claim_status=claim_status)
     return dumps(result)
 
 
@@ -471,9 +520,10 @@ def add_renewal_health_policy():
     ncb = request.form.get('ncb')
     premium = request.form.get('premium')
     own_business = True if 'own_business' in request.form else False
-    insert_new_policy = models.Person(policy.person_id).add_health_policy(expiry_date,policy_owner, policy_number, policy_type,
-                                                                              company, idv,
-                                                                              ncb, premium, own_business)
+    insert_new_policy = models.Person(policy.person_id).add_health_policy(expiry_date, policy_owner, policy_number,
+                                                                          policy_type,
+                                                                          company, idv,
+                                                                          ncb, premium, own_business)
     if insert_new_policy['result']:
         result['result'] = True
         result['new_id'] = insert_new_policy['new_id']
@@ -510,7 +560,7 @@ def get_followup_list_api():
 
 @app.route('/api/add_policy_reminder', methods=['POST'])
 def add_policy_reminder_api():
-    result = {'result':False, 'msg': 'Something went wrong'}
+    result = {'result': False, 'msg': 'Something went wrong'}
     policy_type = request.form.get('policy_type')
     name = request.form.get('name')
     expiry_date = request.form.get('expiry_date')
@@ -520,7 +570,7 @@ def add_policy_reminder_api():
         return result
     source = 'homepage'
     create_lead = models.Lead().create_policy_lead(policy_type, source, name, expiry_date,
-                                                  contact_detail)
+                                                   contact_detail)
     result['result'] = create_lead['result']
     result['msg'] = create_lead['msg']
     return dumps(result)
@@ -529,8 +579,8 @@ def add_policy_reminder_api():
 @app.route('/api/update_claim_status', methods=['POST'])
 def api_update_claim_status():
     result = {
-        'result' : False,
-        'msg' : 'Something went wrong.'
+        'result': False,
+        'msg': 'Something went wrong.'
     }
     policy_type = request.form.get('policy_type')
     _id = ObjectId(request.form.get('_id'))
@@ -545,15 +595,15 @@ def api_update_claim_status():
 @app.route('/api/get_vehicle_company_list', methods=['POST'])
 def api_get_vehicle_company_list():
     result = {
-        'result' : False,
-        'msg' : 'Something went wrong',
-        'data' : []
+        'result': False,
+        'msg': 'Something went wrong',
+        'data': []
     }
     user_id = ObjectId(session['user']['_id'])
     data = models.vehicle().get_vehicle_list()
     result = {
-        'result' : True,
-        'data' : data
+        'result': True,
+        'data': data
     }
     return dumps(result)
 
@@ -562,8 +612,8 @@ def api_get_vehicle_company_list():
 def api_add_vehicle_company():
     user_id = ObjectId(session['user']['_id'])
     result = {
-        'result' : False,
-        'msg' : 'Something went wrong'
+        'result': False,
+        'msg': 'Something went wrong'
     }
     company_name = request.form.get('company_name')
     add_company_name = models.vehicle().add_vehicle_company(user_id=user_id, company_name=company_name)
@@ -575,12 +625,13 @@ def api_add_vehicle_company():
 def api_add_vehicle_model():
     user_id = ObjectId(session['user']['_id'])
     result = {
-        'result' : False,
-        'msg' : 'Something went wrong'
+        'result': False,
+        'msg': 'Something went wrong'
     }
     company_id = ObjectId(request.form.get('company_id'))
     model_name = request.form.get('model_name')
-    add_vehicle_model = models.vehicle().add_vehicle_model(user_id=user_id, company_id=company_id, model_name=model_name)
+    add_vehicle_model = models.vehicle().add_vehicle_model(user_id=user_id, company_id=company_id,
+                                                           model_name=model_name)
     result = add_vehicle_model
     return dumps(result)
 
@@ -589,8 +640,8 @@ def api_add_vehicle_model():
 def api_delete_vehicle_model():
     user_id = ObjectId(session['user']['_id'])
     result = {
-        'result' : False,
-        'msg' : 'Something went wrong'
+        'result': False,
+        'msg': 'Something went wrong'
     }
     company_id = ObjectId(request.form.get('company_id'))
     model_name = request.form.get('model_name')
@@ -603,8 +654,8 @@ def api_delete_vehicle_model():
 def api_delete_vehicle_company():
     user_id = ObjectId(session['user']['_id'])
     result = {
-        'result' : False,
-        'msg' : 'Something went wrong'
+        'result': False,
+        'msg': 'Something went wrong'
     }
     company_id = ObjectId(request.form.get('company_id'))
     delete_vehicle_company = models.vehicle().delete_vehicle_company(company_id=company_id)

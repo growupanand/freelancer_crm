@@ -1,0 +1,569 @@
+{% extends 'admin/base.html' %}
+{% set policy_status_class= {'followup':'bg-warning', 'lost':'bg-danger', 'won':'bg-success'} %}
+{% block content %}
+
+    <div class="container-xl">
+        <div id="alert"></div>
+        <h2 class="my-5">Motor Insurance</h2>
+        <div class="d-flex justify-content-center mb-5">
+            <div class="card">
+            <div class="nav nav-pills">
+            <div class="nav-item d-grid">
+                <a href="/motor_insurance" class="btn btn-outline-secondary border-0 rounded-0">Dashboard</a>
+            </div>
+            <div class="nav-item d-grid">
+                <a href="/motor_insurance_renewals" class="btn btn-outline-secondary rounded-0 border-0 active">Insurance Renewals</a>
+            </div>
+            <div class="nav-item d-grid">
+                <a href="/manage_motor_insurance_companies" class="btn btn-outline-secondary border-0 rounded-0">Manage Companies</a>
+            </div>
+
+        </div>
+        </div>
+        </div>
+
+
+        <div id="card_policy_list">
+            <div id="renewal_list_period" class="mb-3 sticky-top d-flex">
+                <button onclick="prev_renewal_month()" class="btn align-self-center"><span
+                        class="bi-caret-left"></span></button>
+                <label class="fw-bold align-self-center" id="current_period">May 2021</label>
+                <button onclick="next_renewal_month()" class="btn align-self-center"><span
+                        class="bi-caret-right "></span></button>
+            </div>
+            <div class="card mb-3">
+                <div id="policy_list" class="list-group list-group-flush"></div>
+            </div>
+        </div>
+
+        <div id="renewal_card" style="display: none">
+            <div class="mb-3">
+                <button onclick="show_renewal_list()" class="btn text-primary"><span
+                        class="bi bi-chevron-left"></span> RENEWALS
+                </button>
+            </div>
+            <div class="card bg-white">
+                <div class="card-header bg-white border-0 sticky-top">
+                    <h2 class="card-title text-capitalize" id="name"></h2>
+                    <p>
+                        <span class="bi bi-phone-fill fs-6"></span> <span id="numbers"></span>
+                    </p>
+                </div>
+                <div class="card-body">
+                    <div class="row text-uppercase">
+                        <div class="col-md-4 mb-3">
+                            <div id="registration_number" class="fs-5 mb-3"></div>
+                            <table class="table table-borderless table-striped table-sm">
+                                <tbody>
+                                <tr>
+                                    <td class="text-muted">Registration Name</td>
+                                    <td id="registration_name"></td>
+                                </tr>
+                                <tr>
+                                    <td class="text-muted">Vehicle Company</td>
+                                    <td id="vehicle_company"></td>
+                                </tr>
+                                <tr>
+                                    <td class="text-muted">Model</td>
+                                    <td id="vehicle_model"></td>
+                                </tr>
+                                <tr>
+                                    <td class="text-muted">CC</td>
+                                    <td id="vehicle_cc"></td>
+                                </tr>
+                                <tr>
+                                    <td class="text-muted">Fuel Type</td>
+                                    <td id="fuel"></td>
+                                </tr>
+                                <tr>
+                                    <td class="text-muted">Registration Date</td>
+                                    <td id="registration_date"></td>
+                                </tr>
+                                <tr>
+                                    <td class="text-muted">Manufacture Year</td>
+                                    <td id="vehicle_mfg_year"></td>
+                                </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <div class="row mb-2">
+                                <div class="col-8">
+                                    <span class="card-title">Policy Detail</span>
+                                    <small id="own_business"
+                                           class="badge rounded-pill bg-success"></small>
+                                </div>
+                                <div class="col-4 text-end">
+                                    <div class="btn-group" role="group">
+                                        <button id="previous_policy_btn" class="btn btn-light text-dark"
+                                                onclick="view_renewal(this.value)">
+                                            <span class="bi bi-caret-left"></span>
+                                        </button>
+                                        <button id="next_policy_btn" class="btn btn-light text-dark"
+                                                onclick="view_renewal(this.value)">
+                                            <span class="bi bi-caret-right"></span>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                            <table class="table table-borderless table-striped table-sm">
+                                <tbody>
+                                <tr>
+                                    <td class="text-muted">Policy Number</td>
+                                    <td id="policy_number"></td>
+                                </tr>
+                                <tr>
+                                    <td class="text-muted">Policy Company</td>
+                                    <td id="policy_company"></td>
+                                </tr>
+                                <tr>
+                                    <td class="text-muted">Expiry Date</td>
+                                    <td id="expiry_date"></td>
+                                </tr>
+                                <tr>
+                                    <td class="text-muted">Policy Type</td>
+                                    <td id="policy_type"></td>
+                                </tr>
+                                <tr>
+                                    <td class="text-muted">Premium</td>
+                                    <td id="premium"></td>
+                                </tr>
+                                <tr>
+                                    <td class="text-muted">IDV</td>
+                                    <td id="idv"></td>
+                                </tr>
+                                <tr>
+                                    <td class="text-muted">NCB %</td>
+                                    <td id="ncb"></td>
+                                </tr>
+                                <tr>
+                                    <td class="text-muted">Addon Cover</td>
+                                    <td id="addon_cover"></td>
+                                </tr>
+                                </tbody>
+                            </table>
+                            <form name="form_claim_status">
+                                <div class="d-flex justify-content-between">
+                                    <span class="text-muted">Claim Status</span>
+                                    <span>
+                                    <input type="radio" value="false" class="btn-check"
+                                           onchange="submit_form_claim_status()"
+                                           name="claim_status" id="no_claim_status" autocomplete="off"
+                                    >
+                            <label class="btn btn-sm btn-outline-primary" for="no_claim_status">NO CLAIM</label>
+                            <input type="radio" value="true" class="btn-check" onchange="submit_form_claim_status()"
+                                   name="claim_status" id="claimed_status" autocomplete="off"
+                            >
+                            <label class="btn btn-sm btn-outline-primary" for="claimed_status">CLAIMED</label>
+                                </span>
+
+                                </div>
+                            </form>
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <div class="card border-0 mb-3">
+                                <div class="card-body">
+
+                                    <div class="row mb-3">
+                                        <div class="col">
+                                            <div class="d-grid">
+                                                <button id="renewal_done_btn"
+                                                        class="btn btn-outline-light text-success" value=""
+                                                        onclick="renewal_done()"
+                                                        disabled>WON
+                                                </button>
+                                            </div>
+                                        </div>
+                                        <div class="col">
+                                            <div class="d-grid">
+                                                <button id="renewal_lost_btn"
+                                                        class="btn btn-light text-danger"
+                                                        onclick="renewal_lost()" disabled>LOST
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    {% include 'admin/followup_card.html' %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+    </div>
+
+
+
+    <div class="modal fade" id="add_renewal_policy_modal">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5>ADD RENEWAL POLICY</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form name="add_renewal_policy_form" onsubmit="submit_add_renewal_policy_form(this)">
+                        <input name="own_business" type="hidden" value="True"
+                               id="own_business"/>
+                        <div class="form-check mb-2">
+                            <input class="form-check-input" type="checkbox" checked
+                                   disabled>
+                            <label class="form-check-label" for="own_business">
+                                Own Business
+                            </label>
+                        </div>
+                        <label class="form-label" for="policy_number">New Policy Number</label>
+                        <input type="text" class="form-control mb-2" name="policy_number" id="policy_number"/>
+                        <label for="expiry_date" class="form-label">Expiry Date</label>
+                        <input type="date" class="form-control mb-2" name="expiry_date" id="expiry_date" required/>
+
+                        <label for="policy_type" class="form-label">Policy Type</label>
+                        <select class="form-control mb-2" name="policy_type" id="policy_type">
+                            <option value="" selected>Select Type</option>
+                            <option value="od_tp">Normal (OD+TP)</option>
+                            <option value="tp">Third Party Only</option>
+                            <option value="tentative">Tentative</option>
+                            <option value="od">Own Damange Only</option>
+                        </select>
+                        <div class="form-check mb-2">
+                            <input class="form-check-input" name="o_dap" type="checkbox" value="True" id="o_dap">
+                            <label class="form-check-label" for="o_dap">
+                                0 DAP Cover
+                            </label>
+                        </div>
+                        <label for="company" class="form-label">Company</label>
+                        <input type="text" class="form-control mb-2" name="company" id="company"/>
+                        <label for="idv" class="form-label">IDV</label>
+                        <input type="text" class="form-control mb-2" name="idv" id="idv"/>
+                        <label for="ncb" class="form-label">NCB %</label>
+                        <select class="form-control mb-2" name="ncb" id="ncb">
+                            <option value="" selected>SELECT</option>
+                            <option value="0">0%</option>
+                            <option value="20">20%</option>
+                            <option value="25">25%</option>
+                            <option value="35">35%</option>
+                            <option value="45">45%</option>
+                            <option value="50">50%</option>
+                        </select>
+                        <label for="premium" class="form-label">Premium</label>
+                        <input type="text" class="form-control mb-2" name="premium" id="premium"/>
+                        <div class="d-grid">
+                            <button type="submit" class="btn btn-primary">SUBMIT</button>
+                        </div>
+
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="renewal_lost_modal">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5>RENEWAL LOST</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form name="renewal_lost_form" onsubmit="submit_renewal_lost_form(this)">
+                        <select class="form-select mb-3" id="lost_reason" name="lost_reason">
+                            <option value="">Select Lost Reason</option>
+                            {% for reason in ('Self done', 'car sold', 'car total loss', 'Not contactable', 'others') %}
+                                <option value="{{ reason }}">{{ reason }}</option>
+                            {% endfor %}
+                        </select>
+                        <div class="d-grid">
+                            <button type="submit" class="btn btn-primary">SUBMIT</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+
+    <script>
+        var current_policy_id = '{{ current_policy_id }}'
+        var current_policy_type = 'motor'
+        var current_followup_type = current_policy_type
+        var current_person_id = ''
+        var monthNames = [null, "January", "February", "March", "April", "May", "June",
+            "July", "August", "September", "October", "November", "December"];
+        var now = new Date()
+        var current_month = now.getMonth() + 1
+        var current_year = now.getFullYear()
+        policy_status_class = {
+            null: '',
+            'followup': 'warning',
+            'lost': 'danger',
+            'won': 'success'
+        }
+
+        if (current_policy_type == 'motor') {
+            var policy_fields = ['policy_number', 'policy_company', 'premium', 'idv', 'ncb', 'expiry_date']
+            var registration_fields = ['registration_name', 'registration_number', 'registration_date',
+                'vehicle_company', 'vehicle_model', 'vehicle_cc', 'fuel', 'vehicle_mfg_year']
+            var current_registration_id = ''
+            var policy_type = {
+                'od_tp': 'Normal (OD+TP)',
+                'tp': 'Third Party Only',
+                'od': 'Own Damage Only',
+                'tentative': 'Tentative'
+            }
+        }
+
+        if (current_policy_type == 'health') {
+            var policy_fields = ['policy_owner', 'policy_number', 'policy_company', 'premium', 'idv', 'ncb', 'expiry_date']
+        }
+
+
+        function view_renewal(_id, e) {
+            $('#policy_list button').prop('disabled', true)
+            $(e).find(".loading").fadeIn()
+            $('#policy_list button').removeClass('active')
+            $(e).addClass('active')
+            $('#renewal_card').hide()
+            $('#card_policy_list').hide()
+            $.ajax({
+                url: '/api/view_' + current_policy_type + '_renewal/' + _id,
+                type: 'POST',
+                dataType: 'JSON',
+                success: function (response) {
+                    if (response.result == false) {
+                        show_alert(response.msg, 'error')
+                    } else {
+                        policy = response.data.policy
+                        person = response.data.person
+                        renewal_policy = response.data.renewal_policy
+                        old_policy = response.data.old_policy
+                        if (current_policy_type == 'motor') {
+                            registration = response.data.registration
+                            registration.vehicle_company = registration.company
+                            registration.vehicle_model = registration.model
+                            registration.vehicle_mfg_year = registration.mfg
+                            registration.vehicle_cc = registration.cc
+                            if (registration.registration_date != null) {
+                                registration.registration_date = formatdate(registration.registration_date.$date)
+                            }
+                            current_registration_id = registration._id.$oid
+                        }
+                        policy.policy_company = policy.company
+                        if (policy.expiry_date != null) {
+                            policy.expiry_date = formatdate(policy.expiry_date.$date)
+                        }
+
+                        current_policy_id = policy._id.$oid
+                        current_person_id = person._id.$oid
+                        person.numbers = person.numbers.join(', ')
+                        for (i of policy_fields) {
+                            document.getElementById(i).innerText = policy[i]
+                        }
+                        document.form_claim_status.reset()
+                        document.form_claim_status.claim_status.value = policy['claim_status']
+                        document.getElementById('policy_type').innerHTML = (current_policy_type == 'motor') ? policy_type[policy.policy_type] : policy.policy_type
+                        document.getElementById('own_business').innerHTML = (policy['own_business'] === true) ? 'OWNED' : ''
+                        if (current_policy_type == 'motor') {
+                            for (i of registration_fields) {
+                                document.getElementById(i).innerText = registration[i]
+                            }
+                            document.getElementById('addon_cover').innerHTML = ''
+                            for (cover of ['o_dap']) {
+                                if (policy[cover] === true) {
+                                    document.getElementById('addon_cover').innerHTML += '<span class="badge bg-primary">' + cover + '</span>'
+                                }
+                            }
+                        }
+                        document.getElementById('name').innerHTML = '<a style="text-decoration: none" target="_blank" href="/crm/view_person/' + person._id.$oid + '">' + person.name + ' <small class="bi bi-box-arrow-in-up-right"></small> </a>'
+                        for (i of ['numbers']) {
+                            document.getElementById(i).innerText = person[i]
+                        }
+
+                        if (old_policy == null) {
+                            document.getElementById('previous_policy_btn').disabled = true
+                            document.getElementById('previous_policy_btn').value = null
+                        } else {
+                            document.getElementById('previous_policy_btn').disabled = false
+                            document.getElementById('previous_policy_btn').value = old_policy._id.$oid
+                        }
+
+                        if (renewal_policy == null) {
+                            document.getElementById('next_policy_btn').disabled = true
+                            document.getElementById('next_policy_btn').value = null
+                            document.getElementById('renewal_done_btn').disabled = false
+                            document.getElementById('renewal_done_btn').className = "btn btn-light text-success"
+                            if (policy.policy_status == 'lost') {
+                                document.getElementById('renewal_lost_btn').disabled = true
+                                document.getElementById('renewal_lost_btn').className = "btn btn-danger"
+                            } else {
+                                document.getElementById('renewal_lost_btn').disabled = false
+                                document.getElementById('renewal_lost_btn').className = "btn btn-light text-danger"
+                            }
+
+                        } else {
+                            document.getElementById('next_policy_btn').disabled = false
+                            document.getElementById('next_policy_btn').value = renewal_policy._id.$oid
+                            document.getElementById('renewal_done_btn').disabled = true
+                            document.getElementById('renewal_done_btn').className = "btn btn-success"
+                            document.getElementById('renewal_lost_btn').disabled = true
+                            document.getElementById('renewal_lost_btn').className = "btn btn-light text-danger"
+                        }
+                        get_followup_list(current_policy_id, current_policy_type)
+                        $('#renewal_card').fadeIn()
+                    }
+                    $('#policy_list button').prop('disabled', false)
+                    $(e).find(".loading").fadeOut()
+                }
+            })
+        }
+
+
+        function renewal_done() {
+            $('#add_renewal_policy_modal').modal('show')
+        }
+
+
+        function next_renewal_month() {
+            if (current_month == 12) {
+                current_month = 1
+                current_year += 1
+            } else {
+                current_month += 1
+            }
+            update_renewal_list(current_month, current_year)
+        }
+
+
+        function prev_renewal_month() {
+            if (current_month == 1) {
+                current_month = 12
+                current_year -= 1
+            } else {
+                current_month -= 1
+            }
+            update_renewal_list(current_month, current_year)
+        }
+
+
+        function update_renewal_list(month, year) {
+            renewal_list_period = document.getElementById('renewal_list_period')
+            $(renewal_list_period).find('button').prop('disabled', true)
+            current_period = document.getElementById('current_period')
+            current_period.innerHTML = loading_html
+            $.ajax({
+                url: '/api/get_' + current_policy_type + '_renewal_list',
+                data: {'month': month, 'year': year},
+                type: 'POST',
+                dataType: 'JSON',
+                success: function (response) {
+                    if (response.result !== true) {
+                        show_alert(response.msg, 'error')
+                    } else {
+                        current_period.innerHTML = '<span class="bi bi-calendar"></span> ' + monthNames[current_month] + ' ' + current_year
+                        $('#policy_list').html('')
+                        renewal_list = response.data
+                        for (i in response.data) {
+                            html = '<button class="d-flex justify-content-between list-group-item-' + policy_status_class[renewal_list[i].policy_status] + ' text-capitalize list-group-item list-group-item-action" onclick="view_renewal(\'' + renewal_list[i]._id.$oid + '\', this)">' +
+                                '<span>' + renewal_list[i].name +
+                                '<span style="display: none" class="ms-2 loading spinner-border spinner-border-sm" role="status" aria-hidden="true"></span></span>' +
+                                '<small class="fw-bold">' + renewal_list[i].day + '</small>' +
+                                '</button>'
+                            $('#policy_list').append(html)
+                        }
+                    }
+                    $(renewal_list_period).find('button').prop('disabled', false)
+                }
+            })
+        }
+
+
+        function submit_add_renewal_policy_form(form) {
+            event.preventDefault()
+            data = $(form).serializeArray()
+            data.push({'name': 'policy_id', 'value': current_policy_id})
+            data.push({'name': 'remark', 'value': document.followup_form.followup_remark.value})
+            $.ajax({
+                url: '/api/add_renewal_' + current_policy_type + '_policy',
+                data: data,
+                type: 'POST',
+                dataType: 'JSON',
+                success: function (response) {
+                    if (response.result == true) {
+                        show_alert('New Policy Successfully added.', 'success')
+                        location.reload()
+                    } else {
+                        alert(response.msg)
+                    }
+                }
+            })
+        }
+
+        function renewal_lost() {
+            $('#renewal_lost_modal').modal('show')
+        }
+
+        function submit_renewal_lost_form(form) {
+            event.preventDefault()
+            data = $(form).serializeArray()
+            data.push({'name': 'policy_id', 'value': current_policy_id})
+            data.push({'name': 'remark', 'value': document.followup_form.followup_remark.value})
+            $.ajax({
+                url: '/api/renewal_lost_' + current_policy_type,
+                data: data,
+                type: 'POST',
+                dataType: 'JSON',
+                success: function (response) {
+                    if (response.result == true) {
+                        show_alert('New Policy Successfully added.', 'success')
+                        location.reload()
+                    } else {
+                        alert(response.msg)
+                    }
+                }
+            })
+        }
+
+        function submit_form_claim_status() {
+            event.preventDefault()
+            form = document.form_claim_status
+            claim_status = form.claim_status.value
+            $(form).find(" :input").prop("disabled", true);
+            $.ajax({
+                url: '/api/update_claim_status',
+                data: {
+                    'policy_type': current_policy_type,
+                    '_id': current_policy_id,
+                    'claim_status': claim_status
+                },
+                type: 'POST',
+                dataType: 'JSON',
+                success: function (response) {
+                    if (response.result == true) {
+                        show_alert('Claim status updated successfully.', 'success')
+                    } else {
+                        show_alert(response.msg, 'error')
+                    }
+                },
+                complete: function () {
+                    $(form).find(" :input").prop("disabled", false);
+                }
+            })
+        }
+
+        function show_renewal_list() {
+            $("#renewal_card").hide()
+            $("#card_policy_list").show('fade')
+        }
+
+        $(document).ready(function () {
+            if (current_policy_id != 'None') {
+                view_renewal(current_policy_id)
+            }
+            update_renewal_list(current_month, current_year)
+
+        })
+    </script>
+{% endblock %}
