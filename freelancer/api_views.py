@@ -1,4 +1,4 @@
-from freelancer import app, request, controllers, models, session, db
+from freelancer import app, request, models, session, db
 import json
 from bson import ObjectId
 from bson.json_util import dumps

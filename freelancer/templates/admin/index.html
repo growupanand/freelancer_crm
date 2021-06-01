@@ -1,100 +1,104 @@
 {% extends 'admin/base.html' %}
 {% set policy_status_class= {'followup':'text-warning', 'lost':'text-danger', 'won':'text-success'} %}
 {% block content %}
-<div class="container-xl">
-    <h2 class="my-5"><span class="bi bi-graph-up"></span> Dashboard</h2>
-    <div class="row">
-    <div class="col-md-3 mb-3">
-        <div class="card mb-3">
-            <h6 class="card-header text-center">Insurance Expiring Today</h6>
-            {% if policy_list_expiry_today | length == 0 %}
-            <div class="card-body">No Policy</div>
-            {% else %}
-            <div class="list-group list-group-flush">
-                {% for policy in policy_list_expiry_today %}
-                <a href="/view_{{ policy['type'] }}_policy/{{ policy['_id'] }}" class="list-group-item list-group-item-action text-capitalize d-flex justify-content-between">
-                <span>
-                    {{ policy['name'] }}
-                    <small class="text-muted">({{ policy['type'] }})</small>
-                </span>
-                <span class="bi bi-circle-fill align-self-center {{ policy_status_class[policy['policy_status']] }}"></span>
-                </a>
-                {% endfor %}
+    <div class="bg-white sticky-top border-bottom mb-3  py-3">
+        <div class="container-xl">
+            <div class="d-flex justify-content-between">
+                <h1 class="my-0 align-self-center text-capitalize ">Dashboard</h1>
             </div>
-            {% endif %}
         </div>
     </div>
-    <div class="col-md-9 mb-3">
+    <div class="container-xl">
         <div class="row">
-        <div class="col-md-6 mb-3">
-            <div class="card mb-3">
-                <div class="card-body">
-                    <h5 class="card-title d-flex justify-content-between">
-                        <a class="text-decoration-none" href="/motor_insurance">MOTOR INSURANCE RENEWALS</a>
-                        <span class="fs-6 badge rounded-circle bg-primary align-self-center">{{ motor_renewal_count['total'] }}</span>
-                    </h5>
-                    <br/>
-                    <div class="list-group list-group-flush">
-                        <div class="list-group-item d-flex justify-content-between">
-                            NOT CONTACTED <span
-                                class="fs-6 badge rounded-circle bg-light text-dark">{{ motor_renewal_count['not_touch'] }}</span>
-                        </div>
-                        <div class="list-group-item d-flex justify-content-between">
-                            FOLLOWUP <span
-                                class="fs-6 badge rounded-circle bg-light text-warning">{{ motor_renewal_count['followup'] }}</span>
-                        </div>
-                        <div class="list-group-item d-flex justify-content-between">
-                            WON <span
-                                class="fs-6 badge rounded-circle bg-light text-success">{{ motor_renewal_count['won'] }}</span>
-                        </div>
-                        <div class="list-group-item d-flex justify-content-between">
-                            LOST <span
-                                class="fs-6 badge rounded-circle bg-light text-danger">{{ motor_renewal_count['lost'] }}</span>
+            <div class="col-md-9 mb-3">
+                <div class="card">
+                    <div class="card-body">
+                        <h3>Insurance</h3>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md mb-3">
+                                <span class="fs-5 card-title">Expiring Today ({{ policy_list_expiry_today|count }})</span>
+                                {% if policy_list_expiry_today | length == 0 %}
+                                    Nothing Expiring Today
+                                {% else %}
+                                    <div class="list-group list-group-flush">
+                                        {% for policy in policy_list_expiry_today %}
+                                            <a href="/view_{{ policy['type'] }}_policy/{{ policy['_id'] }}"
+                                               class="list-group-item list-group-item-action text-capitalize d-flex justify-content-between">
+                                        <span>
+                                            <span class="">{{ policy['name'] }}</span>
+
+                                        </span>
+                                                <span class="{{ policy_status_class[policy['policy_status']] }}">
+                                            <small class="">{{ policy['type'] }}</small>
+                                            <span class="bi bi-chevron-right align-self-center"></span>
+                                        </span>
+                                            </a>
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                            </div>
+                            <div class="col-md mb-3">
+                                <div class="card-title fs-5">
+                                    This Month Renewals ({{ motor_renewal_count['total'] }})
+                                </div>
+                                <div class="list-group list-group-flush">
+                                    <div class="list-group-item d-flex justify-content-between">
+                                        <span class="text-dark">
+                                            NOT CONTACTED
+                                        </span>
+                                        <span class="fs-6 badge bg-white text-dark">
+                                            {{ motor_renewal_count['not_touch'] }}
+                                        </span>
+                                    </div>
+                                    <div class="list-group-item d-flex justify-content-between">
+                                        <span class=" text-dark">
+                                            FOLLOWUP
+                                        </span>
+                                        <span class="fs-6  badge bg-white text-warning">
+                                            {{ motor_renewal_count['followup'] }}
+                                        </span>
+                                    </div>
+                                    <div class="list-group-item d-flex justify-content-between">
+                                        <span class="text-dark">
+                                            WON
+                                        </span>
+                                        <span class="fs-6  badge  bg-white text-success">
+                                            {{ motor_renewal_count['won'] }}
+                                        </span>
+                                    </div>
+                                    <div class="list-group-item d-flex justify-content-between ">
+                                        <span class="text-dark ">
+                                            LOST
+                                        </span>
+                                        <span class="fs-6 badge bg-white text-danger">
+                                            {{ motor_renewal_count['lost'] }}
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
-
             </div>
-            <div class="mb-3">
-                <a href="/manage_vehicles" class="btn btn-light text-primary">
-                    MANAGE VEHICLES
-                    <span class="bi bi-chevron-right"></span>
-                </a>
-            </div>
-        </div>
-        <div class="col-md-6 mb-3">
-            <div class="card">
-                <div class="card-body">
-                    <h5 class="card-title d-flex justify-content-between">
-                        <a href="/health_insurance" class="text-decoration-none">HEALTH INSURANCE RENEWALS</a>
-                        <span class="fs-6 badge rounded-circle bg-primary align-self-center">{{ health_renewal_count['total'] }}</span>
-                    </h5>
-                    <br/>
+            <div class="col-md-3 mb-3">
+                <div class="card">
+                    <div class="card-header">Manage Company</div>
                     <div class="list-group list-group-flush">
-                        <div class="list-group-item d-flex justify-content-between">
-                            NOT CONTACTED <span
-                                class="fs-6 badge rounded-circle bg-light text-dark">{{ health_renewal_count['not_touch'] }}</span>
-                        </div>
-                        <div class="list-group-item d-flex justify-content-between">
-                            FOLLOWUP <span
-                                class="fs-6 badge rounded-circle bg-light text-warning">{{ health_renewal_count['followup'] }}</span>
-
-                        </div>
-                        <div class="list-group-item d-flex justify-content-between">
-                            WON <span
-                                class="fs-6 badge rounded-circle bg-light text-success">{{ health_renewal_count['won'] }}</span>
-                        </div>
-                        <div class="list-group-item d-flex justify-content-between">
-                            LOST <span
-                                class="fs-6 badge rounded-circle bg-light text-danger">{{ health_renewal_count['lost'] }}</span>
-                        </div>
+                        <a href="/manage_motor_insurance_companies"
+                           class="align-items-center d-flex justify-content-between list-group-item bg-transparent">
+                            <span>Insurance</span>
+                            <span class="bi bi-chevron-right"></span>
+                        </a>
+                        <a href="/manage_vehicles"
+                           class="align-items-center d-flex justify-content-between list-group-item bg-transparent">
+                            <span>Vehicles</span>
+                            <span class="bi bi-chevron-right"></span>
+                        </a>
                     </div>
                 </div>
-
             </div>
         </div>
     </div>
-    </div>
-    </div>
-</div>
 {% endblock %}
