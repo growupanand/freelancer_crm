@@ -1,58 +1,27 @@
 {% set current_page = 'contacts' %}
 {% extends 'admin/base.html' %}
 {% block content %}
-    <div class="container-xl">
-        <div id="alert"></div>
-        <h2 class="py-5">Contacts</h2>
-        <div class="row">
-            <div class="col-md-4 col-lg-3 mb-3 text-center">
-                <div class="d-grid d-md-inline-block">
-                    <button class="btn btn-primary px-5 fw-bold" type="button" data-bs-toggle="modal"
-                            data-bs-target="#add_person_modal">
-                        NEW CONTACT
-                    </button>
-                </div>
-            </div>
-            <div class="col-md-8 col-lg-9 mb-3">
-                <form onsubmit="submit_find_person(this)" name="find_person">
-                    <div class="input-group mb-3 bg-white">
-                        <button id="search_dropdown_btn"
-                                class="text-capitalize input-group-text bg-white  dropdown-toggle" type="button"
-                                data-bs-toggle="dropdown" aria-expanded="false">Name
-                        </button>
-                        <div id="search_dropdown_menu" class="dropdown-menu">
-                            <button type="button" onclick="select_search_filter(this, 'name');"
-                                    class="dropdown-item active">Name
-                            </button>
-                            <button type="button" onclick="select_search_filter(this, 'number');" class="dropdown-item">
-                                Number
-                            </button>
-                            <button type="button" onclick="select_search_filter(this, 'email');" class="dropdown-item">
-                                Email
-                            </button>
-                        </div>
-                        <input placeholder="Search contacts" type="text"
-                               class="form-control border-start-0"
-                               name="query"
-                               id="query" required/>
-                        <button type="submit" class="btn btn-light border-secondary text-secondary"><label for="query"
-                                                                                                           class="bi bi-search"></label>
-                            FIND
-                        </button>
-                    </div>
-                </form>
+    <div class="bg-white sticky-top border-bottom mb-3  py-3">
+        <div class="container-xl">
+            <div class="d-flex justify-content-between">
+                <h1 class="my-0 align-self-center text-capitalize ">Contacts</h1>
+                <button class="align-self-center btn btn-primary px-md-3 fw-bold" type="button" data-bs-toggle="modal"
+                        data-bs-target="#add_person_modal">
+                    ADD CONTACT
+                </button>
             </div>
         </div>
+    </div>
+    <div class="container-xl">
         <div class="row">
             <div class="col-md-4 col-lg-3">
                 <div class="card bg-transparent border-0 mb-3 d-none d-md-block">
                     <div class="card-header bg-transparent text-muted text-capitalize">Recently Added</div>
                     <div id="recent_person_list" class="list-group list-group-flush small">
                         {% for person in recent_added %}
-                            <a class="text-capitalize list-group-item bg-transparent"
+                            <a class="text-capitalize list-group-item bg-transparent border-0"
                                href="/crm/view_person/{{ person['_id'] }}">
                                 <span class="">{{ person['name'] }}</span><br/>
-                                <small class="text-muted">{{ functions.format_timestamp(person['created'], '%d-%m-%Y') }}</small>
                             </a>
                         {% endfor %}
                     </div>
@@ -61,15 +30,47 @@
             <div class="col-md-8 col-lg-9">
                 <div class="card">
                     <div class="card-body fs-5">
-                        <button id="all_contacts_button" class="btn badge  bg-secondary text-white"
-                                onclick="get_person_list()">
-                            All Contacts <span id="all_contacts_count"></span>
-                        </button>
-                        <span style="display: none" id="result_contacts_badge"
-                              class="btn badge  bg-secondary text-white">
+
+                        <form onsubmit="submit_find_person(this)" name="find_person">
+                            <div class="input-group border-0">
+                                <button id="search_dropdown_btn"
+                                        class="text-capitalize input-group-text bg-light text-muted border-0 dropdown-toggle"
+                                        type="button"
+                                        data-bs-toggle="dropdown" aria-expanded="false">Name
+                                </button>
+                                <div id="search_dropdown_menu" class="dropdown-menu">
+                                    <button type="button" onclick="select_search_filter(this, 'name');"
+                                            class="dropdown-item active">Name
+                                    </button>
+                                    <button type="button" onclick="select_search_filter(this, 'number');"
+                                            class="dropdown-item">
+                                        Number
+                                    </button>
+                                    <button type="button" onclick="select_search_filter(this, 'email');"
+                                            class="dropdown-item">
+                                        Email
+                                    </button>
+                                </div>
+                                <input placeholder="Search Contacts" type="text"
+                                       class="form-control bg-light border-0"
+                                       name="query"
+                                       id="query" required/>
+                                <button type="submit" class="btn btn-light border-0 text-secondary">
+                                    <span class="bi bi-search"></span>
+                                </button>
+                            </div>
+                        </form>
+                        <div class="btn-group-sm">
+                            <button id="all_contacts_button" class="btn fs-5"
+                                    onclick="get_person_list()">
+                                All Contacts (<span id="all_contacts_count"></span>)
+                            </button>
+                            <span style="display: none" id="result_contacts_badge"
+                                  class="btn fs-5 text-muted">
                             <span id="search_query_label"></span>
-                            <span id="result_contact_count"></span>
+                            (<span id="result_contact_count"></span>)
                         </span>
+                        </div>
                     </div>
 
                     <div class="list-group list-group-flush border-0" id="person_list"></div>
@@ -79,46 +80,44 @@
     </div>
     <!-- Modal -->
     <div class="modal fade" id="add_person_modal" tabindex="-1" aria-hidden="true">
-        <div class="modal-dialog">
+        <div class="modal-dialog modal-fullscreen-md-down">
             <div class="modal-content">
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title" id="exampleModalLabel">New Contact</h5>
+                    <button type="button" class="btn btn-lg text-white" data-bs-dismiss="modal" aria-label="Close">
+                        <span class="bi bi-x"></span>
+                    </button>
+                </div>
                 <div class="modal-body">
-                    <div class="d-flex justify-content-between mb-5">
-                        <h5 class="" id="exampleModalLabel">New Contact</h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                    </div>
                     <form name="add_person_form" onsubmit="submit_add_person_form(this)">
-                        <div class="row">
-                            <div class="col-md-5">
-                                <select class="form-select mb-3" name="source_type" id="source_type">
+                        <div class="input-group mb-3">
+                            <select style="max-width: 150px" class="rounded-0 rounded-start border-end-0 form-select" name="source_type" id="source_type">
                                     <option value="">Source Type</option>
                                     <option value="cold_call">Cold Call</option>
                                     <option value="reference">Reference</option>
                                     <option value="walkin">Walk In</option>
                                 </select>
-                            </div>
-                            <div class="col-md-7">
-                                <input placeholder="Source" type="text" name="source_data" id="source_data"
-                                       class="form-control mb-3"/>
-                            </div>
+                            <input placeholder="Source" type="text" name="source_data" id="source_data"
+                                       class="rounded-0 rounded-end form-control border-start-0"/>
+
                         </div>
-                        <label for="name" class="form-label col-lg-4">Name</label>
-                        <input type="text" id="name" name="name" class="form-control mb-3" required/>
-                        <div class="row mb-3">
-                            <div class="col">
-                                <label for="number" class="form-label">Number</label>
-                            </div>
-                            <div class="col text-end">
-                                <button type="button" class="btn btn-light text-primary"
-                                        onclick="add_number_list()">
-                                    <span class="bi bi-plus"></span> ADD NUMBER
-                                </button>
-                            </div>
+                        <label for="name" class="form-label">Full Name</label>
+                        <input type="text" placeholder="Firstname Lastname" id="name" name="name"
+                               class="form-control mb-3"
+                               required/>
+                        <div class="d-flex justify-content-between form-label">
+                            <label for="number" class="align-self-center">Mobile Number</label>
+                            <button type="button" class="align-self-center btn btn-sm text-primary fw-bold"
+                                    onclick="add_number_list()">
+                                Add Number
+                            </button>
                         </div>
-                        <div id="number_list">
-                            <input type="text" class="form-control mb-3" name="number[]" id="number" required/>
+                        <div id="number_list" class="mb-3">
+                            <input type="text" placeholder="10 Digit Number" class="form-control"
+                                   name="number[]" id="number" required/>
                         </div>
-                        <div class="d-grid">
-                            <button type="submit" class="btn btn-lg btn-primary">ADD</button>
+                        <div class="text-center mt-5">
+                            <button type="submit" class="px-5 btn btn-lg btn-primary">SUBMIT</button>
                         </div>
                     </form>
 
@@ -166,9 +165,9 @@
 
         //function to add number input in form
         function add_number_list() {
-            number_element = '<div class="input-group mb-2">' +
-                '<input type="text" class="form-control" name="number[]" id="number" required/>' +
-                '<button class="btn btn-danger" onclick="remove_number_list(this)"><span class="bi bi-dash"></span> REMOVE</button>' +
+            number_element = '<div class="form-control d-flex justify-content-between mt-2"> ' +
+                '<input class="flex-grow-1 p-0 form-control border-0" type="text" placeholder="10 Digit Number" name="number[]" id="number" required/>' +
+                '<button class="btn btn-sm text-danger py-0" onclick="remove_number_list(this)">Remove</button>' +
                 '</div>'
             $('#number_list').append(number_element)
         }
@@ -190,12 +189,12 @@
                         persons = response.data
                         if (query == null) {
                             document.find_person.reset()
-                            document.getElementById('all_contacts_button').className = 'btn badge bg-secondary text-white'
+                            document.getElementById('all_contacts_button').className = 'btn fs-5 text-muted'
                             document.getElementById('all_contacts_count').innerText = persons.length
                             $('#result_contacts_badge').fadeOut()
                         } else {
-                            document.getElementById('all_contacts_button').className = 'btn badge border-secondary bg-light text-secondary'
-                            document.getElementById('search_query_label').innerText = '"'+query+'"'
+                            document.getElementById('all_contacts_button').className = 'btn fs-5 text-primary'
+                            document.getElementById('search_query_label').innerText = query
                             document.getElementById('result_contact_count').innerText = persons.length
                             $('#result_contacts_badge').fadeIn()
                         }
@@ -204,7 +203,7 @@
                             $('#person_list').html('<div class="list-group-item ">No result found</div>')
                         }
                         for (i in persons) {
-                            html = '<a class="text-capitalize list-group-item list-group-item-action d-flex justify-content-between" href="/crm/view_person/' + persons[i]._id.$oid + '">' +
+                            html = '<a class="text-capitalize list-group-item list-group-item-action d-grid d-lg-flex justify-content-between" href="/crm/view_person/' + persons[i]._id.$oid + '">' +
                                 '<span class=""> ' + persons[i].name + '</span>' +
                                 '<span class="text-muted">' + persons[i].numbers.join(', ') + '</span>' +
                                 '</a>'

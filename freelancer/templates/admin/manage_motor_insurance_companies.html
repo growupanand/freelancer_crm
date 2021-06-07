@@ -1,44 +1,31 @@
 {% extends 'admin/base.html' %}
 {% set policy_status_class= {'followup':'bg-warning', 'lost':'bg-danger', 'won':'bg-success'} %}
 {% block content %}
-    <div class="container-xl">
-        <div id="alert"></div>
-        <h2 class="my-5">Motor Insurance</h2>
-        <div class="d-flex justify-content-center mb-5">
-            <div class="card">
-                <div class="nav nav-pills ">
-                    <div class="nav-item d-grid">
-                        <a href="/motor_insurance" class="btn btn-outline-secondary border-0 rounded-0 ">Dashboard</a>
-                    </div>
-                    <div class="nav-item d-grid">
-                        <a href="/motor_insurance_renewals" class="btn btn-outline-secondary border-0 rounded-0">Insurance
-                            Renewals</a>
-                    </div>
-                    <div class="nav-item d-grid">
-                        <a href="#" class="btn btn-outline-secondary border-0 rounded-0 active">Manage
-                            Companies</a>
-                    </div>
-
-                </div>
+    <div class="bg-white sticky-top border-bottom mb-3  py-3">
+        <div class="container-xl">
+            <div class="d-flex justify-content-between">
+                <h1 class="my-0 align-self-center text-capitalize ">Insurance Company</h1>
+                <button class="btn btn-primary px-md-3 fw-bold" type="button" data-bs-toggle="modal"
+                            data-bs-target="#add_company_modal">
+                        ADD COMPANY
+                    </button>
             </div>
         </div>
-
-        <div class="row">
-            <div class="col-md-4 col-lg-3 mb-3 text-center">
-                <div class="d-grid d-md-inline-block">
-                    <button class="btn btn-primary px-5 fw-bold" type="button" data-bs-toggle="modal"
-                            data-bs-target="#add_company_modal">
-                        NEW COMPANY
-                    </button>
+    </div>
+    <div class="container-xl">
+        <div id="alert"></div>
+    <div class="row">
+        <div class="col-lg-6 mx-auto">
+            <div class="card">
+            <div class="card-body d-flex justify-content-between">
+                    <span class="fs-5 text-muted">All Companies (<span id="company_count">{{ company_list.count() }}</span>)</span>
                 </div>
-            </div>
-            <div class="col-md-8 col-lg-9 mb-3">
-                <div id="company_list" class="list-group">
+                 <div id="company_list" class="list-group list-group-flush">
                     {% for company in company_list %}
                         <div class="list-group-item d-flex justify-content-between">
-                            <span>{{ company['company_name'] }}</span>
-                            <button data-id="{{ company['_id'] }}" class="btn fw-bold" onclick="delete_company(this)">
-                                <span class="bi bi-dash-circle-fill text-danger"></span>
+                            <span class="align-self-center text-capitalize">{{ company['company_name'] }}</span>
+                            <button data-id="{{ company['_id'] }}" class="align-self-center btn text-danger fw-bold" onclick="delete_company(this)">
+                                Remove
                             </button>
                         </div>
                     {% endfor %}
@@ -47,19 +34,23 @@
         </div>
     </div>
 
-    <div class="modal" id="add_company_modal">
-        <div class="modal-dialog">
+    </div>
+
+    <div class="modal fade" id="add_company_modal">
+        <div class="modal-dialog modal-fullscreen-md-down">
             <div class="modal-content">
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title" id="exampleModalLabel">New Insurance Company</h5>
+                    <button type="button" class="btn btn-lg text-white" data-bs-dismiss="modal" aria-label="Close">
+                        <span class="bi bi-x"></span>
+                    </button>
+                </div>
                 <div class="modal-body">
-                    <div class="d-flex justify-content-between mb-5">
-                        <h5>Add Motor Insurance Company</h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                    </div>
                     <form name="add_company_form" onsubmit="submit_add_company_form(this)">
                         <label class="form-label">Company Name</label>
-                        <input name="company_name" type="text" class="form-control mb-3" required/>
-                        <div class="d-grid">
-                            <button type="submit" class="btn btn-lg btn-primary">ADD</button>
+                        <input placeholder="Insurance company name" name="company_name" type="text" class="form-control mb-3" required/>
+                        <div class="text-center mt-5">
+                            <button type="submit" class="px-5 btn btn-lg btn-primary">SUBMIT</button>
                         </div>
                     </form>
                 </div>
@@ -86,6 +77,8 @@
                             "</div>")
                         show_alert('Company added successfully.', 'success')
                         form.reset()
+                        count = Number(document.getElementById("company_count").innerText)
+                        document.getElementById("company_count").innerText = count+1
                         $('#add_company_modal').modal('hide')
                         $(".new").effect("highlight").removeClass('new')
                     } else {
@@ -108,6 +101,8 @@
                     type: "POST",
                     success: function (response) {
                         if (response.result == true) {
+                            count = Number(document.getElementById("company_count").innerText)
+                        document.getElementById("company_count").innerText = count-1
                             $(e).parent().remove()
                         } else {
                             show_alert(response.msg, 'error')

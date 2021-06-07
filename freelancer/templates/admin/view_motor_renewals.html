@@ -1,151 +1,147 @@
 {% extends 'admin/base.html' %}
 {% set policy_status_class= {'followup':'bg-warning', 'lost':'bg-danger', 'won':'bg-success'} %}
 {% block content %}
-
+    <div class="bg-white sticky-top border-bottom mb-3  py-3">
+        <div class="container-xl">
+            <div class="d-flex justify-content-between">
+                <h1 class="my-0 align-self-center text-capitalize ">Motor Insurance</h1>
+            </div>
+        </div>
+    </div>
     <div class="container-xl">
         <div id="alert"></div>
-        <h2 class="my-5">Motor Insurance</h2>
-        <div class="d-flex justify-content-center mb-5">
-            <div class="card">
-            <div class="nav nav-pills">
-            <div class="nav-item d-grid">
-                <a href="/motor_insurance" class="btn btn-outline-secondary border-0 rounded-0">Dashboard</a>
-            </div>
-            <div class="nav-item d-grid">
-                <a href="/motor_insurance_renewals" class="btn btn-outline-secondary rounded-0 border-0 active">Insurance Renewals</a>
-            </div>
-            <div class="nav-item d-grid">
-                <a href="/manage_motor_insurance_companies" class="btn btn-outline-secondary border-0 rounded-0">Manage Companies</a>
-            </div>
-
-        </div>
-        </div>
-        </div>
-
-
-        <div id="card_policy_list">
-            <div id="renewal_list_period" class="mb-3 sticky-top d-flex">
-                <button onclick="prev_renewal_month()" class="btn align-self-center"><span
-                        class="bi-caret-left"></span></button>
-                <label class="fw-bold align-self-center" id="current_period">May 2021</label>
-                <button onclick="next_renewal_month()" class="btn align-self-center"><span
-                        class="bi-caret-right "></span></button>
-            </div>
-            <div class="card mb-3">
-                <div id="policy_list" class="list-group list-group-flush"></div>
-            </div>
-        </div>
-
-        <div id="renewal_card" style="display: none">
-            <div class="mb-3">
-                <button onclick="show_renewal_list()" class="btn text-primary"><span
-                        class="bi bi-chevron-left"></span> RENEWALS
-                </button>
-            </div>
-            <div class="card bg-white">
-                <div class="card-header bg-white border-0 sticky-top">
-                    <h2 class="card-title text-capitalize" id="name"></h2>
-                    <p>
-                        <span class="bi bi-phone-fill fs-6"></span> <span id="numbers"></span>
-                    </p>
-                </div>
-                <div class="card-body">
-                    <div class="row text-uppercase">
-                        <div class="col-md-4 mb-3">
-                            <div id="registration_number" class="fs-5 mb-3"></div>
-                            <table class="table table-borderless table-striped table-sm">
-                                <tbody>
-                                <tr>
-                                    <td class="text-muted">Registration Name</td>
-                                    <td id="registration_name"></td>
-                                </tr>
-                                <tr>
-                                    <td class="text-muted">Vehicle Company</td>
-                                    <td id="vehicle_company"></td>
-                                </tr>
-                                <tr>
-                                    <td class="text-muted">Model</td>
-                                    <td id="vehicle_model"></td>
-                                </tr>
-                                <tr>
-                                    <td class="text-muted">CC</td>
-                                    <td id="vehicle_cc"></td>
-                                </tr>
-                                <tr>
-                                    <td class="text-muted">Fuel Type</td>
-                                    <td id="fuel"></td>
-                                </tr>
-                                <tr>
-                                    <td class="text-muted">Registration Date</td>
-                                    <td id="registration_date"></td>
-                                </tr>
-                                <tr>
-                                    <td class="text-muted">Manufacture Year</td>
-                                    <td id="vehicle_mfg_year"></td>
-                                </tr>
-                                </tbody>
-                            </table>
-                        </div>
-                        <div class="col-md-4 mb-3">
-                            <div class="row mb-2">
-                                <div class="col-8">
-                                    <span class="card-title">Policy Detail</span>
-                                    <small id="own_business"
-                                           class="badge rounded-pill bg-success"></small>
-                                </div>
-                                <div class="col-4 text-end">
-                                    <div class="btn-group" role="group">
-                                        <button id="previous_policy_btn" class="btn btn-light text-dark"
-                                                onclick="view_renewal(this.value)">
-                                            <span class="bi bi-caret-left"></span>
-                                        </button>
-                                        <button id="next_policy_btn" class="btn btn-light text-dark"
-                                                onclick="view_renewal(this.value)">
-                                            <span class="bi bi-caret-right"></span>
-                                        </button>
-                                    </div>
-                                </div>
+        <div class="d-flex flex-lg-row flex-column">
+            <nav class="mx-3 nav nav-pills flex-column">
+                <a href="/motor_insurance" class="nav-link">Dashboard</a>
+                <a href="/motor_insurance_renewals" class="nav-link active">Insurance Renewals</a>
+                <a href="/manage_motor_insurance_companies" class="nav-link">Manage Companies</a>
+            </nav>
+            <div class="flex-grow-1">
+                <div id="card_policy_list">
+                    <h2 class="my-3">Insurance Renewals</h2>
+                    <div class="card mb-3">
+                        <div class="card-body  bg-white">
+                            <div id="renewal_list_period" class="d-flex">
+                                <button onclick="prev_renewal_month()" class="btn align-self-center"><span
+                                        class="bi-caret-left"></span></button>
+                                <label class="fw-bold align-self-center" id="current_period">May 2021</label>
+                                <button onclick="next_renewal_month()" class="btn align-self-center"><span
+                                        class="bi-caret-right "></span></button>
                             </div>
-                            <table class="table table-borderless table-striped table-sm">
-                                <tbody>
-                                <tr>
-                                    <td class="text-muted">Policy Number</td>
-                                    <td id="policy_number"></td>
-                                </tr>
-                                <tr>
-                                    <td class="text-muted">Policy Company</td>
-                                    <td id="policy_company"></td>
-                                </tr>
-                                <tr>
-                                    <td class="text-muted">Expiry Date</td>
-                                    <td id="expiry_date"></td>
-                                </tr>
-                                <tr>
-                                    <td class="text-muted">Policy Type</td>
-                                    <td id="policy_type"></td>
-                                </tr>
-                                <tr>
-                                    <td class="text-muted">Premium</td>
-                                    <td id="premium"></td>
-                                </tr>
-                                <tr>
-                                    <td class="text-muted">IDV</td>
-                                    <td id="idv"></td>
-                                </tr>
-                                <tr>
-                                    <td class="text-muted">NCB %</td>
-                                    <td id="ncb"></td>
-                                </tr>
-                                <tr>
-                                    <td class="text-muted">Addon Cover</td>
-                                    <td id="addon_cover"></td>
-                                </tr>
-                                </tbody>
-                            </table>
-                            <form name="form_claim_status">
-                                <div class="d-flex justify-content-between">
-                                    <span class="text-muted">Claim Status</span>
-                                    <span>
+                        </div>
+                        <div id="policy_list" class="list-group list-group-flush"></div>
+                    </div>
+                </div>
+                <div id="renewal_card" style="display: none">
+                    <div class="mb-3">
+                        <button onclick="show_renewal_list()" class="btn text-primary"><span
+                                class="bi bi-chevron-left"></span> RENEWALS
+                        </button>
+                    </div>
+                    <div class="card bg-white">
+                        <div class="card-header bg-white border-0 sticky-top">
+                            <h2 class="card-title text-capitalize" id="name"></h2>
+                            <p>
+                                <span class="bi bi-phone-fill fs-6"></span> <span id="numbers"></span>
+                            </p>
+                        </div>
+                        <div class="card-body">
+                            <div class="row text-uppercase">
+                                <div class="col-md-4 mb-3">
+                                    <div id="registration_number" class="fs-5 mb-3"></div>
+                                    <table class="table table-borderless table-striped table-sm">
+                                        <tbody>
+                                        <tr>
+                                            <td class="text-muted">Registration Name</td>
+                                            <td id="registration_name"></td>
+                                        </tr>
+                                        <tr>
+                                            <td class="text-muted">Vehicle Company</td>
+                                            <td id="vehicle_company"></td>
+                                        </tr>
+                                        <tr>
+                                            <td class="text-muted">Model</td>
+                                            <td id="vehicle_model"></td>
+                                        </tr>
+                                        <tr>
+                                            <td class="text-muted">CC</td>
+                                            <td id="vehicle_cc"></td>
+                                        </tr>
+                                        <tr>
+                                            <td class="text-muted">Fuel Type</td>
+                                            <td id="fuel"></td>
+                                        </tr>
+                                        <tr>
+                                            <td class="text-muted">Registration Date</td>
+                                            <td id="registration_date"></td>
+                                        </tr>
+                                        <tr>
+                                            <td class="text-muted">Manufacture Year</td>
+                                            <td id="vehicle_mfg_year"></td>
+                                        </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                                <div class="col-md-4 mb-3">
+                                    <div class="row mb-2">
+                                        <div class="col-8">
+                                            <span class="card-title">Policy Detail</span>
+                                            <small id="own_business"
+                                                   class="badge rounded-pill bg-success"></small>
+                                        </div>
+                                        <div class="col-4 text-end">
+                                            <div class="btn-group" role="group">
+                                                <button id="previous_policy_btn" class="btn btn-light text-dark"
+                                                        onclick="view_renewal(this.value)">
+                                                    <span class="bi bi-caret-left"></span>
+                                                </button>
+                                                <button id="next_policy_btn" class="btn btn-light text-dark"
+                                                        onclick="view_renewal(this.value)">
+                                                    <span class="bi bi-caret-right"></span>
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <table class="table table-borderless table-striped table-sm">
+                                        <tbody>
+                                        <tr>
+                                            <td class="text-muted">Policy Number</td>
+                                            <td id="policy_number"></td>
+                                        </tr>
+                                        <tr>
+                                            <td class="text-muted">Policy Company</td>
+                                            <td id="policy_company"></td>
+                                        </tr>
+                                        <tr>
+                                            <td class="text-muted">Expiry Date</td>
+                                            <td id="expiry_date"></td>
+                                        </tr>
+                                        <tr>
+                                            <td class="text-muted">Policy Type</td>
+                                            <td id="policy_type"></td>
+                                        </tr>
+                                        <tr>
+                                            <td class="text-muted">Premium</td>
+                                            <td id="premium"></td>
+                                        </tr>
+                                        <tr>
+                                            <td class="text-muted">IDV</td>
+                                            <td id="idv"></td>
+                                        </tr>
+                                        <tr>
+                                            <td class="text-muted">NCB %</td>
+                                            <td id="ncb"></td>
+                                        </tr>
+                                        <tr>
+                                            <td class="text-muted">Addon Cover</td>
+                                            <td id="addon_cover"></td>
+                                        </tr>
+                                        </tbody>
+                                    </table>
+                                    <form name="form_claim_status">
+                                        <div class="d-flex justify-content-between">
+                                            <span class="text-muted">Claim Status</span>
+                                            <span>
                                     <input type="radio" value="false" class="btn-check"
                                            onchange="submit_form_claim_status()"
                                            name="claim_status" id="no_claim_status" autocomplete="off"
@@ -157,39 +153,41 @@
                             <label class="btn btn-sm btn-outline-primary" for="claimed_status">CLAIMED</label>
                                 </span>
 
-                                </div>
-                            </form>
-                        </div>
-                        <div class="col-md-4 mb-3">
-                            <div class="card border-0 mb-3">
-                                <div class="card-body">
-
-                                    <div class="row mb-3">
-                                        <div class="col">
-                                            <div class="d-grid">
-                                                <button id="renewal_done_btn"
-                                                        class="btn btn-outline-light text-success" value=""
-                                                        onclick="renewal_done()"
-                                                        disabled>WON
-                                                </button>
-                                            </div>
                                         </div>
-                                        <div class="col">
-                                            <div class="d-grid">
-                                                <button id="renewal_lost_btn"
-                                                        class="btn btn-light text-danger"
-                                                        onclick="renewal_lost()" disabled>LOST
-                                                </button>
+                                    </form>
+                                </div>
+                                <div class="col-md-4 mb-3">
+                                    <div class="card border-0 mb-3">
+                                        <div class="card-body">
+
+                                            <div class="row mb-3">
+                                                <div class="col">
+                                                    <div class="d-grid">
+                                                        <button id="renewal_done_btn"
+                                                                class="btn btn-outline-light text-success" value=""
+                                                                onclick="renewal_done()"
+                                                                disabled>WON
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                                <div class="col">
+                                                    <div class="d-grid">
+                                                        <button id="renewal_lost_btn"
+                                                                class="btn btn-light text-danger"
+                                                                onclick="renewal_lost()" disabled>LOST
+                                                        </button>
+                                                    </div>
+                                                </div>
                                             </div>
+                                            {% include 'admin/followup_card.html' %}
                                         </div>
                                     </div>
-                                    {% include 'admin/followup_card.html' %}
                                 </div>
                             </div>
                         </div>
+
                     </div>
                 </div>
-
             </div>
         </div>
 

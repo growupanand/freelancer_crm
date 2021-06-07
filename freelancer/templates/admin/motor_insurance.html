@@ -1,44 +1,25 @@
+{% set current_page = 'motor_insurance' %}
 {% extends 'admin/base.html' %}
 {% set policy_status_class= {'followup':'bg-warning', 'lost':'bg-danger', 'won':'bg-success'} %}
 {% block content %}
-    <div class="container-xl">
-        <div id="alert"></div>
-        <h2 class="my-5">Motor Insurance</h2>
-    <div class="d-flex justify-content-center mb-5">
-        <div class="card">
-            <div class="nav nav-pills ">
-                <div class="nav-item d-grid">
-                    <a href="#" class="btn btn-outline-secondary border-0 rounded-0 active">Dashboard</a>
-                </div>
-                <div class="nav-item d-grid">
-                    <a href="/motor_insurance_renewals" class="btn btn-outline-secondary border-0 rounded-0">Insurance Renewals</a>
-                </div>
-                <div class="nav-item d-grid">
-                    <a href="/manage_motor_insurance_companies" class="btn btn-outline-secondary border-0 rounded-0">Manage
-                        Companies</a>
-                </div>
-
+    <div class="bg-white sticky-top border-bottom mb-3  py-3">
+        <div class="container-xl">
+            <div class="d-flex justify-content-between">
+                <h1 class="my-0 align-self-center text-capitalize ">Motor Insurance</h1>
             </div>
         </div>
     </div>
-
-        <div class="row">
-            <div class="col-lg-4 mb-3">
-                 <div class="card mb-3">
-                    <div class="card-header text-center">
-                        Policy Expiring Today
-                    </div>
-                    <div class="list-group list-group-flush">
-                        {% for policy in policy_list_expiry_today %}
-                            <a href="/view_motor_policy/{{ policy['_id'] }}"
-                               class="list-group-item list-group-item-action d-flex justify-content-between">
-                                <span class="text-capitalize">{{ policy['name'] }}</span>
-                                <span class="rounded-pill align-self-center badge text-uppercase {{ policy_status_class[policy['policy_status']] }}">{{ policy['policy_status'] }}</span>
-                            </a>
-                        {% endfor %}
-                    </div>
-                </div>
-            <div class="card mb-3">
+    <div class="container-xl">
+        <div id="alert"></div>
+        <div class="d-flex flex-lg-row flex-column">
+            <nav class="mx-3 nav nav-pills flex-column">
+                    <a href="/motor_insurance" class="nav-link active">Dashboard</a>
+                    <a href="/motor_insurance_renewals" class="nav-link">Insurance Renewals</a>
+                    <a href="/manage_motor_insurance_companies" class="nav-link">Manage Companies</a>
+                </nav>
+            <div class="flex-grow-1">
+                <h2 class="my-3">Dashbaord</h2>
+                <div class="card mb-3">
                     <div class="card-header text-center">{{ current_period }} Performance</div>
                     <div class="card-body">
                         <div class="progress">
@@ -50,32 +31,29 @@
                                  style="width: {{ renewal_count['lost']/renewal_count['total']*100 }}%"></div>
                         </div>
                     </div>
-                 <div class="list-group list-group-flush small">
-                                <div class="list-group-item d-flex justify-content-between text-secondary">
-                                    <span>NOT CONTACTED</span>
-                                    <span>{{ renewal_count['not_touch'] }}</span>
-                                </div>
-                                <div class="list-group-item d-flex justify-content-between text-warning">
-                                    <span>FOLLOWUP</span>
-                                    <span>{{ renewal_count['followup'] }}</span>
-                                </div>
-                                <div class="list-group-item d-flex justify-content-between text-success">
-                                    <span>WON</span>
-                                    <span>{{ renewal_count['won'] }}</span>
-                                </div>
-                                <div class="list-group-item d-flex justify-content-between text-danger">
-                                    <span>LOST</span>
-                                    <span>{{ renewal_count['lost'] }}</span>
-                                </div>
-                            <div class="list-group-item d-flex justify-content-between text-dark">
-                                    <span>TOTAL</span>
-                                    <span>{{ renewal_count['total'] }}</span>
-                                </div>
-                            </div>
+                    <div class="list-group list-group-flush small">
+                        <div class="list-group-item d-flex justify-content-between text-secondary">
+                            <span>NOT CONTACTED</span>
+                            <span>{{ renewal_count['not_touch'] }}</span>
+                        </div>
+                        <div class="list-group-item d-flex justify-content-between text-warning">
+                            <span>FOLLOWUP</span>
+                            <span>{{ renewal_count['followup'] }}</span>
+                        </div>
+                        <div class="list-group-item d-flex justify-content-between text-success">
+                            <span>WON</span>
+                            <span>{{ renewal_count['won'] }}</span>
+                        </div>
+                        <div class="list-group-item d-flex justify-content-between text-danger">
+                            <span>LOST</span>
+                            <span>{{ renewal_count['lost'] }}</span>
+                        </div>
+                        <div class="list-group-item d-flex justify-content-between text-dark">
+                            <span>TOTAL</span>
+                            <span>{{ renewal_count['total'] }}</span>
+                        </div>
+                    </div>
                 </div>
-
-            </div>
-            <div class="col-lg-8">
                 <form onsubmit="submit_find_policy(this)" name="find_policy">
                     <div class="input-group mb-3 bg-white">
                         <button id="search_dropdown_btn"
@@ -113,8 +91,7 @@
                         </div>
                     </div>
                 </div>
-                <div id="main_card">
-                </div>
+                <div id="main_card"></div>
             </div>
         </div>
     </div>
