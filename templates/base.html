@@ -1,0 +1,22 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <!-- Bootstrap CSS -->
+    <link href="{{ url_for('static', filename='css/bootstrap.min.css') }}" rel="stylesheet" >
+    <link href="{{ url_for('static', filename='css/bootstrap-icons.css') }}" rel="stylesheet" >
+    <link href="{{ url_for('static', filename='css/base.css') }}" rel="stylesheet" >
+
+    <title>Freelancer CRM</title>
+  </head>
+  <body class="bg-light">
+  <div class="toast-container position-fixed top-0 end-0 p-3" style="z-index: 7000" id="alert_container"></div>
+    {% block body %}{% endblock %}
+
+    <script src="{{ url_for('static', filename='js/bootstrap.bundle.min.js') }}" ></script>
+    <script src="{{ url_for('static', filename='js/base.js') }}" ></script>
+  </body>
+</html>

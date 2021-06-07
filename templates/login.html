@@ -1,0 +1,77 @@
+{% extends 'base.html' %}
+{% block body %}
+    <div class="d-flex justify-content-center position-absolute w-100 h-100">
+        <div style="width: 500px" class="card bg-transparent border-0 mt-5">
+            <div class="card-body">
+                <h1 class="text-center">CRM</h1>
+                <div class="mb-3">
+                    <form onsubmit="submit_form_login(this)" name="form_login">
+                        <div class="mb-3">
+                            <label for="username" class="form-label text-muted">Username</label>
+                            <input id="username" name="username" type="text" class="form-control" required/>
+                        </div>
+                        <div class="mb-3">
+                            <label for="password" class="form-label text-muted">Password</label>
+                            <input id="password" name="password" type="password" class="form-control mb-3" required/>
+                        </div>
+                        <div class="d-grid">
+                            <button class="btn btn-primary fw-bold" type="submit">LOGIN</button>
+                        </div>
+                    </form>
+                </div>
+                <p class="text-center">
+                    <a class="btn text-primary" href="/signup">
+                        Create Account <span class="bi bi-chevron-right"></span>
+                    </a>
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function submit_form_login(form) {
+            event.preventDefault()
+            // disable inputs
+            disable_form(form)
+            //get data
+            data = {
+                'username': form.username.value.trim(),
+                'password': form.password.value.trim()
+            }
+            //validate data
+            is_valid = true
+            invalid_fields = {}
+            if (data['username'] === '') {
+                is_valid = false;
+                invalid_fields['username'] = 'Cannot be empty!';
+            }
+            if (data['password'] === '') {
+                is_valid = false;
+                invalid_fields['password'] = 'Cannot be empty!';
+            }
+            validate_form(form, invalid_fields)
+            if (is_valid) {
+                unvalidate_form(form)
+                request.open('POST', '/api/login')
+                request.setRequestHeader('Content-Type', 'application/json')
+                request.responseType = 'json'
+                request.onload = function () {
+                    if (this.status >=200 && this.status <=400) {
+                        if (this.response.result === true) {
+                            form.reset()
+                            location.reload()
+                        }
+                        else {show_alert(this.response.msg, 'warning')}
+                    } else {
+                        show_alert('Server error', 'error')
+                    }
+                    enable_form(form)
+                }
+                request.send(JSON.stringify(data))
+            } else {
+                enable_form(form)
+            }
+        }
+
+    </script>
+{% endblock %}
