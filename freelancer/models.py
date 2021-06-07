@@ -65,11 +65,11 @@ class user:
     def add_motor_insurance_company(self, company_name):
         company_name = str.lower(company_name)
         #check if compnay_name already exist
-        company_exist = db.motor_insurance_companies_collection.find_one({"user_id":self.user_id, "company_name":company_name})
+        company_exist = db.insurance_companies_collection.find_one({"user_id":self.user_id, "company_name":company_name})
         if company_exist is not None:
             return {"result" : False, "msg" : "Company already exist."}
         #add compnay name in database
-        add_company = db.motor_insurance_companies_collection.insert_one({
+        add_company = db.insurance_companies_collection.insert_one({
             "user_id":self.user_id,
             "company_name" : company_name
         })
@@ -80,18 +80,18 @@ class user:
 
     # get all motor insurance company list
     def get_motor_insurance_company_list(self):
-        company_list = db.motor_insurance_companies_collection.find({"user_id":self.user_id}, {"user_id":0})
+        company_list = db.insurance_companies_collection.find({"user_id":self.user_id}, {"user_id":0})
         return company_list
 
     # delete motor insurance company
     def delete_motor_insurance_company(self, company_id):
         # check if company exist
-        company_exist = db.motor_insurance_companies_collection.find_one(
+        company_exist = db.insurance_companies_collection.find_one(
             {"user_id": self.user_id, "_id": company_id})
         if company_exist is None:
             return {"result": False, "msg": "Company not exist."}
         # delete company
-        delete_company = db.motor_insurance_companies_collection.delete_one({
+        delete_company = db.insurance_companies_collection.delete_one({
             "user_id":self.user_id,
             "_id":company_id
         })
@@ -807,7 +807,7 @@ class vehicle:
         self._id = _id
         # get vehicle models list automaticaly if vehicle_id is given
         if not self._id == None:
-            self.db_data = db.vehicle_collection.find_one({'_id': self._id})
+            self.db_data = db.vehicle_companies_collection.find_one({'_id': self._id})
             self.models = self.db_data['models'] if 'models' in self.db_data else []
 
     # add vehicle company
@@ -819,9 +819,9 @@ class vehicle:
         if company_name in ('', None):
             return result
         # check if vehicle company is not already exist in db
-        if not db.vehicle_collection.find({'company_name': company_name}).count() > 0:
+        if not db.vehicle_companies_collection.find({'company_name': company_name}).count() > 0:
             # if not exist insert company
-            add_vehicle_company = db.vehicle_collection.insert_one({
+            add_vehicle_company = db.vehicle_companies_collection.insert_one({
                 'user_id': user_id,
                 'company_name': company_name
             })
@@ -841,7 +841,7 @@ class vehicle:
         query = {}
         if not user_id == None:
             query['user_id'] = user_id
-        for vehicle in db.vehicle_collection.find(query).sort('company_name', 1):
+        for vehicle in db.vehicle_companies_collection.find(query).sort('company_name', 1):
             result.append(vehicle)
         return result
 
@@ -854,13 +854,13 @@ class vehicle:
         if model_name in ('', None) or company_id in ('', None):
             return result
         model_exist = False
-        vehicle = db.vehicle_collection.find_one({'user_id': user_id, '_id': company_id})
+        vehicle = db.vehicle_companies_collection.find_one({'user_id': user_id, '_id': company_id})
         if 'models' in vehicle:
             for model in vehicle['models']:
                 if model['name'] == model_name:
                     model_exist = True
         if not model_exist:
-            add_vehicle_model = db.vehicle_collection.update_one(
+            add_vehicle_model = db.vehicle_companies_collection.update_one(
                 {
                     'user_id': user_id,
                     '_id': company_id
@@ -884,7 +884,7 @@ class vehicle:
     # get vehicle model list
     def get_vehicle_model_list(self, company_name):
         result = []
-        vehicle = db.vehicle_collection.find_one({'company_name': company_name})
+        vehicle = db.vehicle_companies_collection.find_one({'company_name': company_name})
         if 'models' in vehicle:
             for model in vehicle['models']:
                 result.append(model)
@@ -896,7 +896,7 @@ class vehicle:
             'result': False,
             'msg': 'Something went wrong'
         }
-        delete_model = db.vehicle_collection.update_one({'_id': company_id}, {
+        delete_model = db.vehicle_companies_collection.update_one({'_id': company_id}, {
             '$pull': {
                 'models': {'name': model_name}
             }})
@@ -912,7 +912,7 @@ class vehicle:
             'result': False,
             'msg': 'Something went wrong'
         }
-        delete_company = db.vehicle_collection.delete_one({'_id': company_id})
+        delete_company = db.vehicle_companies_collection.delete_one({'_id': company_id})
         if delete_company.acknowledged:
             result['result'] = True
             result['msg'] = 'Successfully deleted company.'
