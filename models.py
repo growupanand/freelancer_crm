@@ -500,6 +500,9 @@ class Vehicle:
             if vehicle[field] == '':
                 is_valid = False
                 invalid_fields[field] = 'Cannot be empty!'
+        if vehicle['vehicle_company'] == 'none':
+            is_valid = False
+            invalid_fields['vehicle_company'] = 'Cannot be empty!'
         # validate registration number
         if 'registration_number' not in invalid_fields:
             if not re.match("[a-z]{2}[0-9]{1,2}[a-z]{1,3}[0-9]{4}", vehicle['registration_number']):
@@ -692,7 +695,10 @@ class Policy:
         # check required fields
         if policy['expiry_date'] == '':
             is_valid = False
-            invalid_fields[field] = 'Cannot be empty!'
+            invalid_fields['expiry_date'] = 'Cannot be empty!'
+        if policy['insurance_company'] == 'none':
+            is_valid = False
+            invalid_fields['insurance_company'] = 'Cannot be empty!'
         if not is_valid:
             return {'result': False, 'msg': 'check fields:\n' + ', '.join(invalid_fields),
                     'invalid_fields': invalid_fields}
