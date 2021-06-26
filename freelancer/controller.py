@@ -1,9 +1,8 @@
-from flask import request, session
-from run import app, login_required
+from flask import request
+from freelancer import app, login_required, models
 from bson import ObjectId
 from bson.json_util import dumps
-import models
-from functions import get_user_id
+from freelancer.functions import get_user_id
 
 
 @app.route('/api/signup', methods=['POST'])

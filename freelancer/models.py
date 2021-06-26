@@ -1,11 +1,8 @@
 from flask import session
-import db
+from freelancer import db
 import bcrypt
 import re
 import datetime
-from bson import ObjectId
-import copy
-
 
 
 class User:
@@ -769,7 +766,7 @@ class Policy:
         delete = db.insurance_policies_collection.delete_one({'_id': self._id, 'user_id': self.user_id})
         if delete.acknowledged:
             # remove policy id from renewal id
-            db.insurance_policies_collection.update_one({'renewal_id':self._id},{
+            db.insurance_policies_collection.update_one({'renewal_id':self._id}, {
                 '$unset': {
                     'renewal_id': ''
                 }
@@ -935,7 +932,7 @@ class Policy:
         if new_policy['result'] is not True:
             return new_policy
         # update new policy id to renewal id
-        db.insurance_policies_collection.update_one({'_id': self._id},{
+        db.insurance_policies_collection.update_one({'_id': self._id}, {
             '$set': {
                 'renewal_id': new_policy['_id']
             }

@@ -1,11 +1,9 @@
 from flask import render_template, session, redirect
-from functools import wraps
-from run import app, login_required
-import models
+from freelancer import app, login_required, models
 from bson import ObjectId
-from bson.json_util import dumps
-from functions import get_user_id
+from freelancer.functions import get_user_id
 from datetime import datetime
+
 
 
 @app.route('/login')
