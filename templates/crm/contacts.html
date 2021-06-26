@@ -18,7 +18,7 @@
     <div class="row">
         <div class="mx-auto col-lg-6">
         <div class="mb-3">
-            <span class="fs-5">All Contacts ({{ contacts|length }})</span>
+            <span class="fs-5 text-muted">All Contacts ({{ contacts|length }})</span>
         </div>
              <div class="list-group">
             {% for contact in contacts %}
@@ -36,7 +36,7 @@
 
 
     <div class="modal fade" id="modal_add_contact">
-        <div class="modal-dialog">
+        <div class="modal-dialog modal-fullscreen-lg-down">
             <div class="modal-content">
                 <div class="modal-header bg-primary text-white">
                     <span class="modal-title fs-5">Add New Contact</span>

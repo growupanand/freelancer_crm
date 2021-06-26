@@ -4,6 +4,8 @@ import bcrypt
 import re
 import datetime
 from bson import ObjectId
+import copy
+
 
 
 class User:
@@ -15,7 +17,8 @@ class User:
         self.contact.user_id = self._id
         self.contact.vehicle = Vehicle()
         self.contact.vehicle.user_id = self._id
-
+        self.contact.vehicle.policy = Policy()
+        self.contact.vehicle.policy.user_id = self._id
 
     # create contact class with contact id in user class
     def Contact(self, _id):
@@ -362,6 +365,15 @@ class Vehicle:
             return {'result': True, '_id': create.inserted_id}
         return {'result': False, 'msg': 'something went wrong'}
 
+    def delete_vehicle_company(self, company_id):
+        # check if user id is set
+        if self.user_id is None:
+            raise Exception('user _id not set!')
+        delete = db.vehicle_companies_collection.delete_one({'_id':company_id, 'user_id': self.user_id})
+        if delete.acknowledged:
+            return {'result':True, 'msg': 'Vehicle Company deleted successfully!'}
+        return {'result': False, 'msg': 'Something went wrong!'}
+
     def get_vehicle_companies(self):
         # check if user id is set
         if self.user_id is None:
@@ -370,6 +382,16 @@ class Vehicle:
         return {
             'result': True,
             'data': company_list
+        }
+
+    def get_vehicle_company_details(self, company_id):
+        # check if user id is set
+        if self.user_id is None:
+            raise Exception('user _id not set!')
+        data = db.vehicle_companies_collection.find_one({"user_id": self.user_id, '_id': company_id})
+        return {
+            'result': True,
+            'data': data
         }
 
     def create_vehicle_model(self, company_name, model_name):
@@ -394,13 +416,27 @@ class Vehicle:
         },
             {
                 '$push': {
-                    'models': model_name
+                    'models': data['model_name']
                 }
             }
         )
+        print(data)
         if create.acknowledged:
             return {'result': True, 'msg': 'model added successfully!'}
         return {'result': False, 'msg': 'something went wrong'}
+
+    def delete_vehicle_company_model(self, company_id, model_name):
+        # check if user id is set
+        if self.user_id is None:
+            raise Exception('user _id not set!')
+        delete = db.vehicle_companies_collection.update_one({'_id':company_id, 'user_id': self.user_id}, {
+            '$pull': {
+                'models': model_name
+            }
+        })
+        if delete.acknowledged:
+            return {'result':True, 'msg': 'Vehicle model deleted successfully!'}
+        return {'result': False, 'msg': 'Something went wrong!'}
 
     def create_vehicle(self, registration_number, registration_name, registration_date, vehicle_company, vehicle_model,
                        vehicle_cc, vehicle_mfg, vehicle_fuel_type):
@@ -532,7 +568,6 @@ class Vehicle:
         # check if vehicle _id is set
         if self._id is None:
             raise Exception('vehicle _id not set')
-        print(self.policy.get_policies())
         # delete this vehicle insurance policies
         for policy in self.policy.get_policies()['data']:
             self.Policy(policy['_id'])
@@ -561,7 +596,7 @@ class Policy:
             raise Exception('vehicle _id not set')
         # check if policy type is set
         if self.policy_type is None:
-                raise Exception('policy type not set!')
+            raise Exception('policy type not set!')
         # get data
         policy = {
             'user_id': self.user_id,
@@ -631,6 +666,15 @@ class Policy:
         if create.acknowledged:
             return {'result': True, 'msg': 'insurance company created successfully!', '_id': create.inserted_id}
         return {'result': False, 'msg': 'something went wrong'}
+
+    def delete_insurance_company(self, company_id):
+        # check if user id is set
+        if self.user_id is None:
+            raise Exception('user _id not set!')
+        delete = db.insurance_companies_collection.delete_one({'_id':company_id, 'user_id': self.user_id})
+        if delete.acknowledged:
+            return {'result': True, 'msg': 'Insurance Company deleted Successfully!'}
+        return {'result':False, 'msg': 'Something went wrong'}
 
     def get_insurance_companies(self):
         # check if user id is set
@@ -722,7 +766,180 @@ class Policy:
         # check if policy type is set
         if self.policy_type is None:
             raise Exception('policy type not set!')
-        delete = db.insurance_policies_collection.delete_one({'_id':self._id, 'user_id': self.user_id})
+        delete = db.insurance_policies_collection.delete_one({'_id': self._id, 'user_id': self.user_id})
         if delete.acknowledged:
-            return {'result':True, 'msg': 'Vehicle policy deleted successfully!'}
-        return {'result':False, 'msg': 'something went wrong'}
+            # remove policy id from renewal id
+            db.insurance_policies_collection.update_one({'renewal_id':self._id},{
+                '$unset': {
+                    'renewal_id': ''
+                }
+            })
+            return {'result': True, 'msg': 'Vehicle policy deleted successfully!'}
+        return {'result': False, 'msg': 'something went wrong'}
+
+    def get_renewals(self, expiry_month, expiry_year):
+        # check if user id is set
+        if self.user_id is None:
+            raise Exception('user _id not set!')
+        policy_list = db.insurance_policies_collection.aggregate([
+            {'$addFields': {'expiry_day': {'$dayOfMonth': '$expiry_date'},
+                            'expiry_month': {'$month': '$expiry_date'},
+                            'expiry_year': {'$year': '$expiry_date'}}},
+            {'$match': {'$and': [
+                {'expiry_month': {'$eq': expiry_month}},
+                {'expiry_year': {'$lte': expiry_year}}
+            ]}},
+            {'$sort': {'expiry_year': -1}},
+            {'$group': {
+                '_id': '$vehicle_id',
+
+                'policy': {'$first': '$$ROOT'},
+                'policy_id': {'$first': '$$ROOT._id'},
+                'expiry_date': {'$first': '$$ROOT.expiry_date'},
+                'vehicle_id': {'$first': '$$ROOT.vehicle_id'}
+            }},
+            {'$sort': {'policy.expiry_day': 1}},
+            {'$lookup': {
+                'from': 'followups',
+                "let": { "policy_id": "$policy_id" },
+                'pipeline': [
+                    {"$match": {"$expr": {"$eq": ["$policy_id", "$$policy_id"]}}},
+                    {'$sort': {'created': -1}},
+                    {'$limit': 1}
+                ],
+                'as': 'followups'
+            }},
+            {'$addFields': {'followups': {
+                "$arrayElemAt": ["$followups", 0]
+            }}},
+            {'$lookup': {
+                'from': 'vehicles',
+                'localField': 'vehicle_id',
+                'foreignField': '_id',
+                'as': 'vehicle'
+            }},
+            {'$addFields': {'vehicle': {
+                "$arrayElemAt": ["$vehicle", 0]
+            }}},
+            {'$lookup': {
+                'from': 'contacts',
+                'localField': 'vehicle.contact_id',
+                'foreignField': '_id',
+                'as': 'contact'
+            }},
+            {'$addFields': {'contact': {
+                "$arrayElemAt": ["$contact", 0]
+            }}}
+        ])
+        data = list(policy_list)
+        # add policy status field
+        for policy in data:
+            policy['status'] = None
+            if 'renewal_id' in policy['policy']:
+                policy['status'] = 'won'
+            else:
+                if 'followups' in policy:
+                    policy['status'] = policy['followups']['policy_status']
+        return {'result': True, 'data': data}
+
+    def get_renewal_details(self):
+        # check if user id is set
+        if self.user_id is None:
+            raise Exception('user _id not set!')
+        # check if policy _id is set
+        if self._id is None:
+            raise Exception('policy _id not set')
+        # check if policy type is set
+        if self.policy_type is None:
+            raise Exception('policy type not set!')
+        if self.policy_type == 'motor':
+            # get vehicle policy data from database
+            policy = db.insurance_policies_collection.find_one({'_id': self._id, 'user_id': self.user_id})
+            if policy is None:
+                return {'result': False, 'msg': 'vehicle policy not found'}
+            self.data = {}
+            self.data['policy'] = policy
+            self.data['followups'] = db.followups_collection.find({'policy_id':policy['_id']}).sort('created', -1)
+            self.user = User(self.user_id)
+            # get vehicle details
+            self.user.contact.Vehicle(policy['vehicle_id'])
+            vehicle = self.user.contact.vehicle.get_vehicle_details()['data']
+            self.data['vehicle'] = vehicle
+            # get contact details
+            self.user.Contact(vehicle['contact_id'])
+            contact = self.user.contact.get_contact_details()['data']
+            self.data['contact'] = contact
+            return {'result': True, 'data': self.data}
+        return {'result': False, 'msg': 'something went wrong'}
+
+    def post_followup(self, remark):
+        # check if user id is set
+        if self.user_id is None:
+            raise Exception('user _id not set!')
+        # check if policy _id is set
+        if self._id is None:
+            raise Exception('policy _id not set')
+        # check if policy type is set
+        if self.policy_type is None:
+            raise Exception('policy type not set!')
+        # validate data
+        remark = str(remark).strip()
+        if remark == '':
+            return {
+                'result': False,
+                'msg': 'check fields!',
+                'invalid_fields': {'remark': 'remark cannot be empty'}
+            }
+        followup = {
+            'created': datetime.datetime.utcnow(),
+            'user_id': self.user_id,
+            'policy_id': self._id,
+            'remark': remark,
+            'policy_status': 'followup'
+        }
+        create = db.followups_collection.insert_one(followup)
+        if create.acknowledged:
+            return {'result': True, '_id': create.inserted_id}
+        return {'result': False, 'msg': 'Something went wrong!'}
+
+    def renew_policy(self, expiry_date=None, own_business=None, policy_number=None, cover_type=None,
+                      addon_covers=None, insurance_company=None, idv=None, ncb=None,
+                      premium=None, payout=None, discount=None):
+        # check if user id is set
+        if self.user_id is None:
+            raise Exception('user _id not set!')
+        # check if policy _id is set
+        if self._id is None:
+            raise Exception('policy _id not set')
+        # check if policy type is set
+        if self.policy_type is None:
+            raise Exception('policy type not set!')
+        # set vehicle id
+        self.get_policy_details()
+        self.vehicle_id = self.data['vehicle_id']
+        # validate data
+        # check if new expiry date is equal or older then current expiry date
+        if int(expiry_date[:4]) <= self.data['expiry_date'].year:
+            return {
+                'result':False,
+                'msg': 'Expiry Year should be greater than current year.',
+                'invalid_fields': {'expiry_date': 'Expiry Year should be greater than current year.'}
+            }
+        # add new policy
+        new_policy = self.create_policy(expiry_date=expiry_date, own_business=own_business,
+                                                       policy_number=policy_number, cover_type=cover_type,
+                                                       addon_covers=addon_covers,
+                                                       insurance_company=insurance_company, idv=idv, ncb=ncb,
+                                                       premium=premium,
+                                                       payout=payout, discount=discount)
+        if new_policy['result'] is not True:
+            return new_policy
+        # update new policy id to renewal id
+        db.insurance_policies_collection.update_one({'_id': self._id},{
+            '$set': {
+                'renewal_id': new_policy['_id']
+            }
+        })
+        # add policy done remark
+        self.post_followup('Policy Renewed!')
+        return {'result': True, '_id': new_policy['_id']}

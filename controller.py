@@ -205,10 +205,11 @@ def api_add_vehicle_policy():
         insurance_company = other_insurance_company
         user.contact.vehicle.policy.create_insurance_company(insurance_company)
     result = user.contact.vehicle.policy.create_policy(expiry_date=expiry_date, own_business=own_business,
-                                               policy_number=policy_number, cover_type=cover_type,
-                                               addon_covers=addon_covers,
-                                               insurance_company=insurance_company, idv=idv, ncb=ncb, premium=premium,
-                                               payout=payout, discount=discount)
+                                                       policy_number=policy_number, cover_type=cover_type,
+                                                       addon_covers=addon_covers,
+                                                       insurance_company=insurance_company, idv=idv, ncb=ncb,
+                                                       premium=premium,
+                                                       payout=payout, discount=discount)
     return dumps(result)
 
 
@@ -247,10 +248,11 @@ def api_update_vehicle_policy_details():
         insurance_company = other_insurance_company
         user.contact.vehicle.policy.create_insurance_company(insurance_company)
     result = user.contact.vehicle.policy.update_policy(expiry_date=expiry_date, own_business=own_business,
-                                               policy_number=policy_number, cover_type=cover_type,
-                                               addon_covers=addon_covers,
-                                               insurance_company=insurance_company, idv=idv, ncb=ncb, premium=premium,
-                                               payout=payout, discount=discount)
+                                                       policy_number=policy_number, cover_type=cover_type,
+                                                       addon_covers=addon_covers,
+                                                       insurance_company=insurance_company, idv=idv, ncb=ncb,
+                                                       premium=premium,
+                                                       payout=payout, discount=discount)
     return dumps(result)
 
 
@@ -262,4 +264,141 @@ def api_delete_vehicle_policy():
     user = models.User(get_user_id())
     user.contact.vehicle.Policy(policy_id)
     result = user.contact.vehicle.policy.delete_policy()
+    return dumps(result)
+
+
+@app.route('/api/get_renewals', methods=['POST'])
+def api_get_renewals():
+    data = request.json
+    month = data['month']
+    year = data['year']
+    user = models.User(get_user_id())
+    renewals = user.contact.vehicle.policy.get_renewals(month, year)
+    return dumps(renewals)
+
+
+@app.route('/api/get_renewal_details', methods=['POST'])
+@login_required
+def api_get_renewal_details():
+    data = request.json
+    policy_id = ObjectId(data['policy_id'])
+    user = models.User(get_user_id())
+    user.contact.vehicle.Policy(policy_id)
+    result = user.contact.vehicle.policy.get_renewal_details()
+    return dumps(result)
+
+
+@app.route('/api/post_policy_followup', methods=['POST'])
+@login_required
+def api_post_policy_followup():
+    data = request.json
+    policy_id = ObjectId(data['policy_id'])
+    remark = data['remark']
+    user = models.User(get_user_id())
+    user.contact.vehicle.Policy(policy_id)
+    result = user.contact.vehicle.policy.post_followup(remark)
+    return dumps(result)
+
+
+@app.route('/api/add_renewal_policy', methods=['POST'])
+@login_required
+def api_add_renewal_policy():
+    data = request.json
+    policy_id = ObjectId(data['policy_id'])
+    own_business = data['own_business']
+    expiry_date = data['expiry_date']
+    policy_number = data['policy_number']
+    cover_type = data['cover_type']
+    addon_covers = data['addon_covers']
+    insurance_company = data['insurance_company']
+    other_insurance_company = data['other_insurance_company']
+    idv = data['idv']
+    ncb = data['ncb']
+    premium = data['premium']
+    payout = data['payout']
+    discount = data['discount']
+    user = models.User(get_user_id())
+    user.contact.vehicle.Policy(policy_id)
+    # check if insurance company is new company
+    if insurance_company == 'other_insurance_company':
+        insurance_company = other_insurance_company
+        user.contact.vehicle.policy.create_insurance_company(insurance_company)
+    result = user.contact.vehicle.policy.renew_policy(expiry_date=expiry_date, own_business=own_business,
+                                                       policy_number=policy_number, cover_type=cover_type,
+                                                       addon_covers=addon_covers,
+                                                       insurance_company=insurance_company, idv=idv, ncb=ncb,
+                                                       premium=premium,
+                                                       payout=payout, discount=discount)
+    return dumps(result)
+
+
+@app.route('/api/add_insurance_company', methods=['POST'])
+@login_required
+def api_add_insurance_company():
+    data = request.json
+    company_name = data['company_name']
+    user = models.User(get_user_id())
+    result = user.contact.vehicle.policy.create_insurance_company(company_name)
+    return dumps(result)
+
+
+@app.route('/api/delete_insurance_company', methods=['POST'])
+@login_required
+def api_delete_insurance_company():
+    data = request.json
+    company_id = ObjectId(data['company_id'])
+    user = models.User(get_user_id())
+    result = user.contact.vehicle.policy.delete_insurance_company(company_id)
+    return dumps(result)
+
+
+@app.route('/api/add_vehicle_company', methods=['POST'])
+@login_required
+def api_add_vehicle_company():
+    data = request.json
+    company_name = data['company_name']
+    user = models.User(get_user_id())
+    result = user.contact.vehicle.create_vehicle_company(company_name)
+    return dumps(result)
+
+
+@app.route('/api/get_vehicle_company_details', methods=['POST'])
+@login_required
+def api_get_vehicle_company_details():
+    data = request.json
+    company_id = ObjectId(data['company_id'])
+    user = models.User(get_user_id())
+    result = user.contact.vehicle.get_vehicle_company_details(company_id)
+    return dumps(result)
+
+
+@app.route('/api/add_vehicle_company_model', methods=['POST'])
+@login_required
+def api_add_vehicle_company_model():
+    data = request.json
+    company_name = data['company_name']
+    model_name = data['model_name']
+    user = models.User(get_user_id())
+    result = user.contact.vehicle.create_vehicle_model(company_name, model_name)
+    return dumps(result)
+
+
+@app.route('/api/delete_vehicle_company_model', methods=['POST'])
+@login_required
+def api_delete_vehicle_company_model():
+    data = request.json
+    company_id = ObjectId(data['company_id'])
+    model_name = data['model_name']
+    user = models.User(get_user_id())
+    result = user.contact.vehicle.delete_vehicle_company_model(company_id, model_name)
+    return dumps(result)
+
+
+@app.route('/api/delete_vehicle_company', methods=['POST'])
+@login_required
+def api_delete_vehicle_company():
+    data = request.json
+    company_id = ObjectId(data['company_id'])
+    user = models.User(get_user_id())
+    result = user.contact.vehicle.delete_vehicle_company(company_id)
     return dumps(result)

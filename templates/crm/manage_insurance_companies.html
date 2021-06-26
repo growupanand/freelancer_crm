@@ -1,0 +1,149 @@
+{% extends 'crm/base.html' %}
+{% block body %}
+    <div class="bg-white border-bottom mb-3 py-3">
+        <div class="container">
+            <div class="d-lg-grid d-lg-flex justify-content-lg-between align-items-lg-center">
+                <h1 class="text-capitalize ">Insurance Companies</h1>
+                <button class="btn btn-primary px-md-3 fw-bold" type="button" data-bs-toggle="modal"
+                        data-bs-target="#modal_add_insurance_company">
+                    ADD COMPANY
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-6 mx-auto">
+                <div class="mb-3">
+                    <span class="fs-5 text-muted">All Companies
+                        (<span id="company_count">{{ company_list|length }}</span>)</span>
+                </div>
+                <div id="company_list" class="list-group">
+                    {% for company in company_list %}
+                        <div class="list-group-item d-flex justify-content-between align-items-center">
+                            <span class="align-self-center text-capitalize">{{ company['company_name'] }}</span>
+                            <button data-id="{{ company['_id'] }}" class="align-self-center btn text-danger fw-bold"
+                                    onclick="delete_company(this)">
+                                Remove
+                            </button>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <div class="modal fade" id="modal_add_insurance_company">
+        <div class="modal-dialog modal-fullscreen-lg-down">
+            <div class="modal-content">
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title" id="exampleModalLabel">Add New Insurance Company</h5>
+                    <button type="button" class="btn btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="add_insurance_company" name="add_insurance_company"
+                          onsubmit="submit_form_add_insurance_company(this)">
+                        <label class="form-label text-muted">Company Name <span class="text-danger">*</span> </label>
+                        <div class="mb-3">
+                            <input placeholder="Company Name" name="company_name" type="text"
+                                   class="form-control" required/>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer justify-content-end">
+                    <button class="btn btn-light text-primary fw-bold" type="button" data-bs-dismiss="modal">CANCEL
+                    </button>
+                    <button type="submit" form="add_insurance_company" class="px-5 fw-bold btn btn-primary">SAVE
+                    </button>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <script>
+        company_list_el = document.getElementById('company_list')
+
+        function submit_form_add_insurance_company(form) {
+            event.preventDefault()
+            // disable inputs
+            disable_form(form)
+            //get data
+            data = {
+                'company_name': form.company_name.value.trim()
+            }
+            //validate data
+            is_valid = true
+            invalid_fields = {}
+            required_fields = ['company_name']
+            for (i in required_fields) {
+                field = required_fields[i]
+                if (data[field] === '') {
+                    is_valid = false;
+                    invalid_fields[field] = 'Cannot be empty!';
+                }
+            }
+            validate_form(form, invalid_fields)
+            if (is_valid) {
+                unvalidate_form(form)
+                request.open('POST', '/api/add_insurance_company')
+                request.setRequestHeader('Content-Type', 'application/json')
+                request.responseType = 'json'
+                request.onload = function () {
+                    if (this.status >= 200 && this.status <= 400) {
+                        if (this.response.result === true) {
+                            var list_item_el = document.createElement('div')
+                            list_item_el.className = 'list-group-item d-flex justify-content-between align-items-center'
+                            list_item_el.innerHTML = "<span class='text-capitalize'>" + data['company_name'] + "</span>" +
+                                '<button data-id="' + this.response['_id']['$oid'] + '" class="btn text-danger fw-bold" onclick="delete_company(this)">Remove</button>'
+                            company_list_el.insertBefore(list_item_el, company_list_el.firstChild)
+                            show_alert('Company added successfully.', 'success')
+                            form.reset()
+                            count = Number(document.getElementById("company_count").innerText)
+                            document.getElementById("company_count").innerText = count + 1
+                            modal_add_insurance_company = bootstrap.Modal.getInstance(document.getElementById('modal_add_insurance_company'))
+                            modal_add_insurance_company.hide()
+                        } else {
+                            validate_form(form, this.response.invalid_fields)
+                            console.log(this.response.msg)
+                            show_alert(this.response.msg, 'warning')
+                        }
+                    } else {
+                        show_alert('Server error!', 'error')
+                    }
+                    enable_form(form)
+                }
+                request.send(JSON.stringify(data))
+            } else {
+                enable_form(form)
+            }
+        }
+
+        function delete_company(e) {
+            if (confirm('Do you want to delete this company ?')) {
+                data = {'company_id': e.getAttribute("data-id")}
+                request.open('POST', '/api/delete_insurance_company')
+                request.setRequestHeader('Content-Type', 'application/json')
+                request.responseType = 'json'
+                request.onload = function () {
+                    if (this.status >= 200 && this.status <= 400) {
+                        if (this.response.result === true) {
+                            show_alert(this.response.msg, 'success')
+                            count = Number(document.getElementById("company_count").innerText)
+                            document.getElementById("company_count").innerText = count - 1
+                            e.parentElement.remove()
+                        } else {
+                            console.log(this.response.msg)
+                            show_alert(this.response.msg, 'warning')
+                        }
+                    } else {
+                        show_alert('Server error!', 'error')
+                    }
+                }
+                request.send(JSON.stringify(data))
+            }
+        }
+    </script>
+{% endblock %}

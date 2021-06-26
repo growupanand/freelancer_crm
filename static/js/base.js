@@ -1,3 +1,5 @@
+month_name = ["None", "January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"]
+
 loading_spinner = '<div class="spinner-border spinner-border-sm mx-auto" role="status">' +
     '<span class="visually-hidden">Loading...</span>' +
     '</div>'
@@ -71,7 +73,7 @@ function unvalidate_form(form) {
 var default_submit_btn_text = ''
 
 function disable_form(form) {
-    all_inputs = form.querySelectorAll('input, select')
+    all_inputs = form.querySelectorAll('input, select', 'textarea')
     for (i = 0; i < all_inputs.length; i++) {
         all_inputs[i].readOnly = true
     }
@@ -93,8 +95,7 @@ function disable_form(form) {
 }
 
 function enable_form(form) {
-
-    all_inputs = form.querySelectorAll('input, select')
+    all_inputs = form.querySelectorAll('input, select', 'textarea')
     for (i = 0; i < all_inputs.length; i++) {
         all_inputs[i].readOnly = false
     }
@@ -109,6 +110,19 @@ function enable_form(form) {
             all_submits[i].innerHTML = default_submit_btn_text
             all_submits[i].disabled = false
         }
+    }
+}
+
+function disable_form_elements(form) {
+    var elements = form.elements;
+    for (var i = 0, len = elements.length; i < len; ++i) {
+        elements[i].disabled = true;
+    }
+}
+function enable_form_elements(form) {
+    var elements = form.elements;
+    for (var i = 0, len = elements.length; i < len; ++i) {
+        elements[i].disabled = false;
     }
 }
 

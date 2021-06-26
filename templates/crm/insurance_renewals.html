@@ -1,0 +1,621 @@
+{% extends 'crm/base.html' %}
+{% set status_class = {None: '' ,'won': 'success', 'lost': 'danger', 'followup': 'warning'} %}
+{% block body %}
+    <div class="bg-white border-bottom mb-3 py-3">
+        <div class="container">
+            <div class="d-lg-grid d-lg-flex justify-content-lg-between align-items-lg-center">
+                <h1 class="text-capitalize ">Insurance Renewals</h1>
+            </div>
+        </div>
+    </div>
+
+    <div class="container" id="renewal_list_container">
+        <div class="row">
+            <div class="col-lg-3 mx-auto mb-3">
+                <div style="max-height: 450px;" class="card">
+                    <div class="card-header bg-transparent">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <button id="btn_load_prev_month" class="btn" type="button"
+                                    onclick="load_prev_month()"><span
+                                    class="bi bi-chevron-left"></span></button>
+                            <div class="fs-6 fw-bold">
+                                <span id="current_period_label">{{ today.strftime('%B %Y') }}</span>
+                            </div>
+                            <button id="btn_load_next_month" class="btn" type="button"
+                                    onclick="load_next_month()"><span
+                                    class="bi bi-chevron-right"></span></button>
+
+                        </div>
+                    </div>
+                    <div style="overflow: auto" class="list-group list-group-flush" id="renewals_list">
+                        {% for policy in policy_list %}
+                            <button data-policy-id="{{ policy['policy_id'] }}" onclick="view_renewal('{{ policy['policy_id'] }}')"
+                                    class="list-group-item list-group-item-action {{ 'list-group-item-'+status_class[policy['status']] if 'status' in policy }} ">
+                                <div class="d-flex justify-content-between align-items-center text-capitalize">
+                                    <span>{{ policy['contact']['full_name'] }}</span>
+                                    <span class="fw-bold fs-6">{{ policy['policy']['expiry_date'].strftime('%d') }}</span>
+                                </div>
+                            </button>
+                        {% endfor %}
+                    </div>
+                </div>
+
+            </div>
+            <div class="col-lg-9 mb-3">
+                <div class="card bg-transparent border-0" id="no_renewal_container">
+                    <div class="card-body">
+                        <p class="text-center text-secondary">No Renewal Selected</p>
+                    </div>
+                </div>
+                <div class="card fadeout_hide " id="view_renewal_container">
+                    <div class="card-body bg-white">
+                        <div class="d-flex justify-content-between mb-5">
+                            <h2 class="text-capitalize" data-field="full_name">Customer Name</h2>
+                            <div class="d-flex flex-column">
+                                <button id="btn_policy_status" class="btn btn-primary px-5 fw-bold" type="button"
+                                        data-bs-target="#modal_add_renewal_policy" data-bs-toggle="modal">DONE
+                                </button>
+                                <button id="btn_view_renewed_policy" class="fw-bold btn btn-light text-primary"
+                                        type="button">View Renewed Policy
+                                </button>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-lg-7 mb-3">
+                                <div class="mb-3">
+                                    <span class="fs-5">Contact Details</span>
+                                </div>
+                                <table class="mb-5 text-uppercase table table-borderless table-striped table-sm">
+                                    <tbody>
+                                    <tr>
+                                        <td class="text-muted">Mobile Numbers</td>
+                                        <td data-field="mobile_numbers"></td>
+                                    </tr>
+                                    </tbody>
+                                </table>
+                                <div class="d-flex justify-content-between align-items-center mb-3">
+                                    <span class="fs-5">Policy Details</span>
+                                </div>
+                                <table class="mb-5 text-uppercase table table-borderless table-striped table-sm align-middle">
+                                    <tbody>
+                                    <tr>
+                                        <td class="text-muted">Business Type</td>
+                                        <td data-field="own_business"></td>
+                                    </tr>
+                                    <tr>
+                                        <td class="text-muted">Expiry Date</td>
+                                        <td data-field="expiry_date"></td>
+                                    </tr>
+                                    <tr>
+                                        <td class="text-muted">Policy Number</td>
+                                        <td data-field="policy_number"></td>
+                                    </tr>
+                                    <tr>
+                                        <td class="text-muted">Cover Type</td>
+                                        <td data-field="cover_type"></td>
+                                    </tr>
+                                    <tr>
+                                        <td class="text-muted">Addon Covers</td>
+                                        <td data-field="addon_covers"></td>
+                                    </tr>
+                                    <tr>
+                                        <td class="text-muted">Insurance Company</td>
+                                        <td data-field="insurance_company"></td>
+                                    </tr>
+                                    <tr>
+                                        <td class="text-muted">Insured Declare Value (Rs.)</td>
+                                        <td data-field="idv"></td>
+                                    </tr>
+                                    <tr>
+                                        <td class="text-muted">No Claim Bonus (%)</td>
+                                        <td data-field="ncb"></td>
+                                    </tr>
+                                    <tr>
+                                        <td class="text-muted">Net Premium (Rs.)</td>
+                                        <td data-field="premium"></td>
+                                    </tr>
+                                    <tr>
+                                        <td class="text-muted">Payout (Rs.)</td>
+                                        <td data-field="payout"></td>
+                                    </tr>
+                                    <tr>
+                                        <td class="text-muted">Discount (%)</td>
+                                        <td data-field="discount"></td>
+                                    </tr>
+                                    </tbody>
+                                </table>
+                                <div class="d-flex justify-content-between align-items-center mb-3">
+                                    <span class="fs-5">Vehicle Details</span>
+                                </div>
+                                <table class="text-uppercase table table-borderless table-striped table-sm align-middle">
+                                    <tr>
+                                        <td class="text-muted text-nowrap">Number</td>
+                                        <td data-field="registration_number">registration_number}</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="text-muted text-nowrap">Name</td>
+                                        <td data-field="registration_name">registration_name</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="text-muted text-nowrap">Make - Model</td>
+                                        <td>
+                                            <span data-field="vehicle_company">vehicle_company}</span>
+                                            -
+                                            <span data-field="vehicle_model">vehicle_model</span>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td class="text-muted text-nowrap">Reg Date</td>
+                                        <td data-field="registration_date">
+                                            registration_date
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td class="text-muted text-nowrap">MFG Year</td>
+                                        <td data-field="vehicle_mfg">vehicle_mfg</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="text-muted text-nowrap">CC</td>
+                                        <td data-field="vehicle_cc">vehicle_cc</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="text-muted text-nowrap">Fuel Type</td>
+                                        <td data-field="vehicle_fuel_type">vehicle_fuel_type</td>
+                                    </tr>
+                                </table>
+                            </div>
+                            <div class="col-lg-5 mb-3">
+                                <div class="mb-3">
+                                    <form name="form_followup" onsubmit="submit_form_followup(this)">
+                                        <div class="mb-3">
+                                            <textarea placeholder="Remark" rows="4"
+                                                      class="form-control"
+                                                      id="remark"
+                                                      name="remark"></textarea>
+                                        </div>
+                                        <div class="d-grid mb-3">
+                                            <button type="submit" name="submit"
+                                                    class="btn btn-secondary fw-bold position-relative">
+                                                Follow Up
+                                            </button>
+                                        </div>
+                                    </form>
+                                </div>
+                                <div class="text-muted small mb-2">
+                                    All Followups
+                                    (<span class="" id="followups_count">0</span>)
+                                </div>
+                                <div class="card border-0 ">
+                                    <div class="list-group list-group-flush" id="followups">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="modal_add_renewal_policy">
+        <div class="modal-dialog modal-fullscreen-lg-down">
+            <div class="modal-content">
+                <div class="modal-header bg-primary text-white fw-bold">
+                    <span class="modal-title fs-5">Add Renewal Policy</span>
+                    <button type="button" class="btn btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="form_add_renewal_policy" name="form_add_renewal_policy"
+                          onsubmit="submit_form_add_renewal_policy(this)">
+                    <input type="hidden" name="own_business" value="on" />
+                        <div class="mb-3">
+                            <label class="form-label text-muted">Businsess Type</label>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="own_business" checked disabled/>
+                                <label class="form-label" for="own_business">Own Business</label>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label text-muted" for="expiry_date">
+                                Expiry Date <span class="text-danger">*</span>
+                            </label>
+                            <input class="form-control" type="date" name="expiry_date"
+                                   id="expiry_date"
+                                   placeholder="dd-mm-yyy"/>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label text-muted" for="policy_number">
+                                Policy Number
+                            </label>
+                            <input class="form-control" type="text" name="policy_number"
+                                   id="policy_number"
+                                   placeholder="Insurance Policy Number"/>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label text-muted" for="cover_type">Cover Type</label>
+                            <select class="form-select text-capitalize" name="cover_type" id="cover_type">
+                                <option value="">Select Type</option>
+                                <option value="package">package (od+tp)</option>
+                                <option value="third party only">third party only (tp)</option>
+                                <option value="own damage only">own damage only (od)</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label text-muted">Addon Covers</label>
+                            <div>
+                                <input class="btn-check" type="checkbox" name="addon_covers[]"
+                                       id="addon_covers_0_dap" value="0 dap"/>
+                                <label class="btn btn-sm btn-outline-primary" for="addon_covers_0_dap">0
+                                    Dap</label>
+                                <input class="btn-check" type="checkbox" name="addon_covers[]"
+                                       id="addon_covers_rsa" value="rsa"/>
+                                <label class="btn btn-sm btn-outline-primary" for="addon_covers_rsa">Road Side
+                                    Assistent</label>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label text-muted" for="insurance_company">Insurance
+                                Company</label>
+                            <select onchange="check_insurance_company(this)"
+                                    class="form-select text-capitalize"
+                                    name="insurance_company"
+                                    id="insurance_company">
+                                <option value="">Select Company</option>
+                                <option value="other_insurance_company">New Company</option>
+                                {% for company in insurance_companies %}
+                                    <option
+                                            value="{{ company['company_name'] }}">{{ company['company_name'] }}</option>
+                                {% endfor %}
+                            </select>
+                            <input class="form-control mt-3 d-none" type="text"
+                                   name="other_insurance_company"
+                                   id="other_insurance_company" placeholder="New Company Name" readonly/>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label text-muted" for="idv">Insured Declare Value</label>
+                            <input placeholder="Vehicle Value (IDV) Rs. in policy" class="form-control" type="number"
+                                   name="idv" id="idv"/>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label text-muted" for="ncb">No Claim Bonus</label>
+                            <input placeholder="NCB% in policy" class="form-control" type="number" name="ncb" id="ncb"/>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label text-muted" for="premium">Premium</label>
+                            <input placeholder="Net premium Rs." class="form-control" type="text" name="premium"
+                                   id="premium"/>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label text-muted" for="payout">Payout</label>
+                            <input placeholder="Commission Rs." class="form-control" type="number" name="payout"
+                                   id="payout"/>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label text-muted" for="discount">Discount</label>
+                            <input placeholder="Discount %" class="form-control" type="number" name="discount"
+                                   id="discount"/>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer justify-content-end">
+                    <button class="btn btn-light text-primary fw-bold" type="button" data-bs-dismiss="modal">CANCEL
+                    </button>
+                    <button class="btn btn-primary px-5 fw-bold" form="form_add_renewal_policy" type="submit">SAVE
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        current_period = {'month': {{ today.strftime('%m') }}, 'year': {{ today.strftime('%Y') }}}
+        current_period_el = document.getElementById('current_period_label')
+        renewals_list_el = document.getElementById('renewals_list')
+        renewals_count_el = document.getElementById('renewals_count')
+        renewal_list_container_el = document.getElementById('renewal_list_container')
+        view_renewal_container_el = document.getElementById('view_renewal_container')
+        followups_list_el = view_renewal_container_el.querySelector('#followups')
+        current_policy_id = ''
+        followup_count_el = document.getElementById('followups_count')
+        btn_policy_status_el = document.getElementById('btn_policy_status')
+        btn_view_renewed_policy_el = document.getElementById('btn_view_renewed_policy')
+
+
+        function renewal_list_item_el(policy_id, expiry_day, full_name, status = null) {
+            if (expiry_day.toString().length < 2) {
+                expiry_day = "0" + expiry_day
+            }
+            var el = document.createElement('button')
+            list_item_class = 'list-group-item list-group-item-action '
+            if (status === 'won') {
+                list_item_class += 'list-group-item-success'
+            }
+            if (status === 'lost') {
+                list_item_class += 'list-group-item-danger'
+            }
+            if (status === 'followup') {
+                list_item_class += 'list-group-item-warning'
+            }
+            el.className = list_item_class
+            el.setAttribute('data-policy-id', policy_id)
+            el.setAttribute('onclick', 'view_renewal(\'' + policy_id + '\')')
+            el.innerHTML = '<div class="d-flex justify-content-between align-items-center text-capitalize"><div class="">' +
+                '<span class=""> ' + full_name + '</span></div>' +
+                '<span class="fw-bold fs-6">' + expiry_day + '</span>' +
+                '</div>'
+            return el
+        }
+
+        function load_prev_month() {
+            var selected_period = {'month': current_period['month'], 'year': current_period['year']}
+            if (selected_period['month'] === 1) {
+                selected_period['month'] = 12
+                selected_period['year']--
+            } else {
+                selected_period['month']--
+            }
+            get_renewals(selected_period['month'], selected_period['year'])
+        }
+
+        function load_next_month() {
+            var selected_period = {'month': current_period['month'], 'year': current_period['year']}
+            if (selected_period['month'] === 12) {
+                selected_period['month'] = 1
+                selected_period['year']++
+            } else {
+                selected_period['month']++
+            }
+            get_renewals(selected_period['month'], selected_period['year'])
+        }
+
+        function get_renewals(month, year) {
+            document.getElementById('btn_load_next_month').disabled = true
+            document.getElementById('btn_load_prev_month').disabled = true
+            var data = {
+                'month': month,
+                'year': year
+            }
+            request.open('POST', '/api/get_renewals')
+            request.setRequestHeader('Content-Type', 'application/json')
+            request.responseType = 'json'
+            request.onload = function () {
+                if (this.status >= 200 && this.status <= 400) {
+                    if (this.response.result === true) {
+                        current_period['month'] = month
+                        current_period['year'] = year
+                        current_period_el.innerText = month_name[current_period['month']] + ' ' + current_period['year']
+                        renewals_list_el.innerHTML = ''
+                        for (i in this.response.data) {
+                            renewal = this.response.data[i]
+                            var list_item_el =  renewal_list_item_el(
+                                renewal['policy_id']['$oid'], renewal['policy']['expiry_day'], renewal['contact']['full_name'],
+                                renewal['status']
+                            )
+                            if (renewal['policy_id']['$oid'] === current_policy_id) {
+                                list_item_el.classList.add('active')
+                            }
+                            renewals_list_el.appendChild(list_item_el)
+                        }
+                    } else {
+                        show_alert(this.response.msg, 'warning')
+                    }
+                } else {
+                    show_alert('server error', 'error')
+                }
+                document.getElementById('btn_load_next_month').disabled = false
+                document.getElementById('btn_load_prev_month').disabled = false
+            }
+            request.send(JSON.stringify(data))
+        }
+
+        function view_renewal(policy_id) {
+            fadeout('view_renewal_container')
+            data = {
+                'policy_id': policy_id
+            }
+            request.open('POST', '/api/get_renewal_details')
+            request.setRequestHeader('Content-Type', 'application/json')
+            request.responseType = 'json'
+            request.onload = function () {
+                if (this.status >= 200 && this.status <= 400) {
+                    if (this.response.result === true) {
+                        current_policy_id = policy_id
+                        all_list_item = document.querySelectorAll('#renewals_list .list-group-item-action')
+                        for (i = 0; i < all_list_item.length; i++) {
+                            all_list_item[i].classList.remove('active')
+                            if (all_list_item[i].getAttribute('data-policy-id') === current_policy_id) {
+                                all_list_item[i].classList.add('active')
+                            }
+                        }
+                        document.getElementById('no_renewal_container').classList.add('d-none')
+                        view_renewal_container_el.classList.remove('d-none')
+                        var contact = this.response.data.contact
+                        view_renewal_container_el.querySelector('[data-field="full_name"]').innerText = contact['full_name']
+                        view_renewal_container_el.querySelector('[data-field="mobile_numbers"]').innerText = contact['mobile_numbers'].join(', ')
+                        var policy = this.response.data.policy
+                        var fields = ['expiry_date', 'policy_number', 'cover_type', 'addon_covers', 'insurance_company', 'idv', 'ncb', 'premium', 'payout', 'discount']
+                        // set vehicle policy data to policy table
+                        policy['expiry_date'] = format_mongo_date(policy['expiry_date'])
+                        policy['expiry_date'] = format_input_date(policy['expiry_date'])
+                        for (i in fields) {
+                            field = fields[i]
+                            view_renewal_container_el.querySelector('[data-field="' + field + '"]').innerText = policy[field]
+                        }
+                        own_business_el = view_renewal_container_el.querySelector('[data-field="own_business"]')
+                        own_business_el.innerText = (policy['own_business'] === "on") ? 'Own Business' : 'Not Own Business'
+                        own_business_el.className = (policy['own_business'] === "on") ? 'text-success' : 'text-danger'
+                        var vehicle = this.response.data.vehicle
+                        var fields = ['registration_number', 'registration_name', 'vehicle_company', 'vehicle_model', 'registration_date', 'vehicle_mfg', 'vehicle_cc', 'vehicle_fuel_type']
+                        // set vehicle data to vehicle table
+                        if (!['', null].includes(vehicle['registration_date'])) {
+                            vehicle['registration_date'] = format_mongo_date(vehicle['registration_date'])
+                            vehicle['registration_date'] = format_input_date(vehicle['registration_date'])
+
+                        }
+                        for (i in fields) {
+                            field = fields[i]
+                            view_renewal_container_el.querySelector('[data-field="' + field + '"]').innerText = vehicle[field]
+                        }
+                        // set followups details
+                        followups = this.response.data.followups
+                        followups_count = 0
+                        followups_list_el.innerHTML = ''
+                        for (i = 0; i < followups.length; i++) {
+                            followups_count++
+                            followup = followups[i]
+                            remark = followup['remark'].replace(/\r\n|\n|\r/gm, '<br/>')
+                            followup_el = document.createElement('div')
+                            followup_el.className = 'list-group-item'
+                            followup_el.innerHTML = '<p><span class="small text-muted">' +
+                                format_input_date(followup['created']['$date']) +
+                                '</span><br/>' + remark + '</p>'
+                            followups_list_el.appendChild(followup_el)
+                        }
+                        document.getElementById('followups_count').innerText = followups_count
+                        if (policy.hasOwnProperty('renewal_id')) {
+                            btn_policy_status_el.disabled = true
+                            btn_policy_status_el.classList.add('d-none')
+                            btn_view_renewed_policy_el.setAttribute('onclick', 'view_renewal("' + policy['renewal_id']['$oid'] + '")')
+                            btn_view_renewed_policy_el.classList.remove('d-none')
+                            document.form_followup.classList.add('d-none')
+                        } else {
+                            btn_policy_status_el.classList.remove('d-none')
+                            btn_policy_status_el.disabled = false
+                            btn_view_renewed_policy_el.classList.add('d-none')
+                            document.form_followup.classList.remove('d-none')
+                        }
+                        fadein('view_renewal_container')
+                    } else {
+                        show_alert(this.response.msg, 'warning')
+                    }
+                } else {
+                    show_alert('server error', 'error')
+                }
+            }
+            request.send(JSON.stringify(data))
+        }
+
+        function submit_form_followup(form) {
+            event.preventDefault()
+            disable_form(form)
+            form_data = new FormData(form)
+            remark = form_data.get('remark').trim()
+            data = {
+                'policy_id': current_policy_id,
+                'remark': remark
+            }
+            request.open('POST', '/api/post_policy_followup')
+            request.setRequestHeader('Content-Type', 'application/json')
+            request.responseType = 'json'
+            request.onload = function () {
+                if (this.status >= 200 && this.status <= 400) {
+                    if (this.response.result === true) {
+                        f_count = followup_count_el.innerText
+                        f_count++
+                        followup_count_el.innerText = f_count
+                        followup_el = document.createElement('div')
+                        followup_el.className = 'list-group-item'
+                        followup_el.innerHTML = '<p>' +
+                            '<span class="small text-muted text-end">Now</span><br/>' + remark + '</p>'
+                        followups_list_el.insertBefore(followup_el, followups_list_el.firstChild)
+                    } else {
+                        show_alert(this.response.msg, 'warning')
+                        validate_form(form, this.response.invalid_fields)
+                    }
+                } else {
+                    show_alert('server error', 'error')
+                }
+                enable_form(form)
+            }
+            request.send(JSON.stringify(data))
+        }
+        
+        function submit_form_add_renewal_policy(form) {
+            event.preventDefault()
+            modal_add_renewal_policy = bootstrap.Modal.getInstance(document.getElementById('modal_add_renewal_policy'))
+            disable_form(form)
+            form_data = new FormData(form)
+            data = {
+                'policy_id': current_policy_id,
+                'own_business': form_data.get('own_business'),
+                'expiry_date': form_data.get('expiry_date'),
+                'policy_number': form_data.get('policy_number').trim(),
+                'cover_type': form_data.get('cover_type'),
+                'addon_covers': form_data.getAll('addon_covers[]'),
+                'insurance_company': form_data.get('insurance_company'),
+                'other_insurance_company': form_data.get('other_insurance_company'),
+                'idv': form_data.get('idv'),
+                'ncb': form_data.get('ncb'),
+                'premium': form_data.get('premium'),
+                'payout': form_data.get('payout'),
+                'discount': form_data.get('discount').trim()
+            }
+            // validate data
+            is_valid = true
+            invalid_fields = {}
+            required_fields = ['expiry_date']
+            for (i in required_fields) {
+                field = required_fields[i]
+                if (data[field] === '') {
+                    is_valid = false
+                    invalid_fields[field] = 'cannot be empty!'
+                }
+            }
+            validate_form(form, invalid_fields)
+            if (is_valid) {
+                request.open('POST', '/api/add_renewal_policy')
+                request.setRequestHeader('Content-Type', 'application/json')
+                request.responseType = 'json'
+                request.onload = function () {
+                    if (this.status >= 200 && this.status <= 400) {
+                        console.log(this.response)
+                        if (this.response.result === true) {
+                            show_alert('Renewal policy added successfully!', 'success')
+                            btn_policy_status_el.disabled = true
+                            btn_policy_status_el.classList.add('d-none')
+                            btn_view_renewed_policy_el.setAttribute('onclick', 'view_renewal("' + this.response['_id']['$oid'] + '")')
+                            btn_view_renewed_policy_el.classList.remove('d-none')
+                            document.form_followup.classList.add('d-none')
+                            modal_add_renewal_policy.hide()
+                            form.reset()
+                            // if new insurance company then add to new company to insurance select company control in form (add and edit)
+                            if (data['insurance_company'] === 'other_insurance_company') {
+                                new_company = document.createElement('option')
+                                new_company.value = data['other_insurance_company']
+                                new_company.innerText = data['other_insurance_company']
+                                document.form_add_renewal_policy.insurance_company.add(new_company)
+                            }
+                            form.other_insurance_company.classList.add('d-none')
+                        } else {
+
+                            validate_form(form, this.response.invalid_fields)
+                            // focus on first invalid field
+                            form[Object.keys(this.response.invalid_fields)[0]].focus()
+                            show_alert(this.response.msg, 'warning')
+                        }
+                    } else {
+                        show_alert('server error', 'error')
+                    }
+                    enable_form(form)
+                }
+                request.send(JSON.stringify(data))
+            } else {
+                // focus on first invalid field
+                form[Object.keys(invalid_fields)[0]].focus()
+                enable_form(form)
+            }
+        }
+
+        function check_insurance_company(e) {
+            other_insurance_company_el = e.form.other_insurance_company
+            if (e.value === 'other_insurance_company') {
+                other_insurance_company_el.readOnly = false
+                other_insurance_company_el.classList.remove('d-none')
+            } else {
+                other_insurance_company_el.readOnly = true
+                other_insurance_company_el.classList.add('d-none')
+            }
+        }
+
+    </script>
+{% endblock %}

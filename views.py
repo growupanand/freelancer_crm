@@ -5,6 +5,7 @@ import models
 from bson import ObjectId
 from bson.json_util import dumps
 from functions import get_user_id
+from datetime import datetime
 
 
 @app.route('/login')
@@ -61,3 +62,28 @@ def view_contact(contact_id):
                                vehicle_companies=vehicle_companies, vehicle_company_list=vehicle_company_list,
                                vehicles=vehicles, insurance_companies=insurance_companies)
     return contact['msg']
+
+
+@app.route('/insurance_renewals')
+@login_required
+def insurance_renewals():
+    user = models.User(get_user_id())
+    today = datetime.utcnow()
+    policy_list = []
+    for policy in user.contact.vehicle.policy.get_renewals(today.month, today.year)['data']:
+        policy_list.append(policy)
+    return render_template('crm/insurance_renewals.html', policy_list=policy_list, today=today)
+
+@app.route('/manage_insurance_companies')
+@login_required
+def manage_insurance_companies_page():
+    user = models.User(get_user_id())
+    company_list = list(user.contact.vehicle.policy.get_insurance_companies()['data'])
+    return render_template('crm/manage_insurance_companies.html', company_list=company_list)
+
+@app.route('/manage_vehicle_companies')
+@login_required
+def manage_vehicle_companies_page():
+    user = models.User(get_user_id())
+    company_list = list(user.contact.vehicle.get_vehicle_companies()['data'])
+    return render_template('crm/manage_vehicle_companies.html', company_list=company_list)
