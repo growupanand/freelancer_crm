@@ -1,9 +1,18 @@
-from flask import Flask, render_template, request, session, redirect, url_for
-from bson import ObjectId
+from flask import Flask, session
+from functools import wraps
+from freelancer import models
 
 app = Flask(__name__)
-app.secret_key = 'this is secret key'
+app.secret_key = 'this is secret'
 
+def login_required(f):
+    @wraps(f)
+    def wrap(*args, **kwargs):
+        if 'logged_in' in session:
+            return f(*args, **kwargs)
+        else:
+            return views.login()
+    return wrap
 
 from . import views
-from . import api_views
+from . import controller

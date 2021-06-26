@@ -1,22 +1,22 @@
-{% set css = ['css/bootstrap.min.css', 'css/bootstrap-icons.css'] %}
-{% set js = ['js/jquery-3.5.1.min.js','js/bootstrap.bundle.min.js','js/jquery-ui.min.js', 'js/custom.js'] %}
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
+  <head>
     <!-- Required meta tags -->
     <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
     <!-- Bootstrap CSS -->
-    {% for item in css %}
-        <link rel="stylesheet" href="{{ url_for('static', filename =item) }}"/>
-    {% endfor %}
-    <title>Freelancer {% block title %}{% endblock %}</title>
-    {% block head %}{% endblock %}
-</head>
-<body data-bs-spy="scroll" data-bs-target="#navbar-example">
-{% block content %}{% endblock %}
-{% for item in js %}
-    <script src="{{ url_for('static', filename=item) }}"></script>
-{% endfor %}
-</body>
+    <link href="{{ url_for('static', filename='css/bootstrap.min.css') }}" rel="stylesheet" >
+    <link href="{{ url_for('static', filename='css/bootstrap-icons.css') }}" rel="stylesheet" >
+    <link href="{{ url_for('static', filename='css/base.css') }}" rel="stylesheet" >
+
+    <title>Freelancer CRM</title>
+  </head>
+  <body class="bg-light">
+  <div class="toast-container position-fixed top-0 end-0 p-3" style="z-index: 7000" id="alert_container"></div>
+    {% block body %}{% endblock %}
+
+    <script src="{{ url_for('static', filename='js/bootstrap.bundle.min.js') }}" ></script>
+    <script src="{{ url_for('static', filename='js/base.js') }}" ></script>
+  </body>
 </html>

@@ -1,0 +1,20 @@
+.edit_control {
+    display: none !important;
+}
+
+.fadein_show {
+    transition: opacity 400ms;
+}
+
+.fadein_hide {
+    opacity: 0;
+}
+
+.fadeout_show {
+    opacity: 1;
+}
+
+.fadeout_hide {
+    opacity: 0;
+    transition: opacity 400ms;
+}

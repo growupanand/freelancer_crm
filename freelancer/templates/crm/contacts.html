@@ -1,0 +1,152 @@
+{% extends 'crm/base.html' %}
+{% block title %}Contacts{% endblock %}
+{% block body %}
+
+    <div class="bg-white sticky-top border-bottom mb-3 py-3">
+        <div class="container">
+            <div class="d-flex justify-content-between align-items-center">
+                <h1 class="text-capitalize ">Contacts</h1>
+                <button class="btn btn-primary px-md-3 fw-bold" type="button" data-bs-toggle="modal"
+                        data-bs-target="#modal_add_contact">
+                    ADD CONTACT
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div class="container-fluid">
+    <div class="row">
+        <div class="mx-auto col-lg-6">
+        <div class="mb-3">
+            <span class="fs-5 text-muted">All Contacts ({{ contacts|length }})</span>
+        </div>
+             <div class="list-group">
+            {% for contact in contacts %}
+                <a class="list-group-item list-group-item-action text-capitalize" href="/contacts/{{ contact['_id'] }}">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <span>{{ contact['full_name'] }}</span>
+                        <span class="text-muted">{{ contact['mobile_numbers']|join(',') }}</span>
+                    </div>
+                </a>
+            {% endfor %}
+        </div>
+        </div>
+    </div>
+    </div>
+
+
+    <div class="modal fade" id="modal_add_contact">
+        <div class="modal-dialog modal-fullscreen-lg-down">
+            <div class="modal-content">
+                <div class="modal-header bg-primary text-white">
+                    <span class="modal-title fs-5">Add New Contact</span>
+                </div>
+                <div class="modal-body">
+                    <form name="form_add_contact" id="form_add_contact" onsubmit="submit_form_add_contact(this)">
+                        <div class="mb-3">
+                            <label class="form-label text-muted" for="source_name">Source</label>
+                            <div class="d-flex justify-content-between">
+                                <div>
+                                    <select style="max-width: 150px"
+                                            class="form-select"
+                                            name="source_type" id="source_type">
+                                        <option value="">Source Type</option>
+                                        <option value="cold call">Cold Call</option>
+                                        <option value="reference">Reference</option>
+                                        <option value="walk in">Walk In</option>
+                                    </select>
+                                </div>
+                                <div class="ms-2 flex-grow-1">
+                                    <input placeholder="Source Name" type="text" name="source_name" id="source_name"
+                                           class="form-control" required/>
+                                </div>
+
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="full_name" class="form-label text-muted">Full Name <span
+                                    class="text-danger">*</span>
+                            </label>
+                            <input type="text" placeholder="First Name Last Name" id="full_name" name="full_name"
+                                   class="form-control"
+                                   required/>
+                        </div>
+                        <div class="mb-3">
+                            <label for="mobile_number" class="form-label text-muted">Mobile Number <span
+                                    class="text-danger">*</span></label>
+                            <input type="number" placeholder="10 Digit Number" class="form-control"
+                                   name="mobile_number" id="mobile_number" required/>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label text-muted" for="email">Email</label>
+                            <input type="text" placeholder="emailid@domain.com" name="email" id="email"
+                                   class="form-control">
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer justify-content-end">
+                    <button class="btn btn-light text-primary fw-bold" type="button" data-bs-dismiss="modal">CANCEL</button>
+                    <button type="submit" form="form_add_contact" class="px-5 fw-bold btn btn-primary">SAVE</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+
+        //submit add contact form
+        function submit_form_add_contact(form) {
+            event.preventDefault()
+            // disable inputs
+            disable_form(form)
+            //get data
+            data = {
+                'source_type': form.source_type.value.trim(),
+                'source_name': form.source_name.value.trim(),
+                'full_name': form.full_name.value.trim(),
+                'mobile_number': form.mobile_number.value.trim(),
+                'email': form.email.value.trim()
+            }
+            //validate data
+            is_valid = true
+            invalid_fields = {}
+            required_fields = ['source_type', 'source_name', 'full_name', 'mobile_number']
+            for (i in required_fields) {
+                field = required_fields[i]
+                if (data[field] === '') {
+                    is_valid = false;
+                    invalid_fields[field] = 'Cannot be empty!';
+                }
+            }
+            validate_form(form, invalid_fields)
+            if (is_valid) {
+                unvalidate_form(form)
+                request.open('POST', '/api/add_contact')
+                request.setRequestHeader('Content-Type', 'application/json')
+                request.responseType = 'json'
+                request.onload = function () {
+                    if (this.status >= 200 && this.status <= 400) {
+                        if (this.response.result === true) {
+                            show_alert('Contact added successfully!', 'success')
+                            form.reset()
+                            hide_modal('modal_add_contact')
+                            location.href = '/contacts/' + this.response._id.$oid
+                        } else {
+                            validate_form(form, this.response.invalid_fields)
+                            console.log(this.response.msg)
+                            show_alert(this.response.msg, 'warning')
+                        }
+                    } else {
+                        show_alert('Server error!', 'error')
+                    }
+                    enable_form(form)
+                }
+                request.send(JSON.stringify(data))
+            } else {
+                enable_form(form)
+            }
+        }
+
+
+    </script>
+{% endblock %}

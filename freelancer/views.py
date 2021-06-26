@@ -1,153 +1,89 @@
-from freelancer import app, render_template, session, db, functions, models, redirect, url_for
+from flask import render_template, session, redirect
+from freelancer import app, login_required, models
 from bson import ObjectId
+from freelancer.functions import get_user_id
 from datetime import datetime
 
-active_page = {
-    'contacts': None,
-    'motor_renewal' : None
-}
-
-@app.route('/')
-def index():
-    return render_template('index.html')
 
 
 @app.route('/login')
-def login_page():
-    return render_template('login.html')
+def login():
+    if 'logged_in' in session:
+        return redirect('/')
+    return render_template("login.html")
 
 
 @app.route('/logout')
-def logout_page():
-    session.clear()
-    return render_template('login.html')
+def logout():
+    models.User().logout()
+    return redirect('/')
 
 
-@app.route('/admin')
-def admin_index_page():
-    if 'logged_in' in session:
-        if session['logged_in'] == True:
-            user_id = ObjectId(session['user']['_id'])
-            if session['user']['type'] == 'admin':
-                today = datetime.today()
-                day = today.day
-                month = today.month
-                year = today.year
-                motor_renewal_list = models.Policy_motor().get_renewal_list(month, year)
-                policy_list_expiry_today = []
-                for policy in motor_renewal_list:
-                    if policy['day'] == day:
-                        policy['type'] = 'motor'
-                        policy_list_expiry_today.append(policy)
-                motor_renewal_count = {'total':0, 'not_touch':0, 'followup':0, 'won':0, 'lost':0}
-                for policy in motor_renewal_list:
-                    motor_renewal_count['total'] += 1
-                    if 'policy_status' in policy:
-                        motor_renewal_count[policy['policy_status']] += 1
-                    else:
-                        motor_renewal_count['not_touch'] +=1
-                health_renewal_list = models.Policy_health().get_renewal_list(month, year)
-                for policy in health_renewal_list:
-                    if policy['day'] == day:
-                        policy['type'] = 'health'
-                        policy_list_expiry_today.append(policy)
-                health_renewal_count = {'total': 0, 'not_touch': 0, 'followup': 0, 'won': 0, 'lost': 0}
-                for policy in health_renewal_list:
-                    health_renewal_count['total'] += 1
-                    if 'policy_status' in policy:
-                        health_renewal_count[policy['policy_status']] += 1
-                    else:
-                        health_renewal_count['not_touch'] += 1
-                return render_template('admin/index.html', motor_renewal_count=motor_renewal_count, health_renewal_count=health_renewal_count, policy_list_expiry_today=policy_list_expiry_today)
-    return render_template('login.html')
+@app.route('/signup')
+def signup():
+    return render_template("signup.html")
+
+
+@app.route('/')
+@login_required
+def index():
+    return render_template('crm/home.html', session=session)
 
 
 @app.route('/contacts')
-def admin_contacts_page():
-    if not session.get('logged_in'):
-        return login_page()
-    recent_added = models.Person().get().limit(10).sort('_id', -1)
-    active_page['contacts'] = 'active'
-    return render_template('admin/contacts.html', recent_added=recent_added, functions=functions)
+@login_required
+def contacts():
+    contacts = models.User(get_user_id()).contact.get_contacts()['data']
+    return render_template('crm/contacts.html', session=session, contacts=contacts)
 
 
-@app.route('/crm/view_person/<_id>')
-def view_person_page(_id):
-    if not session.get('logged_in'):
-        return login_page()
-    person_id = ObjectId(_id)
-    person = models.Person(person_id)
-    person.get_registration_list()
-    for registration in person.registration_list:
-        registration.get_motor_policy_list()
-    person.get_health_policy_list()
-    return render_template('admin/view_person.html', person=person, functions=functions)
+@app.route('/contacts/<contact_id>')
+@login_required
+def view_contact(contact_id):
+    user = models.User(get_user_id())
+    user.Contact(ObjectId(contact_id))
+    if user.contact.get_contact_details()['result']:
+        contact_data = user.contact.data
+        vehicle_companies = list(user.contact.vehicle.get_vehicle_companies()['data'])
+        vehicle_company_list = {}
+        for company in vehicle_companies:
+            if 'models' in company:
+                vehicle_company_list[company['company_name']] = company['models']
+        insurance_companies = list(user.contact.vehicle.policy.get_insurance_companies()['data'])
+        vehicles = list(user.contact.vehicle.get_vehicles()['data'].sort('created', -1))
+        # add vehicle insurance policies
+        for i in range(len(vehicles)):
+            user.contact.Vehicle(vehicles[i]['_id'])
+            policies = list(user.contact.vehicle.policy.get_policies()['data'].sort('expiry_date', -1))
+            vehicles[i]['policies'] = policies
+        return render_template('crm/view_contact.html', session=session, contact=contact_data,
+                               vehicle_companies=vehicle_companies, vehicle_company_list=vehicle_company_list,
+                               vehicles=vehicles, insurance_companies=insurance_companies)
+    return contact['msg']
 
 
-@app.route('/motor_insurance')
-def view_motor_insurance_page():
-    if not session.get('logged_in'):
-        return login_page()
-    today = datetime.today()
-    day = today.day
-    month = today.month
-    current_period = today.strftime("%B %Y")
-    year = today.year
-    renewal_list = models.Policy_motor().get_renewal_list(month, year)
-    policy_list_expiry_today = []
-    for policy in renewal_list:
-        if policy['day'] == day:
-            policy_list_expiry_today.append(policy)
-    renewal_count = {'total': 0, 'not_touch': 0, 'followup': 0, 'won': 0, 'lost': 0}
-    for policy in renewal_list:
-        renewal_count['total'] += 1
-        if 'policy_status' in policy:
-            if policy['policy_status'] is not None:
-                renewal_count[policy['policy_status']] += 1
-        else:
-            renewal_count['not_touch'] += 1
-    return render_template('admin/motor_insurance.html', policy_list_expiry_today=policy_list_expiry_today, renewal_count=renewal_count, current_period=current_period)
+@app.route('/insurance_renewals')
+@login_required
+def insurance_renewals():
+    user = models.User(get_user_id())
+    today = datetime.utcnow()
+    policy_list = []
+    for policy in user.contact.vehicle.policy.get_renewals(today.month, today.year)['data']:
+        policy_list.append(policy)
+    insurance_companies = list(user.contact.vehicle.policy.get_insurance_companies()['data'])
+    return render_template('crm/insurance_renewals.html', policy_list=policy_list, today=today,
+                           insurance_companies=insurance_companies)
 
+@app.route('/manage_insurance_companies')
+@login_required
+def manage_insurance_companies_page():
+    user = models.User(get_user_id())
+    company_list = list(user.contact.vehicle.policy.get_insurance_companies()['data'])
+    return render_template('crm/manage_insurance_companies.html', company_list=company_list)
 
-@app.route('/manage_motor_insurance_companies')
-def view_manage_motor_insurance_companies_page():
-    if not session.get('logged_in'):
-        return login_page()
-    user_id = ObjectId(session['user']['_id'])
-    company_list = models.user(user_id).get_motor_insurance_company_list()
-    return render_template('admin/manage_motor_insurance_companies.html', company_list=company_list)
-
-@app.route('/motor_insurance_renewals')
-@app.route('/view_motor_policy/<policy_id>')
-def view_motor_insurance_policy_page(policy_id = None):
-    if not session.get('logged_in'):
-        return login_page()
-    current_policy_id = policy_id
-    return render_template('admin/view_motor_renewals.html', current_policy_id=current_policy_id)
-
-
-@app.route('/health_insurance')
-@app.route('/view_health_policy/<policy_id>')
-def view_health_insurance_page(policy_id = None):
-    if not session.get('logged_in'):
-        return login_page()
-    current_policy_id = policy_id
-    current_policy_type = 'health'
-    return render_template('admin/insurance_renewal.html', current_policy_id=current_policy_id, current_policy_type=current_policy_type)
-
-
-@app.route('/manage_vehicles')
-def view_manage_vehicles_page():
-    if not session.get('logged_in'):
-        return login_page()
-    return render_template('admin/manage_vehicles.html')
-
-
-@app.route('/manage_vehicle/<vehicle_id>')
-def view_manage_vehicles_models_page(vehicle_id):
-    if not session.get('logged_in'):
-        return login_page()
-    user_id = ObjectId(session['user']['_id'])
-    vehicle = models.vehicle(ObjectId(vehicle_id))
-    return render_template('admin/manage_vehicle_models.html', vehicle=vehicle)
-
+@app.route('/manage_vehicle_companies')
+@login_required
+def manage_vehicle_companies_page():
+    user = models.User(get_user_id())
+    company_list = list(user.contact.vehicle.get_vehicle_companies()['data'])
+    return render_template('crm/manage_vehicle_companies.html', company_list=company_list)

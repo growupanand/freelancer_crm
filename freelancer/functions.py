@@ -1,10 +1,5 @@
-from datetime import datetime
+from flask import session
+from bson import ObjectId
 
-def stringtotimestamp(timestamp):
-    return datetime.strptime(str(timestamp).split('.')[0], "%Y-%m-%d %H:%M:%S")
-
-def format_timestamp(data, format):
-    if data is None:
-        return None
-    timestamp = stringtotimestamp(str(data))
-    return timestamp.strftime(format)
+def get_user_id():
+    return ObjectId(session['user']['_id'])

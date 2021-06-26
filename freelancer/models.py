@@ -1,919 +1,942 @@
-from freelancer import db, session
-from datetime import datetime
+from flask import session
+from freelancer import db
+import bcrypt
 import re
+import datetime
 
 
-class user:
+class User:
 
     def __init__(self, _id=None):
-        self._id = self.user_id = _id
+        self._id = _id
+        # create contact class without contact id in user class
+        self.contact = Contact()
+        self.contact.user_id = self._id
+        self.contact.vehicle = Vehicle()
+        self.contact.vehicle.user_id = self._id
+        self.contact.vehicle.policy = Policy()
+        self.contact.vehicle.policy.user_id = self._id
+
+    # create contact class with contact id in user class
+    def Contact(self, _id):
+        # check if user id is set
+        if self._id is None:
+            raise Exception('user _id not set!')
+        self.contact = Contact(_id)
+        self.contact.user_id = self._id
+        self.contact.vehicle = Vehicle()
+        self.contact.vehicle.user_id = self._id
+        self.contact.vehicle.contact_id = _id
+        self.contact.vehicle.policy = Policy()
+        self.contact.vehicle.policy.policy_type = 'motor'
+        self.contact.vehicle.policy.user_id = self._id
+
+    def create_user(self, username, password, full_name):
+        user = {
+            'created': datetime.datetime.utcnow(),
+            'username': str(username).strip().lower(),
+            'password': str(password).strip(),
+            'full_name': str(full_name).strip().lower(),
+            'role': 'agent'
+        }
+        # validate data
+        is_valid = True
+        invalid_fields = {}
+        # check required fields are not empty
+        for field in ('username', 'password', 'full_name'):
+            if user[field] == '':
+                is_valid = False
+                invalid_fields[field] = 'Cannot be empty!'
+        if not is_valid:
+            return {
+                'result': False,
+                'msg': 'Check fields:\n' + ', '.join(invalid_fields),
+                'invalid_fields': invalid_fields
+            }
+        # check if username already exist
+        username_exist = db.users_collection.find_one({'username': user['username']})
+        if username_exist is not None:
+            return {
+                'result': False,
+                'msg': 'username already exist!',
+                'invalid_fields': {'username': 'change username'}
+            }
+        # create user
+        # hash password
+        hashed_password = bcrypt.hashpw(str.encode(password), bcrypt.gensalt())
+        user['password'] = hashed_password
+        create = db.users_collection.insert_one(user)
+        # if create user successfull
+        if create.acknowledged:
+            return {
+                'result': True
+            }
+        # else send error
+        return {
+            'result': False,
+            'msg': 'Database error'
+        }
 
     def login(self, username, password):
-        session['logged_in'] = False
-        session['user'] = {}
-        self.username = str.strip(username)
-        self.password = str.strip(password)
-        result = {}
-        result['result'] = False
-        result['next'] = 'login'
+        session.clear()
+        username = str(username).strip().lower()
+        password = str(password).strip()
         # validate data
-        if None in (self.username, self.password) or '' in (self.username, self.password):
-            result['msg'] = 'Username or Password cannot be Empty.'
-            return result
-        login_user = db.user_collection.find_one({'username': self.username, 'password': self.password})
-        if login_user == None:
-            result['msg'] = 'Username or Password is wrong.'
-            return result
-        session['user']['_id'] = str(login_user['_id'])
-        if login_user['username'] in ['admin']:
-            session['user']['type'] = 'admin'
-            result['next'] = 'admin'
-        else:
-            session['user']['type'] = 'customer'
-            result['next'] = 'customer'
-        session['logged_in'] = True
-        result['msg'] = 'Login Success.'
-        result['result'] = True
-        return result
-
-    # add new person in database
-    def add_person(self, name, numbers, source_type=None, source_data=None):
-        result = {}
-        result['result'] = False
-        result['msg'] = 'Something went wrong.'
-        name = str.strip(name)
-        if name in [None, '']:
-            result['msg'] = 'Name cannot be empty.'
-            return result
-        source_type = None if str.strip(source_type) == '' else str.strip(source_type)
-        source_data = None if str.strip(source_data) == '' else str.strip(source_data)
-        person = {
-            'user_id': self._id,
-            'created': datetime.utcnow(),
-            'name': name,
-            'numbers': numbers,
-            'source_type': source_type,
-            'source_data': source_data
+        if '' in ('username', 'password'):
+            return {
+                'result': False,
+                'msg': 'username or password cannot be empty!'
+            }
+        # check if username is exist
+        user_exist = db.users_collection.find_one({'username': username})
+        if user_exist is not None:
+            # check if password match
+            password_match = bcrypt.checkpw(str.encode(password), user_exist['password'])
+            if password_match:
+                # set login in session
+                session['logged_in'] = True
+                session['user'] = {
+                    '_id': str(user_exist['_id']),
+                    'username': user_exist['username'],
+                    'full_name': user_exist['full_name'],
+                    'role': user_exist['role']
+                }
+                return {
+                    'result': True,
+                    'msg': 'login successfully!'
+                }
+            # if user not exist or password not match
+        return {
+            'result': False,
+            'msg': 'username or password is wrong!'
         }
-        insert_person = db.persons_collection.insert_one(person)
-        if insert_person.acknowledged:
-            result['result'] = True
-            result['new_id'] = insert_person.inserted_id
-        return result
 
-    # add new motor insurance company
-    def add_motor_insurance_company(self, company_name):
-        company_name = str.lower(company_name)
-        #check if compnay_name already exist
-        company_exist = db.insurance_companies_collection.find_one({"user_id":self.user_id, "company_name":company_name})
-        if company_exist is not None:
-            return {"result" : False, "msg" : "Company already exist."}
-        #add compnay name in database
-        add_company = db.insurance_companies_collection.insert_one({
-            "user_id":self.user_id,
-            "company_name" : company_name
-        })
-        if add_company.acknowledged:
-            return {"result":True, "new_id" : add_company.inserted_id}
-        else:
-            return {"result":False, "msg" : "Something went wrong."}
-
-    # get all motor insurance company list
-    def get_motor_insurance_company_list(self):
-        company_list = db.insurance_companies_collection.find({"user_id":self.user_id}, {"user_id":0})
-        return company_list
-
-    # delete motor insurance company
-    def delete_motor_insurance_company(self, company_id):
-        # check if company exist
-        company_exist = db.insurance_companies_collection.find_one(
-            {"user_id": self.user_id, "_id": company_id})
-        if company_exist is None:
-            return {"result": False, "msg": "Company not exist."}
-        # delete company
-        delete_company = db.insurance_companies_collection.delete_one({
-            "user_id":self.user_id,
-            "_id":company_id
-        })
-        if delete_company.acknowledged:
-            return {"result":True}
-        else:
-            return {"result":False, "msg": "something went wrong."}
+    def logout(self):
+        session.clear()
+        return {'result': True}
 
 
-class Person:
+class Contact:
 
     def __init__(self, _id=None):
         self._id = _id
-        self.db_data = None
-        if self._id != None:
-            self.db_data = db.persons_collection.find_one({'_id': _id})
-            if self.db_data != None:
-                self.name = self.db_data['name'] if 'name' in self.db_data else None
-                self.numbers = self.db_data['numbers'] if 'numbers' in self.db_data else []
-                self.emails = self.db_data['emails'] if 'emails' in self.db_data else []
-                self.dob = self.db_data['dob'] if 'dob' in self.db_data else None
-                self.source_type = self.db_data['source_type'] if 'source_type' in self.db_data else None
-                self.source_data = self.db_data['source_data'] if 'source_data' in self.db_data else None
+        # create vehicle class without vehicle id in contact class
+        self.vehicle = Vehicle()
+        if self._id is not None:
+            self.vehicle.contact_id = self._id
 
-    # get all person list
-    def get(self):
-        db_data = db.persons_collection.find()
-        return db_data
+    # create vehicle class with vehicle id in contact class
+    def Vehicle(self, _id):
+        self.vehicle = Vehicle(_id)
+        self.vehicle.contact_id = self._id
+        self.vehicle.user_id = self.user_id
+        self.vehicle.policy = Policy()
+        self.vehicle.policy.policy_type = 'motor'
+        self.vehicle.policy.user_id = self.user_id
+        self.vehicle.policy.contact_id = self._id
+        self.vehicle.policy.vehicle_id = _id
 
-    # find person
-    def find(self, query_fields, query_value):
-        query_value = str.strip(query_value)
-        query = {}
-        if len(query_fields) > 0:
-            query['$or'] = []
-            for field in query_fields:
-                query['$or'].append(
-                    {field: {'$regex':query_value, '$options' : 'i'}}
-                )
-        db_data = db.persons_collection.find(query)
-        return db_data
-
-    # update date of birth
-    def update_dob(self, dob):
-        result = {'result' : False}
-        dob = None if str.strip(dob) in (
-            None, '') else datetime.strptime(dob, "%Y-%m-%d")
-        if db.persons_collection.update_one({'_id': self._id}, {'$set':{'dob' : dob}}).acknowledged:
-            result['result'] = True
-            result['dob'] = dob
+    def create_contact(self, source_type, source_name, full_name, mobile_number, email):
+        # check if user id is set
+        if self.user_id is None:
+            raise Exception('user _id not set!')
+        result = {'result': False, 'msg': 'something went wrong!'}
+        contact = {
+            'created': datetime.datetime.utcnow(),
+            'user_id': self.user_id,
+            'source_type': str(source_type).strip().lower(),
+            'source_name': str(source_name).strip().lower(),
+            'full_name': str(full_name).strip().lower(),
+            'mobile_number': str(mobile_number).strip().lower(),
+            'email': str(email).strip().lower()
+        }
+        # validate data
+        is_valid = True
+        invalid_fields = {}
+        for field in ('source_type', 'source_name', 'full_name', 'mobile_number'):
+            # check for empty fields
+            if contact[field] == '':
+                is_valid = False
+                invalid_fields[field] = 'Cannot be empty!'
+        if 'mobile_number' not in invalid_fields:
+            # check if mobile number is 10 digit
+            if not re.match('[0-9]{10}', contact['mobile_number']):
+                is_valid = False
+                invalid_fields['mobile_number'] = 'Mobile Number should be 10 digit!'
+        # if all required fields are valid create contact in database
+        if not is_valid:
+            return {
+                'result': False,
+                'msg': 'Check fields:\n' + ', '.join(invalid_fields),
+                'invalid_fields': invalid_fields
+            }
+        # convert mobile number to array
+        contact['mobile_numbers'] = []
+        contact['mobile_numbers'].append(contact['mobile_number'])
+        contact.pop('mobile_number')
+        create = db.contacts_collection.insert_one(contact)
+        if create.acknowledged:
+            result = {
+                'result': True,
+                '_id': create.inserted_id,
+                'msg': 'Contact create successfully!'
+            }
         return result
 
+    def get_contacts(self):
+        # check if user id is set
+        if self.user_id is None:
+            raise Exception('user _id not set!')
+        result = {'result': False, 'msg': 'something went wrong!'}
+        contact_list = []
+        for contact in db.contacts_collection.find({"user_id": self.user_id}).sort('full_name'):
+            contact_list.append(contact)
+        return {
+            'result': True,
+            'data': contact_list
+        }
 
-    # add contact number
-    def add_contact_number(self, number):
-        result = {}
-        result['result'] = False
-        number = str.strip(number)
-        if number == '':
-            result['msg'] = 'Number cannot be Empty!'
-            return result
-        insert_number = db.persons_collection.update_one({'_id': self._id}, {
-            '$push': {'numbers': number}
-        })
-        if insert_number.acknowledged:
-            result['result'] = True
-            result['new_id'] = insert_number.upserted_id
-        return result
+    def get_contact_details(self):
+        # check if user id is set
+        if self.user_id is None:
+            raise Exception('user _id not set!')
+        # check if contact _id is set
+        if self._id is None:
+            raise Exception('contact _id not set')
+        contact = db.contacts_collection.find_one({'_id': self._id, 'user_id': self.user_id})
+        if contact is None:
+            return {
+                'result': False,
+                'msg': 'Contact not found!'
+            }
+        self.user_id = contact['user_id']
+        self.source_type = contact['source_type']
+        self.source_name = contact['source_name']
+        self.full_name = contact['full_name']
+        self.mobile_numbers = contact['mobile_numbers']
+        self.email = contact['email']
+        self.data = contact
+        return {
+            'result': True,
+            'data': contact
+        }
 
-    # remove contact number
-    def remove_contact_number(self, number):
-        result = {}
-        result['result'] = False
-        number = str.strip(number)
-        if number == '':
-            result['msg'] = 'Number cannot be Empty!'
-            return result
-        delete_number = db.persons_collection.update_one({'_id': self._id}, {
-            '$pull': {
-                'numbers': number
+    def add_mobile_number(self, mobile_number, _id=None):
+        # check if user id is set
+        if self.user_id is None:
+            raise Exception('user _id not set!')
+        # check if contact _id is set
+        if self._id is None:
+            raise Exception('contact _id not set')
+        # check if mobile number is 10 digit
+        if not re.match('[0-9]{10}', mobile_number):
+            return {
+                'result': False,
+                'msg': 'Mobile Number should be 10 digit!',
+                'invalid fields': {'contact_mobile_number': 'Mobile Number should be 10 digit!'}
+            }
+        added = db.contacts_collection.update_one({'_id': self._id, 'user_id': self.user_id}, {
+            '$push': {
+                'mobile_numbers': mobile_number
             }
         })
-        if delete_number.acknowledged:
-            result['result'] = True
-        return result
+        if added.acknowledged:
+            return {'result': True, 'msg': 'contact mobile number added successfully!'}
+        return {'result': False, 'msg': 'something went wrong!'}
 
-    # add contact email
-    def add_contact_email(self, email):
-        result = {}
-        result['result'] = False
-        email = str.strip(email)
-        if email == '':
-            result['msg'] = 'Email cannot be Empty!'
-            return result
-        insert_email = db.persons_collection.update_one({'_id': self._id}, {
-            '$push': {'emails': email}
-        })
-        if insert_email.acknowledged:
-            result['result'] = True
-            result['new_id'] = insert_email.upserted_id
-        return result
-
-    # remove contact email
-    def remove_contact_email(self, email):
-        result = {}
-        result['result'] = False
-        email = str.strip(email)
-        if email == '':
-            result['msg'] = 'Email cannot be Empty!'
-            return result
-        remove_email = db.persons_collection.update_one({'_id': self._id}, {
-            '$pull': {
-                'emails': email
+    def update_contact_details(self, _id=None, source_type=None, source_name=None, full_name=None,
+                               mobile_numbers=None,
+                               email=None):
+        # check if user id is set
+        if self.user_id is None:
+            raise Exception('user _id not set!')
+        # check if contact _id is set
+        if self._id is None:
+            raise Exception('contact _id not set')
+        # get data
+        data = {
+            'source_type': str(source_type).strip().lower(),
+            'source_name': str(source_name).strip().lower(),
+            'full_name': str(full_name).strip().lower(),
+            'mobile_numbers': mobile_numbers,
+            'email': str(email).strip().lower()
+        }
+        contact_fields = ('source_type', 'source_name', 'full_name', 'mobile_numbers')
+        # which fields need to update
+        update_fields = []
+        for field in contact_fields:
+            if data[field] is not None:
+                update_fields.append(field)
+        if len(update_fields) == 0:
+            return {'result': False, 'msg': 'no field is for update!'}
+        # validate data
+        is_valid = True
+        invalid_fields = {}
+        for field in ('source_type', 'source_name', 'full_name', 'email'):
+            if field in update_fields:
+                # check for empty fields
+                if data[field] == '':
+                    is_valid = False
+                    invalid_fields[field] = 'Cannot be empty!'
+        if 'mobile_numbers' in update_fields:
+            # check if mobile numbers are in array format
+            if not isinstance(data['mobile_numbers'], list):
+                return {'result': False, 'msg': 'mobiles numbers are not in array format'}
+            # check if mobile number is 10 digit
+            invalid_numbers = []
+            for number in data['mobile_numbers']:
+                if not re.match('[0-9]{10}', number):
+                    invalid_numbers.append(number)
+            if len(invalid_numbers) > 0:
+                is_valid = False
+                invalid_fields['mobile_numbers'] = 'Mobile Number should be 10 digit:\n' + ','.join(invalid_numbers)
+        # if any field is invalid
+        if not is_valid:
+            return {
+                'result': False,
+                'msg': 'Check fields:\n' + ', '.join(invalid_fields),
+                'invalid_fields': invalid_fields
             }
+        # if all fields are valid
+        update = db.contacts_collection.update_one({'_id': self._id, 'user_id': self.user_id}, {
+            '$set': data
         })
-        if remove_email.acknowledged:
-            result['result'] = True
-        return result
+        # if contact updated in database
+        if update.acknowledged:
+            return {'result': True, 'msg': 'contact udpated successfully!'}
+        # else show error
+        return {'result': False, 'msg': 'something went wrong!'}
 
-    # add vehicle registration
-    def add_registration(self, registration_number, registration_name=None, registration_date=None,
-                         company=None, model=None, cc=None, fuel=None, mfg=None):
-        result = {}
-        result['result'] = False
-        registration_number = str.strip(registration_number)
-        if registration_number == '' or registration_number == None:
-            result['msg'] = 'Registration number cannot be empty.'
-            return result
-        elif not re.match("[a-zA-Z]{2}[0-9]{1,2}[a-zA-Z]{1,3}[0-9]{4}", registration_number):
-            result['msg'] = 'Registration number is not valid.'
-            return result
-        company = None if str.strip(company) == '' else str.strip(company)
-        registration_name = None if str.strip(registration_name) == '' else str.strip(registration_name)
-        registration_date = None if str.strip(registration_date) in (
-            None, '') else datetime.strptime(registration_date, "%Y-%m-%d")
-        model = None if str.strip(model) == '' else str.strip(model)
-        cc = None if str.strip(cc) == '' else str.strip(cc)
-        fuel = None if str.strip(fuel) == '' else str.strip(fuel)
-        mfg = None if str.strip(mfg) == '' else str.strip(mfg)
-        registration = {
-            'created': datetime.utcnow(),
-            'person_id': self._id,
-            'registration_number': registration_number,
-            'registration_name': registration_name,
-            'registration_date': registration_date,
-            'company': company,
-            'model': model,
-            'cc': cc,
-            'fuel': fuel,
-            'mfg': mfg
-        }
-        insert_registration = db.motor_registration_collection.insert_one(registration)
-        if insert_registration.acknowledged:
-            result['result'] = True
-            result['new_id'] = insert_registration.inserted_id
-        return result
-
-    # get all vehicle registration list of this person
-    def get_registration_list(self):
-        self.registration_list = []
-        for registration in db.motor_registration_collection.find({'person_id': self._id}):
-            self.registration_list.append(Registration(registration['_id']))
-        return self.registration_list
-
-    # delete person
-    def delete_person(self):
-        result = {}
-        result['result'] = False
-        result['msg'] = 'Something went wrong.'
-        # delete all health policy
-        for policy in self.get_health_policy_list():
-            policy.delete_policy()
-        # delete all vehicle
-        for registration in self.get_registration_list():
-            registration.delete_registration()
-        # delete person data
-        delete_person_data = db.persons_collection.delete_one({'_id': self._id})
-        if delete_person_data.acknowledged:
-            result['result'] = True
-        return result
-
-    # add health policy
-    def add_health_policy(self, expiry_date, policy_owner=None, policy_number=None, policy_type=None,
-                          company=None, idv=None, ncb=None, premium=None, own_business=None):
-        result = {}
-        result['result'] = False
-        result['msg'] = 'Something went wrong.'
-        if expiry_date in (None, ''):
-            result['msg'] = 'Expiry date cannot be empty.'
-            return result
-        expiry_date = datetime.strptime(expiry_date, "%Y-%m-%d")
-        policy_owner = None if str.strip(policy_owner) == '' else str.strip(policy_owner)
-        policy_number = None if str.strip(policy_number) == '' else str.strip(policy_number)
-        policy_type = None if str.strip(policy_type) == '' else str.strip(policy_type)
-        company = None if str.strip(company) == '' else str.strip(company)
-        idv = None if str.strip(idv) == '' else str.strip(idv)
-        ncb = None if str.strip(ncb) == '' else str.strip(ncb)
-        premium = None if str.strip(premium) == '' else str.strip(premium)
-        policy = {
-            'created': datetime.utcnow(),
-            'expiry_date': expiry_date,
-            'person_id': self._id,
-            'policy_owner': policy_owner,
-            'policy_number': policy_number,
-            'policy_type': policy_type,
-            'company': company,
-            'idv': idv,
-            'ncb': ncb,
-            'premium': premium,
-            'own_business': own_business,
-        }
-        insert_policy = db.health_policy_collection.insert_one(policy)
-        if insert_policy.acknowledged:
-            result['result'] = True
-            result['new_id'] = insert_policy.inserted_id
-        return result
-
-    # get health policy list
-    def get_health_policy_list(self):
-        self.health_policy_list = []
-        for policy in db.health_policy_collection.find({'person_id': self._id}):
-            self.health_policy_list.append(Policy_health(policy['_id']))
-        return self.health_policy_list
+    def delete_contact(self, _id=None):
+        # check if user id is set
+        if self.user_id is None:
+            raise Exception('user _id not set!')
+        # check if contact _id is set
+        if self._id is None:
+            raise Exception('contact _id not set')
+        # delete vehicles of this contact
+        for vehicle in self.vehicle.get_vehicles()['data']:
+            self.Vehicle(vehicle['_id'])
+            self.vehicle.delete_vehicle()
+        # delete contact in database
+        delete = db.contacts_collection.delete_one({'_id': self._id, 'user_id': self.user_id})
+        if delete.acknowledged:
+            return {'result': True, 'msg': 'contact deleted successfully!'}
+        return {'result': False, 'msg': 'something went wrong!'}
 
 
-class Registration:
+class Vehicle:
 
     def __init__(self, _id=None):
         self._id = _id
-        self.db_data = None
-        if self._id != None:
-            # get registration data from database
-            self.db_data = db.motor_registration_collection.find_one({'_id': self._id})
-            if self.db_data != None:
-                self.person_id = self.db_data['person_id']
-                self.person = Person(self.person_id)
-                self.registration_number = self.db_data[
-                    'registration_number'] if 'registration_number' in self.db_data else None
-                self.registration_name = self.db_data[
-                    'registration_name'] if 'registration_name' in self.db_data else None
-                self.company = self.db_data['company'] if 'company' in self.db_data else None
-                self.model = self.db_data['model'] if 'model' in self.db_data else None
-                self.cc = self.db_data['cc'] if 'cc' in self.db_data else None
-                self.mfg = self.db_data['mfg'] if 'mfg' in self.db_data else None
-                self.fuel = self.db_data['fuel'] if 'fuel' in self.db_data else None
-                self.registration_date = self.db_data[
-                    'registration_date'] if 'registration_date' in self.db_data else None
-                self.created = self.db_data['created'] if 'created' in self.db_data else None
+        # create policy class without policy id
+        self.policy = Policy()
+        self.policy.type = 'motor'
+        if self._id is not None:
+            self.policy.vehicle_id = self._id
 
-    # add motor policy
-    def add_motor_policy(self, expiry_date, policy_number=None, policy_type=None,
-                         company=None, idv=None, ncb=None, premium=None, own_business=None, o_dap=None):
-        result = {}
-        result['result'] = False
-        result['msg'] = 'Something went wrong.'
-        if expiry_date in (None, ''):
-            result['msg'] = 'Expiry date cannot be empty.'
-            return result
-        expiry_date = datetime.strptime(expiry_date, "%Y-%m-%d")
-        policy_number = None if str.strip(policy_number) == '' else str.strip(policy_number)
-        policy_type = None if str.strip(policy_type) == '' else str.strip(policy_type)
-        company = None if str.strip(company) == '' else str.strip(company)
-        idv = None if str.strip(idv) == '' else str.strip(idv)
-        ncb = None if str.strip(ncb) == '' else str.strip(ncb)
-        premium = None if str.strip(premium) == '' else str.strip(premium)
-        policy = {
-            'created': datetime.utcnow(),
-            'expiry_date': expiry_date,
-            'registration_id': self._id,
-            'person_id': self.person_id,
-            'policy_number': policy_number,
-            'policy_type': policy_type,
-            'company': company,
-            'idv': idv,
-            'ncb': ncb,
-            'premium': premium,
-            'own_business': own_business,
-            'o_dap': o_dap
-        }
-        insert_policy = db.motor_policy_collection.insert_one(policy)
-        if insert_policy.acknowledged:
-            result['result'] = True
-            result['new_id'] = insert_policy.inserted_id
-        return result
+    def Policy(self, _id):
+        self.policy = Policy(_id)
+        self.policy.policy_type = 'motor'
+        self.policy.user_id = self.user_id
+        self.policy.vehicle_id = self._id
 
-    # get policy list
-    def get_motor_policy_list(self):
-        self.motor_policy_list = []
-        for policy in db.motor_policy_collection.find({'registration_id': self._id}):
-            self.motor_policy_list.append(Policy_motor(policy['_id']))
-        return self.motor_policy_list
-
-    # update registration data
-    def update_registration(self, registration_number=None, registration_name=None, registration_date=None,
-                            company=None, model=None, cc=None, fuel=None, mfg=None):
-        result = {}
-        result['result'] = False
-        registration = {
-            'last_updated': datetime.utcnow(),
-            'registration_date': registration_date,
-        }
-        if not registration_number is None:
-            registration_number = str.strip(registration_number)
-            if registration_number == '':
-                result['msg'] = 'Registration number cannot be empty.'
-                return result
-            elif not re.match("[a-zA-Z]{2}[0-9]{1,2}[a-zA-Z]{1,3}[0-9]{4}", registration_number):
-                result['msg'] = 'Registration number is not valid.'
-                return result
-            else:
-                registration['registration_number'] = registration_number
-        if not registration_date is None:
-            registration['registration_date'] = None if str.strip(registration_date) in (
-                None, '') else datetime.strptime(registration_date, "%Y-%m-%d")
-        if not registration_name is None:
-            registration['registration_name'] = None if str.strip(registration_name) == '' else str.strip(
-                registration_name)
-        if not company is None:
-            registration['company'] = None if str.strip(company) == '' else str.strip(company)
-        if not model is None:
-            registration['model'] = None if str.strip(model) == '' else str.strip(model)
-        if not cc is None:
-            registration['cc'] = None if str.strip(cc) == '' else str.strip(cc)
-        if not fuel is None:
-            registration['fuel'] = None if str.strip(fuel) == '' else str.strip(fuel)
-        if not mfg is None:
-            registration['mfg'] = None if str.strip(mfg) == '' else str.strip(mfg)
-        update_registration = db.motor_registration_collection.update_one({'_id': self._id}, {
-            "$set": registration
+    def create_vehicle_company(self, company_name):
+        # check if user id is set
+        if self.user_id is None:
+            raise Exception('user _id not set!')
+        # validate data
+        data = str(company_name).strip().lower()
+        if data == '':
+            return {
+                'result': False,
+                'msg': 'new company name cannot be empty'
+            }
+        # create new vehicle company in database
+        create = db.vehicle_companies_collection.insert_one({
+            'created': datetime.datetime.utcnow(),
+            'user_id': self.user_id,
+            'company_name': company_name
         })
-        if update_registration.acknowledged:
-            result['result'] = True
-        return result
+        if create.acknowledged:
+            return {'result': True, '_id': create.inserted_id}
+        return {'result': False, 'msg': 'something went wrong'}
 
-    # delete vehicle registration
-    def delete_registration(self):
-        result = {}
-        result['result'] = False
-        # delete vehcle all policy
-        for policy in self.get_motor_policy_list():
-            policy.delete_policy()
-        delete_registration = db.motor_registration_collection.delete_one({'_id': self._id})
-        if delete_registration.acknowledged:
-            result['result'] = True
-        return result
-
-
-class Policy_motor:
-
-    def __init__(self, _id=None):
-        self._id = _id
-        self.db_data = None
-        if self._id != None:
-            # get policy data from database
-            self.db_data = db.motor_policy_collection.find_one({'_id': self._id})
-            if self.db_data != None:
-                self.expiry_date = self.db_data['expiry_date']
-                self.policy_number = self.db_data['policy_number'] if 'policy_number' in self.db_data else None
-                self.policy_type = self.db_data['policy_type'] if 'policy_type' in self.db_data else None
-                self.company = self.db_data['company'] if 'company' in self.db_data else None
-                self.idv = self.db_data['idv'] if 'idv' in self.db_data else None
-                self.ncb = self.db_data['ncb'] if 'ncb' in self.db_data else None
-                self.premium = self.db_data['premium'] if 'premium' in self.db_data else None
-                self.own_business = self.db_data['own_business'] if 'own_business' in self.db_data else None
-                self.claim_status = self.db_data['claim_status'] if 'claim_status' in self.db_data else None
-                self.o_dap = self.db_data['o_dap'] if 'o_dap' in self.db_data else None
-                self.created = self.db_data['created'] if 'created' in self.db_data else None
-                self.person_id = self.db_data['person_id'] if 'person_id' in self.db_data else None
-                self.person = Person(self.person_id)
-                self.registration_id = self.db_data['registration_id'] if 'expiry_date' in self.db_data else None
-                self.registration = Registration(self.registration_id)
-                self.renewal_id = self.db_data['renewal_id'] if 'renewal_id' in self.db_data else None
-                self.renewal_policy = Policy_motor(self.renewal_id)
-                self.old_policy = db.motor_policy_collection.find_one({'renewal_id': self._id})
-
-    # find motor policy
-    def find(self, query, search_filter):
-        policy_list = []
-        if search_filter == 'policy_number':
-            policy_list = db.motor_policy_collection.find({
-                'policy_number': {'$regex':'^'+query+'$', '$options' : 'i'}
-            })
-        elif search_filter == 'reg_number':
-            #find registration_id
-            registration = db.motor_registration_collection.find_one({
-                'registration_number':{'$regex':'^'+query+'$', '$options' : 'i'}
-            })
-            if registration is not None:
-                policy_list = db.motor_policy_collection.find({
-                    'registration_id': registration['_id']
-                })
-        result = []
-        for policy in policy_list:
-            result.append({
-                'policy_id':policy['_id'],
-                'name':db.persons_collection.find_one({'_id':policy['person_id']})['name'],
-                'policy_number':policy['policy_number'],
-                'expiry_date':policy['expiry_date']
-            })
-        return result
-
-    # get follow up data
-    def get_followup_list(self):
-        self.followup_list = db.followup_collection.find({'policy_id': self._id})
-        return self.followup_list
-
-    # get renewal list
-    def get_renewal_list(self, month, year):  # month should 1-12
-        # get policy id list of maximum expiry date
-        policy_id_list = []
-        q = db.motor_policy_collection.aggregate([
-            {'$match': {
-                "$and": [
-                    {"$expr": {"$eq": [{"$month": "$expiry_date"}, int(month)]}},
-                    {"$expr": {"$lt": [{"$year": "$expiry_date"}, int(year) + 1]}}
-                ]}},
-            {'$sort': {'expiry_date': -1}},
-            {'$group': {
-                '_id': "$registration_id",
-                'expiry_date': {'$first': "$expiry_date"},
-                'policy_id': {'$first': '$_id'}
-            }}
-        ])
-        for i in q:
-            policy_id_list.append(i['policy_id'])
-        policy_list = db.motor_policy_collection.aggregate([
-            {'$match': {'_id': {'$in': policy_id_list}}},
-            {'$addFields': {'day': {'$dayOfMonth': '$expiry_date'}}},
-            {'$sort': {'day': 1}},
-            {'$lookup': {
-                'from': "persons",
-                'localField': "person_id",
-                'foreignField': "_id",
-                'as': "person"
-            }},
-            {'$addFields': {'name': {"$arrayElemAt": ["$person.name", 0]}}},
-            {'$project': {'_id': 1, 'expiry_date': 1, 'day': 1, 'name': 1, 'policy_status': 1, 'renewal_id': 1}}
-        ])
-        renewal_list = []
-        for policy in policy_list:
-            if 'renewal_id' in policy:
-                if policy['renewal_id'] not in (None, False):
-                    if Policy_motor(policy['renewal_id']).own_business:
-                        policy['policy_status'] = 'won'
-                    else:
-                        policy['policy_status'] = 'lost'
-            renewal_list.append(policy)
-        return renewal_list
-
-    # post policy followup
-    def post_policy_followup(self, remark, status='followup'):
-        result = {}
-        result['result'] = False
-        followup = {
-            'policy_id': self._id,
-            'person_id': self.person_id,
-            'registration_id': self.registration_id,
-            'remark': str.strip(remark),
-            'created': datetime.utcnow(),
-            'policy_type': 'motor',
-            'status': status
-        }
-        insert_followup = db.followup_collection.insert_one(followup)
-        self.update_motor_policy(policy_status=status)
-        if insert_followup.acknowledged:
-            result['result'] = True
-            result['new_id'] = insert_followup.inserted_id
-        return result
-
-    # update policy data
-    def update_motor_policy(self, expiry_date=None, policy_number=None, policy_type=None,
-                            company=None, idv=None, ncb=None, premium=None, own_business=None, o_dap=None,
-                            renewal_id=None, policy_status=None, lost_reason=None, claim_status=None):
-        result = {}
-        result['result'] = False
-        result['msg'] = 'Something went wrong.'
-        policy = {
-            'last_updated': datetime.utcnow(),
-        }
-        if not expiry_date is None:
-            if expiry_date == '':
-                result['msg'] = 'Expiry date cannot be empty.'
-                return result
-            else:
-                policy['expiry_date'] = datetime.strptime(expiry_date, "%Y-%m-%d")
-        if not policy_number is None:
-            policy['policy_number'] = None if str.strip(policy_number) == '' else str.strip(policy_number)
-        if not policy_type is None:
-            policy['policy_type'] = None if str.strip(policy_type) == '' else str.strip(policy_type)
-        if not company is None:
-            policy['company'] = None if str.strip(company) == '' else str.strip(company)
-        if not idv is None:
-            policy['idv'] = None if str.strip(idv) == '' else str.strip(idv)
-        if not ncb is None:
-            policy['ncb'] = None if str.strip(policy_number) == '' else str.strip(ncb)
-        if not premium is None:
-            policy['premium'] = None if str.strip(premium) == '' else str.strip(premium)
-        if not own_business is None:
-            policy['own_business'] = own_business
-        if not o_dap is None:
-            policy['o_dap'] = o_dap
-        if not lost_reason is None:
-            policy['lost_reason'] = lost_reason
-        if not claim_status is None:
-            policy['claim_status'] = claim_status
-        if not renewal_id is None:
-            policy['renewal_id'] = None if str.strip(renewal_id) == '' else renewal_id
-        if not policy_status is None:
-            policy['policy_status'] = None if str.strip(policy_status) == '' else str.strip(policy_status)
-        update_policy = db.motor_policy_collection.update_one({'_id': self._id}, {
-            "$set": policy
-        })
-        if update_policy.acknowledged:
-            result['result'] = True
-            result['msg'] = 'Policy updated successfully.'
-        return result
-
-    # delete policy
-    def delete_policy(self):
-        result = {}
-        result['result'] = False
-        # delete renewal id in old policy
-        if self.old_policy != None:
-            old_policy = Policy_motor(self.old_policy['_id'])
-            old_policy.update_motor_policy(renewal_id='', policy_status='')
-        # delete followup of this policy
-        db.followup_collection.delete_many({'policy_id': self._id})
-        delete_policy = db.motor_policy_collection.delete_one({'_id': self._id})
-        if delete_policy.acknowledged:
-            result['result'] = True
-        return result
-
-
-class Policy_health:
-
-    def __init__(self, _id=None):
-        self._id = _id
-        self.db_data = None
-        if self._id != None:
-            # get policy data from database
-            self.db_data = db.health_policy_collection.find_one({'_id': self._id})
-            if self.db_data != None:
-                self.expiry_date = self.db_data['expiry_date']
-                self.policy_owner = self.db_data['policy_owner'] if 'policy_owner' in self.db_data else None
-                self.policy_number = self.db_data['policy_number'] if 'policy_number' in self.db_data else None
-                self.policy_type = self.db_data['policy_type'] if 'policy_type' in self.db_data else None
-                self.company = self.db_data['company'] if 'company' in self.db_data else None
-                self.idv = self.db_data['idv'] if 'idv' in self.db_data else None
-                self.ncb = self.db_data['ncb'] if 'ncb' in self.db_data else None
-                self.premium = self.db_data['premium'] if 'premium' in self.db_data else None
-                self.claim_status = self.db_data['claim_status'] if 'claim_status' in self.db_data else None
-                self.own_business = self.db_data['own_business'] if 'own_business' in self.db_data else None
-                self.created = self.db_data['created'] if 'created' in self.db_data else None
-                self.person_id = self.db_data['person_id'] if 'person_id' in self.db_data else None
-                self.person = Person(self.person_id)
-                self.renewal_id = self.db_data['renewal_id'] if 'renewal_id' in self.db_data else None
-                self.renewal_policy = Policy_health(self.renewal_id)
-                self.old_policy = db.health_policy_collection.find_one({'renewal_id': self._id})
-
-    # get follow up data
-    def get_followup_list(self):
-        self.followup_list = db.followup_collection.find({'policy_id': self._id})
-        return self.followup_list
-
-    # get renewal list
-    def get_renewal_list(self, month, year):  # month should 1-12
-        # get policy id list of maximum expiry date
-        policy_id_list = []
-        q = db.health_policy_collection.aggregate([
-            {'$match': {
-                "$and": [
-                    {"$expr": {"$eq": [{"$month": "$expiry_date"}, int(month)]}},
-                    {"$expr": {"$lt": [{"$year": "$expiry_date"}, int(year) + 1]}}
-                ]}},
-            {'$sort': {'expiry_date': -1}},
-            {'$group': {
-                '_id': "person_id",
-                'expiry_date': {'$first': "$expiry_date"},
-                'policy_id': {'$first': '$_id'}
-            }}
-        ])
-        for i in q:
-            policy_id_list.append(i['policy_id'])
-        policy_list = db.health_policy_collection.aggregate([
-            {'$match': {'_id': {'$in': policy_id_list}}},
-            {'$addFields': {'day': {'$dayOfMonth': '$expiry_date'}}},
-            {'$sort': {'day': 1}},
-            {'$lookup': {
-                'from': "persons",
-                'localField': "person_id",
-                'foreignField': "_id",
-                'as': "person"
-            }},
-            {'$addFields': {'name': {"$arrayElemAt": ["$person.name", 0]}}},
-            {'$project': {'_id': 1, 'expiry_date': 1, 'day': 1, 'name': 1, 'policy_status': 1, 'renewal_id': 1}}
-        ])
-        renewal_list = []
-        for policy in policy_list:
-            if 'renewal_id' in policy:
-                if policy['renewal_id'] != None:
-                    if Policy_health(policy['renewal_id']).own_business:
-                        policy['policy_status'] = 'won'
-                    else:
-                        policy['policy_status'] = 'lost'
-            renewal_list.append(policy)
-        return renewal_list
-
-    # post policy followup
-    def post_policy_followup(self, remark, status='followup'):
-        result = {}
-        result['result'] = False
-        followup = {
-            'policy_id': self._id,
-            'person_id': self.person_id,
-            'remark': str.strip(remark),
-            'created': datetime.utcnow(),
-            'policy_type': 'health',
-            'status': status
-        }
-        insert_followup = db.followup_collection.insert_one(followup)
-        self.update_health_policy(policy_status=status)
-        if insert_followup.acknowledged:
-            result['result'] = True
-            result['new_id'] = insert_followup.inserted_id
-        return result
-
-    # update policy data
-    def update_health_policy(self, expiry_date=None, policy_owner=None, policy_number=None, policy_type=None,
-                             company=None, idv=None, ncb=None, premium=None, own_business=None,
-                             renewal_id=None, policy_status=None, claim_status=None):
-        result = {}
-        result['result'] = False
-        result['msg'] = 'Something went wrong.'
-        policy = {
-            'last_updated': datetime.utcnow(),
-        }
-        if not expiry_date is None:
-            if expiry_date == '':
-                result['msg'] = 'Expiry date cannot be empty.'
-                return result
-            else:
-                policy['expiry_date'] = datetime.strptime(expiry_date, "%Y-%m-%d")
-        if not policy_owner is None:
-            policy['policy_owner'] = None if str.strip(policy_owner) == '' else str.strip(policy_owner)
-        if not policy_number is None:
-            policy['policy_number'] = None if str.strip(policy_number) == '' else str.strip(policy_number)
-        if not policy_type is None:
-            policy['policy_type'] = None if str.strip(policy_type) == '' else str.strip(policy_type)
-        if not company is None:
-            policy['company'] = None if str.strip(company) == '' else str.strip(company)
-        if not idv is None:
-            policy['idv'] = None if str.strip(idv) == '' else str.strip(idv)
-        if not ncb is None:
-            policy['ncb'] = None if str.strip(policy_number) == '' else str.strip(ncb)
-        if not premium is None:
-            policy['premium'] = None if str.strip(premium) == '' else str.strip(premium)
-        if not own_business is None:
-            policy['own_business'] = own_business
-        if not claim_status is None:
-            policy['claim_status'] = claim_status
-        if not renewal_id is None:
-            policy['renewal_id'] = None if str.strip(renewal_id) == '' else renewal_id
-        if not policy_status is None:
-            policy['policy_status'] = None if str.strip(policy_status) == '' else str.strip(policy_status)
-        update_policy = db.health_policy_collection.update_one({'_id': self._id}, {
-            "$set": policy
-        })
-        if update_policy.acknowledged:
-            result['result'] = True
-        return result
-
-    # delete policy
-    def delete_policy(self):
-        result = {}
-        result['result'] = False
-        # delete renewal id in old policy
-        if self.old_policy != None:
-            old_policy = Policy_health(self.old_policy['_id'])
-            old_policy.update_health_policy(renewal_id='', policy_status='')
-        # delete followup of this policy
-        db.followup_collection.delete_many({'policy_id': self._id})
-        delete_policy = db.health_policy_collection.delete_one({'_id': self._id})
-        if delete_policy.acknowledged:
-            result['result'] = True
-        return result
-
-
-class Lead:
-
-    def __init__(self, _id=None):
-        self._id = _id
-
-    def create_policy_lead(self, policy_type, source, name, expiry_date, contact_detail):
-        create_lead = db.lead_collection.insert_one({
-            'created': datetime.utcnow(),
-            'type': 'insurance',
-            'policy_type': policy_type,
-            'source': source,
-            'name': name,
-            'expiry_date': expiry_date,
-            'contact_detail': contact_detail
-        })
-        if create_lead.acknowledged:
-            result = {'result': True, 'msg': 'Success', 'new_id': create_lead.inserted_id}
-        else:
-            result = {'result': False, 'msg': 'Lead not created for some reason.'}
-        return result
-
-
-class vehicle:
-
-    def __init__(self, _id=None):
-        self._id = _id
-        # get vehicle models list automaticaly if vehicle_id is given
-        if not self._id == None:
-            self.db_data = db.vehicle_companies_collection.find_one({'_id': self._id})
-            self.models = self.db_data['models'] if 'models' in self.db_data else []
-
-    # add vehicle company
-    def add_vehicle_company(self, user_id, company_name):
-        result = {
-            'result': False,
-            'msg': 'Something went wrong'
-        }
-        if company_name in ('', None):
-            return result
-        # check if vehicle company is not already exist in db
-        if not db.vehicle_companies_collection.find({'company_name': company_name}).count() > 0:
-            # if not exist insert company
-            add_vehicle_company = db.vehicle_companies_collection.insert_one({
-                'user_id': user_id,
-                'company_name': company_name
-            })
-            if add_vehicle_company.acknowledged:
-                result = {
-                    'result': True,
-                    'new_id': add_vehicle_company.inserted_id,
-                    'msg': 'successfully added vehicle company.'
-                }
-        else:
-            result['msg'] = 'Company already exist.'
-        return result
-
-    # get vehicle company list
-    def get_vehicle_list(self, user_id=None):
-        result = []
-        query = {}
-        if not user_id == None:
-            query['user_id'] = user_id
-        for vehicle in db.vehicle_companies_collection.find(query).sort('company_name', 1):
-            result.append(vehicle)
-        return result
-
-    # add vehicle company
-    def add_vehicle_model(self, user_id, company_id, model_name):
-        result = {
-            'result': False,
-            'msg': 'Something went wrong'
-        }
-        if model_name in ('', None) or company_id in ('', None):
-            return result
-        model_exist = False
-        vehicle = db.vehicle_companies_collection.find_one({'user_id': user_id, '_id': company_id})
-        if 'models' in vehicle:
-            for model in vehicle['models']:
-                if model['name'] == model_name:
-                    model_exist = True
-        if not model_exist:
-            add_vehicle_model = db.vehicle_companies_collection.update_one(
-                {
-                    'user_id': user_id,
-                    '_id': company_id
-                },
-                {
-                    '$push': {
-                        'models': {
-                            'name': model_name
-                        }
-                    }
-                })
-            if add_vehicle_model.acknowledged:
-                result = {
-                    'result': True,
-                    'msg': 'successfully added vehicle model.'
-                }
-        else:
-            result['msg'] = 'Model already exist.'
-        return result
-
-    # get vehicle model list
-    def get_vehicle_model_list(self, company_name):
-        result = []
-        vehicle = db.vehicle_companies_collection.find_one({'company_name': company_name})
-        if 'models' in vehicle:
-            for model in vehicle['models']:
-                result.append(model)
-        return result
-
-    # delete vehicle model
-    def delete_vehicle_model(self, company_id, model_name):
-        result = {
-            'result': False,
-            'msg': 'Something went wrong'
-        }
-        delete_model = db.vehicle_companies_collection.update_one({'_id': company_id}, {
-            '$pull': {
-                'models': {'name': model_name}
-            }})
-
-        if delete_model.acknowledged:
-            result['result'] = True
-            result['msg'] = 'Successfully deleted model.'
-        return  result
-
-    # delete vehicle company
     def delete_vehicle_company(self, company_id):
-        result = {
-            'result': False,
-            'msg': 'Something went wrong'
+        # check if user id is set
+        if self.user_id is None:
+            raise Exception('user _id not set!')
+        delete = db.vehicle_companies_collection.delete_one({'_id':company_id, 'user_id': self.user_id})
+        if delete.acknowledged:
+            return {'result':True, 'msg': 'Vehicle Company deleted successfully!'}
+        return {'result': False, 'msg': 'Something went wrong!'}
+
+    def get_vehicle_companies(self):
+        # check if user id is set
+        if self.user_id is None:
+            raise Exception('user _id not set!')
+        company_list = db.vehicle_companies_collection.find({"user_id": self.user_id}).sort('company_name')
+        return {
+            'result': True,
+            'data': company_list
         }
-        delete_company = db.vehicle_companies_collection.delete_one({'_id': company_id})
-        if delete_company.acknowledged:
-            result['result'] = True
-            result['msg'] = 'Successfully deleted company.'
-        return result
+
+    def get_vehicle_company_details(self, company_id):
+        # check if user id is set
+        if self.user_id is None:
+            raise Exception('user _id not set!')
+        data = db.vehicle_companies_collection.find_one({"user_id": self.user_id, '_id': company_id})
+        return {
+            'result': True,
+            'data': data
+        }
+
+    def create_vehicle_model(self, company_name, model_name):
+        # check if user id is set
+        if self.user_id is None:
+            raise Exception('user _id not set!')
+        # validate data
+        data = {
+            'company_name': str(company_name).strip().lower(),
+            'model_name': str(model_name).strip().lower()
+        }
+        for field in data:
+            if data[field] == '':
+                return {
+                    'result': False,
+                    'msg': 'new ' + field + ' cannot be empty'
+                }
+        # create new vehicle model in database
+        create = db.vehicle_companies_collection.update_one({
+            'user_id': self.user_id,
+            'company_name': data['company_name']
+        },
+            {
+                '$push': {
+                    'models': data['model_name']
+                }
+            }
+        )
+        print(data)
+        if create.acknowledged:
+            return {'result': True, 'msg': 'model added successfully!'}
+        return {'result': False, 'msg': 'something went wrong'}
+
+    def delete_vehicle_company_model(self, company_id, model_name):
+        # check if user id is set
+        if self.user_id is None:
+            raise Exception('user _id not set!')
+        delete = db.vehicle_companies_collection.update_one({'_id':company_id, 'user_id': self.user_id}, {
+            '$pull': {
+                'models': model_name
+            }
+        })
+        if delete.acknowledged:
+            return {'result':True, 'msg': 'Vehicle model deleted successfully!'}
+        return {'result': False, 'msg': 'Something went wrong!'}
+
+    def create_vehicle(self, registration_number, registration_name, registration_date, vehicle_company, vehicle_model,
+                       vehicle_cc, vehicle_mfg, vehicle_fuel_type):
+        # check if user id is set
+        if self.user_id is None:
+            raise Exception('user _id not set!')
+        # check if contact _id is set
+        if self.contact_id is None:
+            raise Exception('contact _id not set')
+        # get data
+        vehicle = {
+            'user_id': self.user_id,
+            'contact_id': self.contact_id,
+            'created': datetime.datetime.utcnow(),
+            'registration_number': str(registration_number).strip().lower(),
+            'registration_name': str(registration_name).strip().lower(),
+            'registration_date': registration_date,
+            'vehicle_company': str(vehicle_company).strip().lower(),
+            'vehicle_model': str(vehicle_model).strip().lower(),
+            'vehicle_cc': vehicle_cc,
+            'vehicle_mfg': vehicle_mfg,
+            'vehicle_fuel_type': vehicle_fuel_type
+        }
+        # validate data
+        is_valid = True
+        invalid_fields = {}
+        for field in ('registration_number', 'registration_name', 'vehicle_company', 'vehicle_model'):
+            if vehicle[field] == '':
+                is_valid = False
+                invalid_fields[field] = 'Cannot be empty!'
+        # validate registration number
+        if 'registration_number' not in invalid_fields:
+            if not re.match("[a-z]{2}[0-9]{1,2}[a-z]{1,3}[0-9]{4}", vehicle['registration_number']):
+                is_valid = False
+                invalid_fields['registration_number'] = 'Not valid format - xx00xxxx'
+        if not is_valid:
+            return {'result': False, 'msg': 'check fields:\n' + ', '.join(invalid_fields),
+                    'invalid_fields': invalid_fields}
+        # if registration date is set then format it for mongodb database
+        if vehicle['registration_date'] != '':
+            vehicle['registration_date'] = datetime.datetime.strptime(vehicle['registration_date'], '%Y-%m-%d')
+        # all fields are valid create vehicle in database
+        create = db.vehicles_collection.insert_one(vehicle)
+        if create.acknowledged:
+            return {'result': True, 'msg': 'vehicle created successfully!', '_id': create.inserted_id}
+        return {'result': False, 'msg': 'something went wrong'}
+
+    def get_vehicles(self):
+        # check if user id is set
+        if self.user_id is None:
+            raise Exception('user _id not set!')
+        # check if contact _id is set
+        if self.contact_id is None:
+            raise Exception('contact _id not set')
+        vehicles = db.vehicles_collection.find({'user_id': self.user_id, 'contact_id': self.contact_id})
+        return {'result': True, 'data': vehicles}
+
+    def get_vehicle_details(self):
+        # check if vehicle id is set
+        if self._id is None:
+            raise Exception('vehicle id is not set')
+        # check if user id is set
+        if self.user_id is None:
+            raise Exception('user _id not set!')
+        # get vehicle data from database
+        vehicle = db.vehicles_collection.find_one({'_id': self._id, 'user_id': self.user_id})
+        if vehicle is None:
+            return {'result': False, 'msg': 'vehicle not found'}
+        self.data = vehicle
+        return {'result': True, 'data': self.data}
+
+    def update_vehicle_details(self, registration_number, registration_name, registration_date, vehicle_company,
+                               vehicle_model,
+                               vehicle_cc, vehicle_mfg, vehicle_fuel_type):
+        # check if user id is set
+        if self.user_id is None:
+            raise Exception('user _id not set!')
+        # check if vehicle _id is set
+        if self._id is None:
+            raise Exception('vehicle _id not set')
+        # get data
+        vehicle = {
+            'updated': datetime.datetime.utcnow(),
+            'registration_number': str(registration_number).strip().lower(),
+            'registration_name': str(registration_name).strip().lower(),
+            'registration_date': registration_date,
+            'vehicle_company': str(vehicle_company).strip().lower(),
+            'vehicle_model': str(vehicle_model).strip().lower(),
+            'vehicle_cc': vehicle_cc,
+            'vehicle_mfg': vehicle_mfg,
+            'vehicle_fuel_type': vehicle_fuel_type
+        }
+        # validate data
+        is_valid = True
+        invalid_fields = {}
+        for field in ('registration_number', 'registration_name', 'vehicle_company', 'vehicle_model'):
+            if vehicle[field] == '':
+                is_valid = False
+                invalid_fields[field] = 'Cannot be empty!'
+        if vehicle['vehicle_company'] == 'none':
+            is_valid = False
+            invalid_fields['vehicle_company'] = 'Cannot be empty!'
+        # validate registration number
+        if 'registration_number' not in invalid_fields:
+            if not re.match("[a-z]{2}[0-9]{1,2}[a-z]{1,3}[0-9]{4}", vehicle['registration_number']):
+                is_valid = False
+                invalid_fields['registration_number'] = 'Not valid format - xx00xxxx'
+        if not is_valid:
+            return {'result': False, 'msg': 'check fields:\n' + ', '.join(invalid_fields),
+                    'invalid_fields': invalid_fields}
+        # if registration date is set then format it for mongodb database
+        if vehicle['registration_date'] != '':
+            vehicle['registration_date'] = datetime.datetime.strptime(vehicle['registration_date'], '%Y-%m-%d')
+        # all fields are valid update vehicle details in database
+        update = db.vehicles_collection.update_one({
+            '_id': self._id,
+            'user_id': self.user_id
+        }, {
+            '$set': vehicle
+        })
+        if update.acknowledged:
+            return {'result': True, 'msg': 'vehicle details updated successfully!'}
+        return {'result': False, 'msg': 'something went wrong'}
+
+    def delete_vehicle(self):
+        # check if user id is set
+        if self.user_id is None:
+            raise Exception('user _id not set!')
+        # check if vehicle _id is set
+        if self._id is None:
+            raise Exception('vehicle _id not set')
+        # delete this vehicle insurance policies
+        for policy in self.policy.get_policies()['data']:
+            self.Policy(policy['_id'])
+            self.policy.delete_policy()
+        # delete vehicle in database
+        delete = db.vehicles_collection.delete_one({'_id': self._id, 'user_id': self.user_id})
+        if delete.acknowledged:
+            return {'result': True, 'msg': 'vehicle deleted successfully!'}
+        return {'result': False, 'msg': 'something went wrong!'}
+
+
+class Policy:
+
+    def __init__(self, _id=None):
+        self._id = _id
+        self.policy_type = None
+
+    def create_policy(self, policy_type=None, expiry_date=None, own_business=None, policy_number=None, cover_type=None,
+                      addon_covers=None, insurance_company=None, idv=None, ncb=None,
+                      premium=None, payout=None, discount=None):
+        # check if user id is set
+        if self.user_id is None:
+            raise Exception('user _id not set!')
+        # check if vehicle _id is set
+        if self.vehicle_id is None:
+            raise Exception('vehicle _id not set')
+        # check if policy type is set
+        if self.policy_type is None:
+            raise Exception('policy type not set!')
+        # get data
+        policy = {
+            'user_id': self.user_id,
+            'vehicle_id': self.vehicle_id,
+            'created': datetime.datetime.utcnow(),
+            'policy_type': policy_type,
+            'expiry_date': expiry_date,
+            'own_business': own_business,
+            'policy_number': str(policy_number).strip().lower(),
+            'cover_type': str(cover_type).strip().lower(),
+            'addon_covers': addon_covers,
+            'insurance_company': str(insurance_company).strip().lower(),
+            'idv': idv,
+            'ncb': ncb,
+            'premium': premium,
+            'payout': payout,
+            'discount': discount
+        }
+        # validate data
+        is_valid = True
+        invalid_fields = {}
+        # check required fields
+        if policy['expiry_date'] == '':
+            is_valid = False
+            invalid_fields[field] = 'Cannot be empty!'
+        if not is_valid:
+            return {'result': False, 'msg': 'check fields:\n' + ', '.join(invalid_fields),
+                    'invalid_fields': invalid_fields}
+        # format expiry date for mongodb database
+        policy['expiry_date'] = datetime.datetime.strptime(policy['expiry_date'], '%Y-%m-%d')
+        # if all fields are valid
+        create = db.insurance_policies_collection.insert_one(policy)
+        if create.acknowledged:
+            return {'result': True, 'msg': 'vehicle policy created successfully!', '_id': create.inserted_id}
+        return {'result': False, 'msg': 'something went wrong!'}
+
+    def get_policies(self):
+        # check if user id is set
+        if self.user_id is None:
+            raise Exception('user _id not set!')
+        # check if vehicle _id is set
+        if self.vehicle_id is None:
+            raise Exception('vehicle _id not set')
+        # check if policy type is set
+        if self.policy_type is None:
+            raise Exception('policy type not set!')
+        policies = db.insurance_policies_collection.find({'user_id': self.user_id, 'vehicle_id': self.vehicle_id})
+        return {'result': True, 'data': policies}
+
+    def create_insurance_company(self, company_name):
+        # check if user id is set
+        if self.user_id is None:
+            raise Exception('user _id not set!')
+        # validate data
+        data = str(company_name).strip().lower()
+        if data == '':
+            return {
+                'result': False,
+                'msg': 'new company name cannot be empty'
+            }
+        # create new insurance company in database
+        create = db.insurance_companies_collection.insert_one({
+            'created': datetime.datetime.utcnow(),
+            'user_id': self.user_id,
+            'company_name': company_name
+        })
+        if create.acknowledged:
+            return {'result': True, 'msg': 'insurance company created successfully!', '_id': create.inserted_id}
+        return {'result': False, 'msg': 'something went wrong'}
+
+    def delete_insurance_company(self, company_id):
+        # check if user id is set
+        if self.user_id is None:
+            raise Exception('user _id not set!')
+        delete = db.insurance_companies_collection.delete_one({'_id':company_id, 'user_id': self.user_id})
+        if delete.acknowledged:
+            return {'result': True, 'msg': 'Insurance Company deleted Successfully!'}
+        return {'result':False, 'msg': 'Something went wrong'}
+
+    def get_insurance_companies(self):
+        # check if user id is set
+        if self.user_id is None:
+            raise Exception('user _id not set!')
+        company_list = db.insurance_companies_collection.find({"user_id": self.user_id}).sort('company_name')
+        return {
+            'result': True,
+            'data': company_list
+        }
+
+    def get_policy_details(self):
+        # check if user id is set
+        if self.user_id is None:
+            raise Exception('user _id not set!')
+        # check if policy _id is set
+        if self._id is None:
+            raise Exception('policy _id not set')
+        # check if policy type is set
+        if self.policy_type is None:
+            raise Exception('policy type not set!')
+        if self.policy_type == 'motor':
+            # get vehicle policy data from database
+            policy = db.insurance_policies_collection.find_one({'_id': self._id, 'user_id': self.user_id})
+            if policy is None:
+                return {'result': False, 'msg': 'vehicle policy not found'}
+            self.data = policy
+            return {'result': True, 'data': self.data}
+        return {'result': False, 'msg': 'something went wrong'}
+
+    def update_policy(self, policy_type=None, expiry_date=None, own_business=None, policy_number=None, cover_type=None,
+                      addon_covers=None, insurance_company=None, idv=None, ncb=None,
+                      premium=None, payout=None, discount=None):
+        # check if user id is set
+        if self.user_id is None:
+            raise Exception('user _id not set!')
+        # check if policy _id is set
+        if self._id is None:
+            raise Exception('policy _id not set')
+        # check if policy type is set
+        if self.policy_type is None:
+            raise Exception('policy type not set!')
+        # get data
+        policy = {
+            'updated': datetime.datetime.utcnow(),
+            'policy_type': policy_type,
+            'expiry_date': expiry_date,
+            'own_business': own_business,
+            'policy_number': str(policy_number).strip().lower(),
+            'cover_type': str(cover_type).strip().lower(),
+            'addon_covers': addon_covers,
+            'insurance_company': str(insurance_company).strip().lower(),
+            'idv': idv,
+            'ncb': ncb,
+            'premium': premium,
+            'payout': payout,
+            'discount': discount
+        }
+        # validate data
+        is_valid = True
+        invalid_fields = {}
+        # check required fields
+        if policy['expiry_date'] == '':
+            is_valid = False
+            invalid_fields['expiry_date'] = 'Cannot be empty!'
+        if policy['insurance_company'] == 'none':
+            is_valid = False
+            invalid_fields['insurance_company'] = 'Cannot be empty!'
+        if not is_valid:
+            return {'result': False, 'msg': 'check fields:\n' + ', '.join(invalid_fields),
+                    'invalid_fields': invalid_fields}
+        # format expiry date for mongodb database
+        policy['expiry_date'] = datetime.datetime.strptime(policy['expiry_date'], '%Y-%m-%d')
+        # if all fields are valid
+        update = db.insurance_policies_collection.update_one({'_id': self._id, 'user_id': self.user_id}, {
+            '$set': policy
+        })
+        if update.acknowledged:
+            return {'result': True, 'msg': 'vehicle policy updated successfully!'}
+        return {'result': False, 'msg': 'something went wrong!'}
+
+    def delete_policy(self):
+        # check if user id is set
+        if self.user_id is None:
+            raise Exception('user _id not set!')
+        # check if policy _id is set
+        if self._id is None:
+            raise Exception('policy _id not set')
+        # check if policy type is set
+        if self.policy_type is None:
+            raise Exception('policy type not set!')
+        delete = db.insurance_policies_collection.delete_one({'_id': self._id, 'user_id': self.user_id})
+        if delete.acknowledged:
+            # remove policy id from renewal id
+            db.insurance_policies_collection.update_one({'renewal_id':self._id}, {
+                '$unset': {
+                    'renewal_id': ''
+                }
+            })
+            return {'result': True, 'msg': 'Vehicle policy deleted successfully!'}
+        return {'result': False, 'msg': 'something went wrong'}
+
+    def get_renewals(self, expiry_month, expiry_year):
+        # check if user id is set
+        if self.user_id is None:
+            raise Exception('user _id not set!')
+        policy_list = db.insurance_policies_collection.aggregate([
+            {'$addFields': {'expiry_day': {'$dayOfMonth': '$expiry_date'},
+                            'expiry_month': {'$month': '$expiry_date'},
+                            'expiry_year': {'$year': '$expiry_date'}}},
+            {'$match': {'$and': [
+                {'expiry_month': {'$eq': expiry_month}},
+                {'expiry_year': {'$lte': expiry_year}}
+            ]}},
+            {'$sort': {'expiry_year': -1}},
+            {'$group': {
+                '_id': '$vehicle_id',
+
+                'policy': {'$first': '$$ROOT'},
+                'policy_id': {'$first': '$$ROOT._id'},
+                'expiry_date': {'$first': '$$ROOT.expiry_date'},
+                'vehicle_id': {'$first': '$$ROOT.vehicle_id'}
+            }},
+            {'$sort': {'policy.expiry_day': 1}},
+            {'$lookup': {
+                'from': 'followups',
+                "let": { "policy_id": "$policy_id" },
+                'pipeline': [
+                    {"$match": {"$expr": {"$eq": ["$policy_id", "$$policy_id"]}}},
+                    {'$sort': {'created': -1}},
+                    {'$limit': 1}
+                ],
+                'as': 'followups'
+            }},
+            {'$addFields': {'followups': {
+                "$arrayElemAt": ["$followups", 0]
+            }}},
+            {'$lookup': {
+                'from': 'vehicles',
+                'localField': 'vehicle_id',
+                'foreignField': '_id',
+                'as': 'vehicle'
+            }},
+            {'$addFields': {'vehicle': {
+                "$arrayElemAt": ["$vehicle", 0]
+            }}},
+            {'$lookup': {
+                'from': 'contacts',
+                'localField': 'vehicle.contact_id',
+                'foreignField': '_id',
+                'as': 'contact'
+            }},
+            {'$addFields': {'contact': {
+                "$arrayElemAt": ["$contact", 0]
+            }}}
+        ])
+        data = list(policy_list)
+        # add policy status field
+        for policy in data:
+            policy['status'] = None
+            if 'renewal_id' in policy['policy']:
+                policy['status'] = 'won'
+            else:
+                if 'followups' in policy:
+                    policy['status'] = policy['followups']['policy_status']
+        return {'result': True, 'data': data}
+
+    def get_renewal_details(self):
+        # check if user id is set
+        if self.user_id is None:
+            raise Exception('user _id not set!')
+        # check if policy _id is set
+        if self._id is None:
+            raise Exception('policy _id not set')
+        # check if policy type is set
+        if self.policy_type is None:
+            raise Exception('policy type not set!')
+        if self.policy_type == 'motor':
+            # get vehicle policy data from database
+            policy = db.insurance_policies_collection.find_one({'_id': self._id, 'user_id': self.user_id})
+            if policy is None:
+                return {'result': False, 'msg': 'vehicle policy not found'}
+            self.data = {}
+            self.data['policy'] = policy
+            self.data['followups'] = db.followups_collection.find({'policy_id':policy['_id']}).sort('created', -1)
+            self.user = User(self.user_id)
+            # get vehicle details
+            self.user.contact.Vehicle(policy['vehicle_id'])
+            vehicle = self.user.contact.vehicle.get_vehicle_details()['data']
+            self.data['vehicle'] = vehicle
+            # get contact details
+            self.user.Contact(vehicle['contact_id'])
+            contact = self.user.contact.get_contact_details()['data']
+            self.data['contact'] = contact
+            return {'result': True, 'data': self.data}
+        return {'result': False, 'msg': 'something went wrong'}
+
+    def post_followup(self, remark):
+        # check if user id is set
+        if self.user_id is None:
+            raise Exception('user _id not set!')
+        # check if policy _id is set
+        if self._id is None:
+            raise Exception('policy _id not set')
+        # check if policy type is set
+        if self.policy_type is None:
+            raise Exception('policy type not set!')
+        # validate data
+        remark = str(remark).strip()
+        if remark == '':
+            return {
+                'result': False,
+                'msg': 'check fields!',
+                'invalid_fields': {'remark': 'remark cannot be empty'}
+            }
+        followup = {
+            'created': datetime.datetime.utcnow(),
+            'user_id': self.user_id,
+            'policy_id': self._id,
+            'remark': remark,
+            'policy_status': 'followup'
+        }
+        create = db.followups_collection.insert_one(followup)
+        if create.acknowledged:
+            return {'result': True, '_id': create.inserted_id}
+        return {'result': False, 'msg': 'Something went wrong!'}
+
+    def renew_policy(self, expiry_date=None, own_business=None, policy_number=None, cover_type=None,
+                      addon_covers=None, insurance_company=None, idv=None, ncb=None,
+                      premium=None, payout=None, discount=None):
+        # check if user id is set
+        if self.user_id is None:
+            raise Exception('user _id not set!')
+        # check if policy _id is set
+        if self._id is None:
+            raise Exception('policy _id not set')
+        # check if policy type is set
+        if self.policy_type is None:
+            raise Exception('policy type not set!')
+        # set vehicle id
+        self.get_policy_details()
+        self.vehicle_id = self.data['vehicle_id']
+        # validate data
+        # check if new expiry date is equal or older then current expiry date
+        if int(expiry_date[:4]) <= self.data['expiry_date'].year:
+            return {
+                'result':False,
+                'msg': 'Expiry Year should be greater than current year.',
+                'invalid_fields': {'expiry_date': 'Expiry Year should be greater than current year.'}
+            }
+        # add new policy
+        new_policy = self.create_policy(expiry_date=expiry_date, own_business=own_business,
+                                                       policy_number=policy_number, cover_type=cover_type,
+                                                       addon_covers=addon_covers,
+                                                       insurance_company=insurance_company, idv=idv, ncb=ncb,
+                                                       premium=premium,
+                                                       payout=payout, discount=discount)
+        if new_policy['result'] is not True:
+            return new_policy
+        # update new policy id to renewal id
+        db.insurance_policies_collection.update_one({'_id': self._id}, {
+            '$set': {
+                'renewal_id': new_policy['_id']
+            }
+        })
+        # add policy done remark
+        self.post_followup('Policy Renewed!')
+        return {'result': True, '_id': new_policy['_id']}
