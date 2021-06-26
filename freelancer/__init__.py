@@ -14,5 +14,5 @@ def login_required(f):
             return views.login()
     return wrap
 
-from . import views
-from . import controller
+from freelancer import views
+from freelancer import controller
