@@ -70,7 +70,9 @@ def insurance_renewals():
     policy_list = []
     for policy in user.contact.vehicle.policy.get_renewals(today.month, today.year)['data']:
         policy_list.append(policy)
-    return render_template('crm/insurance_renewals.html', policy_list=policy_list, today=today)
+    insurance_companies = list(user.contact.vehicle.policy.get_insurance_companies()['data'])
+    return render_template('crm/insurance_renewals.html', policy_list=policy_list, today=today,
+                           insurance_companies=insurance_companies)
 
 @app.route('/manage_insurance_companies')
 @login_required
