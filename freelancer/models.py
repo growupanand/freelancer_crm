@@ -658,7 +658,7 @@ class Policy:
         create = db.insurance_companies_collection.insert_one({
             'created': datetime.datetime.utcnow(),
             'user_id': self.user_id,
-            'company_name': company_name
+            'company_name': data
         })
         if create.acknowledged:
             return {'result': True, 'msg': 'insurance company created successfully!', '_id': create.inserted_id}

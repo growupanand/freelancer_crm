@@ -580,7 +580,7 @@
                             <td data-field="addon_covers"></td>
                         </tr>
                         <tr>
-                            <td class="text-muted">Insurance Company</td>
+                            <td class="text-muted text-capitalize">Insurance Company</td>
                             <td data-field="insurance_company"></td>
                         </tr>
                         <tr>
@@ -1326,7 +1326,7 @@
                 'cover_type': form_data.get('cover_type'),
                 'addon_covers': form_data.getAll('addon_covers[]'),
                 'insurance_company': form_data.get('insurance_company'),
-                'other_insurance_company': form_data.get('other_insurance_company'),
+                'other_insurance_company': form_data.get('other_insurance_company').toLowerCase(),
                 'idv': form_data.get('idv'),
                 'ncb': form_data.get('ncb'),
                 'premium': form_data.get('premium'),
