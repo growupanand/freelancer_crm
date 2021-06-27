@@ -931,9 +931,9 @@
                 'registration_name': form_data.get('registration_name').trim(),
                 'registration_date': form_data.get('registration_date'),
                 'vehicle_company': form_data.get('vehicle_company'),
-                'other_vehicle_company': form_data.get('other_vehicle_company').trim(),
+                'other_vehicle_company': form_data.get('other_vehicle_company').trim().toLowerCase(),
                 'vehicle_model': form_data.get('vehicle_model'),
-                'other_vehicle_model': form_data.get('other_vehicle_model').trim(),
+                'other_vehicle_model': form_data.get('other_vehicle_model').trim().toLowerCase(),
                 'vehicle_cc': form_data.get('vehicle_cc').trim(),
                 'vehicle_mfg': form_data.get('vehicle_mfg').trim(),
                 'vehicle_fuel_type': form_data.get('vehicle_fuel_type')
@@ -967,10 +967,13 @@
                                 company_option.value = data['other_vehicle_company']
                                 company_option.innerText = data['other_vehicle_company']
                                 document.form_add_vehicle.vehicle_company.add(company_option)
+                                document.form_edit_vehicle.vehicle_company.add(company_option.cloneNode(true))
                                 data['vehicle_company'] = data['other_vehicle_company']
+                                vehicle_company_list[data['vehicle_company']] = []
                             }
                             if (data['vehicle_model'] === 'other_vehicle_model') {
-                                data['vehicle_model'] = data['other_vehicle_model']
+                                vehicle_company_list[data['vehicle_company']].push(data['other_vehicle_model'])
+
                             }
                             if (data['registration_date'] !== '') {
                                 data['registration_date'] = format_input_date(data['registration_date'])
@@ -1056,9 +1059,9 @@
                 'registration_name': form_data.get('registration_name').trim(),
                 'registration_date': form_data.get('registration_date'),
                 'vehicle_company': form_data.get('vehicle_company'),
-                'other_vehicle_company': form_data.get('other_vehicle_company').trim(),
+                'other_vehicle_company': form_data.get('other_vehicle_company').trim().toLowerCase(),
                 'vehicle_model': form_data.get('vehicle_model'),
-                'other_vehicle_model': form_data.get('other_vehicle_model').trim(),
+                'other_vehicle_model': form_data.get('other_vehicle_model').trim().toLowerCase(),
                 'vehicle_cc': form_data.get('vehicle_cc').trim(),
                 'vehicle_mfg': form_data.get('vehicle_mfg').trim(),
                 'vehicle_fuel_type': form_data.get('vehicle_fuel_type')
@@ -1085,10 +1088,18 @@
                             // update new data in vehicle card
                             vehicle_card = document.querySelector('[data-vehicle_id="' + edit_vehicle_id + '"]')
                             if (data['vehicle_company'] === 'other_vehicle_company') {
+                                // if new vehicle company then add to new company to vehicle select company control in form (add and edit)
+                                var company_option = document.createElement('option')
+                                company_option.value = data['other_vehicle_company']
+                                company_option.innerText = data['other_vehicle_company']
+                                document.form_add_vehicle.vehicle_company.add(company_option)
+                                document.form_edit_vehicle.vehicle_company.add(company_option.cloneNode(true))
                                 data['vehicle_company'] = data['other_vehicle_company']
+                                vehicle_company_list[data['vehicle_company']] = []
                             }
                             if (data['vehicle_model'] === 'other_vehicle_model') {
                                 data['vehicle_model'] = data['other_vehicle_model']
+                                vehicle_company_list[data['vehicle_company']].push(data['vehicle_model'])
                             }
                             if (data['registration_date'] !== '') {
                                 data['registration_date'] = format_input_date(data['registration_date'])

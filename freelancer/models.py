@@ -356,7 +356,7 @@ class Vehicle:
         create = db.vehicle_companies_collection.insert_one({
             'created': datetime.datetime.utcnow(),
             'user_id': self.user_id,
-            'company_name': company_name
+            'company_name': data
         })
         if create.acknowledged:
             return {'result': True, '_id': create.inserted_id}
