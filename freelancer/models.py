@@ -783,6 +783,7 @@ class Policy:
                             'expiry_month': {'$month': '$expiry_date'},
                             'expiry_year': {'$year': '$expiry_date'}}},
             {'$match': {'$and': [
+                {'user_id': self.user_id},
                 {'expiry_month': {'$eq': expiry_month}},
                 {'expiry_year': {'$lte': expiry_year}}
             ]}},
