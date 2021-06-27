@@ -417,7 +417,6 @@ class Vehicle:
                 }
             }
         )
-        print(data)
         if create.acknowledged:
             return {'result': True, 'msg': 'model added successfully!'}
         return {'result': False, 'msg': 'something went wrong'}
