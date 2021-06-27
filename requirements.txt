@@ -1,4 +1,3 @@
 pymongo
 Flask
 bcrypt
-bson
