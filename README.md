@@ -1,6 +1,8 @@
 # Freelancer CRM
 This an open source CRM for freelancer agent to manage contacts and insurance policies.
 
+Try Working Demo [https://freelancer-crm.herokuapp.com/](https://freelancer-crm.herokuapp.com/)
+
 ---
 
 ## Features
@@ -42,7 +44,7 @@ This an open source CRM for freelancer agent to manage contacts and insurance po
    python3 run.py
    ```
 
-1. Open http://localhost:5000/ in Chrome Browser
+1. Open [http://localhost:5000/](http://localhost:5000/) in Chrome Browser
 
 
 ## Support
