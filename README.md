@@ -46,6 +46,10 @@ Try Working Demo [https://freelancer-crm.herokuapp.com/](https://freelancer-crm.
 
 1. Open [http://localhost:5000/](http://localhost:5000/) in Chrome Browser
 
+---
 
-## Support
+# Credit
+[PyCharm](https://www.jetbrains.com/pycharm/)
+
+# Support
 If you like this project please support by giving star or give feedback
