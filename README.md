@@ -7,10 +7,15 @@ Try Working Demo [https://freelancer-crm.herokuapp.com/](https://freelancer-crm.
 
 ## Features
 
-* Multi users
-* Manage Contacts
-* Manage Insurance Policy of Contact
-* Manage Insurance Renewals with followups
+* ### Contacts
+  ![Contacts](Docs/Screenshots/Contacts.png?raw=true "Optional Title")
+
+* ### Manage Contact and Policy
+  ![View_Contact](Docs/Screenshots/View Contact.png?raw=true "Optional Title")
+
+* ### Insurance Renewals
+  ![Insruance_Renewals](Docs/Screenshots/Insurance Renewals.png?raw=true "Optional Title")
+
 
 
 ## Requirements
@@ -48,7 +53,7 @@ Try Working Demo [https://freelancer-crm.herokuapp.com/](https://freelancer-crm.
 
 ---
 
-# Credit
+# Software Used
 [PyCharm](https://www.jetbrains.com/pycharm/)
 
 # Support
