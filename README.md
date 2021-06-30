@@ -8,13 +8,13 @@ Try Working Demo [https://freelancer-crm.herokuapp.com/](https://freelancer-crm.
 ## Features
 
 * ### Contacts
-  ![Contacts](Docs/Screenshots/Contacts.png?raw=true "Contacts")
+  ![Contacts](Screenshots/Contacts.png?raw=true "Contacts")
 
 * ### Manage Contact and Policy
-  ![View_Contact](Docs/Screenshots/View_Contact.png?raw=true "View_Contact")
+  ![View_Contact](Screenshots/View_Contact.png?raw=true "View_Contact")
 
 * ### Insurance Renewals
-  ![Insruance_Renewals](Docs/Screenshots/Insurance_Renewals.png?raw=true "Insruance_Renewals")
+  ![Insruance_Renewals](Screenshots/Insurance_Renewals.png?raw=true "Insruance_Renewals")
 
 
 
