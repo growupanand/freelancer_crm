@@ -42,7 +42,8 @@ def contacts():
 def view_contact(contact_id):
     user = models.User(get_user_id())
     user.Contact(ObjectId(contact_id))
-    if user.contact.get_contact_details()['result']:
+    contact = user.contact.get_contact_details()
+    if contact['result']:
         contact_data = user.contact.data
         vehicle_companies = list(user.contact.vehicle.get_vehicle_companies()['data'])
         vehicle_company_list = {}
@@ -63,16 +64,19 @@ def view_contact(contact_id):
 
 
 @app.route('/insurance_renewals')
+@app.route('/insurance_renewals/<policy_id>')
 @login_required
-def insurance_renewals():
+def insurance_renewals(policy_id=None):
+    current_policy_id = '' if policy_id is None else policy_id
     user = models.User(get_user_id())
     today = datetime.utcnow()
     policy_list = []
     for policy in user.contact.vehicle.policy.get_renewals(today.month, today.year)['data']:
         policy_list.append(policy)
     insurance_companies = list(user.contact.vehicle.policy.get_insurance_companies()['data'])
-    return render_template('crm/insurance_renewals.html', policy_list=policy_list, today=today,
+    return render_template('crm/insurance_renewals.html', current_policy_id=current_policy_id, policy_list=policy_list, today=today,
                            insurance_companies=insurance_companies)
+
 
 @app.route('/manage_insurance_companies')
 @login_required

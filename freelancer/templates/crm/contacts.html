@@ -15,23 +15,24 @@
     </div>
 
     <div class="container-fluid">
-    <div class="row">
-        <div class="mx-auto col-lg-6">
-        <div class="mb-3">
-            <span class="fs-5 text-muted">All Contacts ({{ contacts|length }})</span>
+        <div class="row">
+            <div class="mx-auto col-lg-6">
+                <div class="mb-3">
+                    <span class="fs-5 text-muted">All Contacts ({{ contacts|length }})</span>
+                </div>
+                <div class="list-group">
+                    {% for contact in contacts %}
+                        <a class="list-group-item list-group-item-action text-capitalize"
+                           href="/contacts/{{ contact['_id'] }}">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <span>{{ contact['full_name'] }}</span>
+                                <span class="text-muted">{{ contact['mobile_numbers']|join(',') }}</span>
+                            </div>
+                        </a>
+                    {% endfor %}
+                </div>
+            </div>
         </div>
-             <div class="list-group">
-            {% for contact in contacts %}
-                <a class="list-group-item list-group-item-action text-capitalize" href="/contacts/{{ contact['_id'] }}">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <span>{{ contact['full_name'] }}</span>
-                        <span class="text-muted">{{ contact['mobile_numbers']|join(',') }}</span>
-                    </div>
-                </a>
-            {% endfor %}
-        </div>
-        </div>
-    </div>
     </div>
 
 
@@ -85,13 +86,16 @@
                     </form>
                 </div>
                 <div class="modal-footer justify-content-end">
-                    <button class="btn btn-light text-primary fw-bold" type="button" data-bs-dismiss="modal">CANCEL</button>
+                    <button class="btn btn-light text-primary fw-bold" type="button" data-bs-dismiss="modal">CANCEL
+                    </button>
                     <button type="submit" form="form_add_contact" class="px-5 fw-bold btn btn-primary">SAVE</button>
                 </div>
             </div>
         </div>
     </div>
+{% endblock %}
 
+{% block script %}
     <script>
 
         //submit add contact form
@@ -146,7 +150,6 @@
                 enable_form(form)
             }
         }
-
 
     </script>
 {% endblock %}

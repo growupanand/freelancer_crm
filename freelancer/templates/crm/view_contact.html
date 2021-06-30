@@ -557,7 +557,7 @@
                             Edit Details
                         </button>
                     </div>
-                    <table class="table table-borderless table-striped text-uppercase">
+                    <table class="mb-3 table table-borderless table-striped text-uppercase">
                         <tbody>
                         <tr>
                             <td class="text-muted">Business Type</td>
@@ -605,6 +605,9 @@
                         </tr>
                         </tbody>
                     </table>
+                    <div class="d-grid">
+                        <a id="btn_view_renewal" href="#" class="btn border text-primary">View Renewal Page</a>
+                    </div>
                 </div>
             </div>
         </div>
@@ -722,8 +725,10 @@
             </div>
         </div>
     </div>
+{% endblock %}
 
-    <script>
+{% block script %}
+ <script>
         var contact_id = '{{ contact['_id'] }}'
         var vehicle_company_list =
         {{ vehicle_company_list|tojson }}
@@ -1276,6 +1281,7 @@
                 if (this.status >= 200 && this.status <= 400) {
                     if (this.response.result === true) {
                         data = this.response.data
+                        document.getElementById('btn_view_renewal').setAttribute('href', '/insurance_renewals/' + data['_id']['$oid'])
                         fields = ['expiry_date', 'policy_number', 'cover_type', 'insurance_company', 'idv', 'ncb', 'premium', 'payout', 'discount']
                         // set vehicle policy data to edit policy modal from
                         data['expiry_date'] = format_mongo_date(data['expiry_date'])

@@ -306,7 +306,9 @@
             </div>
         </div>
     </div>
+{% endblock %}
 
+{% block script %}
     <script>
         current_period = {'month': {{ today.strftime('%m') }}, 'year': {{ today.strftime('%Y') }}}
         current_period_el = document.getElementById('current_period_label')
@@ -315,7 +317,7 @@
         renewal_list_container_el = document.getElementById('renewal_list_container')
         view_renewal_container_el = document.getElementById('view_renewal_container')
         followups_list_el = view_renewal_container_el.querySelector('#followups')
-        current_policy_id = ''
+        current_policy_id = '{{ current_policy_id }}'
         followup_count_el = document.getElementById('followups_count')
         btn_policy_status_el = document.getElementById('btn_policy_status')
         btn_view_renewed_policy_el = document.getElementById('btn_view_renewed_policy')
@@ -430,7 +432,7 @@
                         document.getElementById('no_renewal_container').classList.add('d-none')
                         view_renewal_container_el.classList.remove('d-none')
                         var contact = this.response.data.contact
-                        view_renewal_container_el.querySelector('[data-field="full_name"]').innerText = contact['full_name']
+                        view_renewal_container_el.querySelector('[data-field="full_name"]').innerHTML = '<a class="text-decoration-none" href="/contacts/' + contact['_id']['$oid'] + '">' + contact['full_name'] + '</a>'
                         view_renewal_container_el.querySelector('[data-field="mobile_numbers"]').innerText = contact['mobile_numbers'].join(', ')
                         var policy = this.response.data.policy
                         var fields = ['expiry_date', 'policy_number', 'cover_type', 'addon_covers', 'insurance_company', 'idv', 'ncb', 'premium', 'payout', 'discount']
@@ -529,7 +531,7 @@
             }
             request.send(JSON.stringify(data))
         }
-        
+
         function submit_form_add_renewal_policy(form) {
             event.preventDefault()
             modal_add_renewal_policy = bootstrap.Modal.getInstance(document.getElementById('modal_add_renewal_policy'))
@@ -615,6 +617,10 @@
                 other_insurance_company_el.readOnly = true
                 other_insurance_company_el.classList.add('d-none')
             }
+        }
+
+        if (current_policy_id !== '') {
+            view_renewal(current_policy_id)
         }
 
     </script>
