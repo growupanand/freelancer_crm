@@ -16,14 +16,18 @@
                     <div class="card-header bg-transparent">
                         <div class="d-flex justify-content-between align-items-center">
                             <button id="btn_load_prev_month" class="btn" type="button"
-                                    onclick="load_prev_month()"><span
-                                    class="bi bi-chevron-left"></span></button>
+                                    onclick="load_prev_month()">
+                                <span class="bi bi-chevron-left"></span>
+                                <span class="visually-hidden">Prev Month</span>
+                            </button>
                             <div class="fs-6 fw-bold">
                                 <span id="current_period_label">{{ today.strftime('%B %Y') }}</span>
                             </div>
                             <button id="btn_load_next_month" class="btn" type="button"
-                                    onclick="load_next_month()"><span
-                                    class="bi bi-chevron-right"></span></button>
+                                    onclick="load_next_month()">
+                                <span class="visually-hidden">Next Month</span>
+                                <span class="bi bi-chevron-right"></span>
+                            </button>
 
                         </div>
                     </div>
@@ -42,7 +46,7 @@
 
             </div>
             <div class="col-lg-9 mb-3">
-                <div class="card bg-transparent border-0" id="no_renewal_container">
+                <div class="card" id="no_renewal_container">
                     <div class="card-body">
                         <p class="text-center text-secondary">No Renewal Selected</p>
                     </div>
