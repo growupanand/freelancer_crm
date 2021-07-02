@@ -14,10 +14,10 @@ Try Working Demo [https://freelancer-crm.herokuapp.com/](https://freelancer-crm.
     ![Contacts](Screenshots/Contacts.png?raw=true "Contacts")
 
 * ### Manage Contact and Policy
-    ![View_Contact](Screenshots/Contact Profile.png?raw=true "View_Contact")
+    ![View_Contact](Screenshots/Contact_Profile.png?raw=true "View_Contact")
 
 * ### Insurance Renewals
-    ![Insruance_Renewals](Screenshots/Insurance Renewals.png?raw=true "Insruance_Renewals")
+    ![Insruance_Renewals](Screenshots/Insurance_Renewals.png?raw=true "Insruance_Renewals")
 
 
 
