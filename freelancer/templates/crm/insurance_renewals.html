@@ -417,6 +417,7 @@
 
         function view_renewal(policy_id) {
             fadeout('view_renewal_container')
+            document.form_followup.reset()
             data = {
                 'policy_id': policy_id
             }
@@ -517,6 +518,7 @@
             request.onload = function () {
                 if (this.status >= 200 && this.status <= 400) {
                     if (this.response.result === true) {
+                        form.reset()
                         f_count = followup_count_el.innerText
                         f_count++
                         followup_count_el.innerText = f_count
