@@ -28,7 +28,7 @@ Try Working Demo [https://freelancer-crm.herokuapp.com/](https://freelancer-crm.
 * MongoDB
 
 
-## Setup Freelancer CRM
+## Installation
 
 1. Open project folder in Terminal
     ```commandline
@@ -61,3 +61,5 @@ Try Working Demo [https://freelancer-crm.herokuapp.com/](https://freelancer-crm.
 
 # Support
 If you like this project please support by giving star or give feedback
+
+[!["Buy Me A Coffee"](https://www.buymeacoffee.com/assets/img/custom_images/yellow_img.png)](https://www.buymeacoffee.com/growupanand)

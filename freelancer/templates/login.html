@@ -1,33 +1,27 @@
 {% extends 'base.html' %}
 {% block body %}
-    <div class="d-flex justify-content-center position-absolute w-100 h-100">
-        <div style="width: 500px" class="card bg-transparent border-0 mt-5">
-            <div class="card-body">
-                <h1 class="text-center">CRM</h1>
+    <div class="card border-0 bg-transparent">
+        <div class="card-body">
+            <h2 class="text-center">Login</h2>
+            <form onsubmit="submit_form_login(this)" name="form_login">
                 <div class="mb-3">
-                    <form onsubmit="submit_form_login(this)" name="form_login">
-                        <div class="mb-3">
-                            <label for="username" class="form-label text-muted">Username</label>
-                            <input id="username" name="username" type="text" class="form-control" required/>
-                        </div>
-                        <div class="mb-3">
-                            <label for="password" class="form-label text-muted">Password</label>
-                            <input id="password" name="password" type="password" class="form-control mb-3" required/>
-                        </div>
-                        <div class="d-grid">
-                            <button class="btn btn-primary fw-bold" type="submit">LOGIN</button>
-                        </div>
-                    </form>
+                    <label for="username" class="form-label text-muted">Username</label>
+                    <input id="username" name="username" type="text" class="form-control" required/>
                 </div>
-                <p class="text-center">
-                    <a class="btn text-primary" href="/signup">
-                        Create Account <span class="bi bi-chevron-right"></span>
+                <div class="mb-3">
+                    <label for="password" class="form-label text-muted">Password</label>
+                    <input id="password" name="password" type="password" class="form-control mb-3" required/>
+                </div>
+                <div class="d-grid">
+                    <button class="mb-3 btn btn-primary fw-bold" type="submit">LOGIN</button>
+                    <p class="text-center fw-bold">OR</p>
+                    <a class="mb-3 btn border bg-white text-primary fw-bold" href="/signup">
+                        Create Account
                     </a>
-                </p>
-            </div>
+                </div>
+            </form>
         </div>
     </div>
-
     <script>
         function submit_form_login(form) {
             event.preventDefault()
@@ -56,12 +50,13 @@
                 request.setRequestHeader('Content-Type', 'application/json')
                 request.responseType = 'json'
                 request.onload = function () {
-                    if (this.status >=200 && this.status <=400) {
+                    if (this.status >= 200 && this.status <= 400) {
                         if (this.response.result === true) {
                             form.reset()
                             location.reload()
+                        } else {
+                            show_alert(this.response.msg, 'warning')
                         }
-                        else {show_alert(this.response.msg, 'warning')}
                     } else {
                         show_alert('Server error', 'error')
                     }
@@ -72,6 +67,5 @@
                 enable_form(form)
             }
         }
-
     </script>
 {% endblock %}

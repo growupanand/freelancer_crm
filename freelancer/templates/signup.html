@@ -1,42 +1,32 @@
 {% extends 'base.html' %}
 {% block body %}
-    <div class="d-flex justify-content-center position-absolute w-100 h-100">
-        <div style="width: 500px" class="card bg-transparent border-0 mt-5">
-            <div class="card-body">
-                <h1 class="text-center mb-3">CRM</h1>
-                <div class="mb-3">
-                    <form onsubmit="submit_form_create_account(this)" name="form_create_account">
-                        <div class="mb-3">
-                            <label for="username" class="form-label text-muted">Username</label>
-                            <input id="username" name="username" type="text" class="form-control" required/>
-                        </div>
-                        <div class="mb-3">
-                            <label for="password" class="form-label text-muted">Password</label>
-                            <input id="password" name="password" type="password" class="form-control" required/>
-                        </div>
-                        <div class="mb-3">
-                            <label for="full_name" class="form-label text-muted">Full Name</label>
-                            <input id="full_name" name="full_name" type="text" class="form-control" required/>
-                        </div>
-                        <div class="d-grid">
-                            <button name="submit_button" id="submit_button" class="btn btn-primary fw-bold" type="submit">
-                                CREATE
-                            </button>
-                        </div>
-                    </form>
-                </div>
-                <p class="text-center">
-                    <a class="btn text-primary" href="/login">
-                        <span class="bi bi-chevron-left"></span> Login
+    <div class="card border-0 bg-transparent">
+        <div class="card-body">
+            <h2 class="text-center">Create Account</h2>
+            <form onsubmit="submit_form_create_account(this)" name="form_create_account">
+                    <div class="mb-3">
+                        <label for="username" class="form-label text-muted">Username</label>
+                        <input id="username" name="username" type="text" class="form-control" required/>
+                    </div>
+                    <div class="mb-3">
+                        <label for="password" class="form-label text-muted">Password</label>
+                        <input id="password" name="password" type="password" class="form-control" required/>
+                    </div>
+                    <div class="mb-3">
+                        <label for="full_name" class="form-label text-muted">Full Name</label>
+                        <input id="full_name" name="full_name" type="text" class="form-control" required/>
+                    </div>
+                    <div class="d-grid">
+                    <button class="mb-3 btn btn-primary fw-bold" type="submit">CREATE</button>
+                    <p class="text-center fw-bold">OR</p>
+                    <a class="mb-3 btn border bg-white text-primary fw-bold" href="/login">
+                        Login
                     </a>
-                </p>
-            </div>
+                </div>
+                </form>
         </div>
     </div>
-
-
     <script>
-
         function submit_form_create_account(form) {
             event.preventDefault()
             disable_form(form)
@@ -89,6 +79,5 @@
                 enable_form(form)
             }
         }
-
     </script>
 {% endblock %}
