@@ -1,3 +1,5 @@
 pymongo
 Flask
 bcrypt
+gunicorn
+dnspython
