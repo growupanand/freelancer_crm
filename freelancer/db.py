@@ -1,12 +1,12 @@
 import pymongo
 import os
 
-
-server_address = os.environ.get('server_address', "mongodb://localhost")
+# get db address and name from environment variable
+db_address = os.environ.get('db_address', "mongodb://localhost")
 selected_db = os.environ.get('db_name', "test_crm")
 
 
-client = pymongo.MongoClient(server_address)
+client = pymongo.MongoClient(db_address)
 db = client[selected_db]
 users_collection = db['users']
 contacts_collection = db['contacts']

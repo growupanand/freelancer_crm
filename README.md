@@ -1,32 +1,31 @@
 # Freelancer CRM
-This an open source CRM for freelancer agent to manage contacts and insurance policies.
 
-Try Working Demo [https://freelancer-crm.herokuapp.com/](https://freelancer-crm.herokuapp.com/)
+This an open source CRM web app for freelancer insurance agent to manage contacts, insurance policies and insurance
+renewals.
 
----
+[Live Demo](https://freelancer-crm.herokuapp.com/)
 
-## Features
+## Screeshots
 
 * ### Login
-    ![Login](Screenshots/Login.png?raw=true "Login")
+  ![Login](Screenshots/Login.png?raw=true "Login")
 
 * ### Contacts
-    ![Contacts](Screenshots/Contacts.png?raw=true "Contacts")
+  ![Contacts](Screenshots/Contacts.png?raw=true "Contacts")
 
 * ### Manage Contact and Policy
-    ![View_Contact](Screenshots/Contact_Profile.png?raw=true "View_Contact")
+  ![View_Contact](Screenshots/Contact_Profile.png?raw=true "View_Contact")
 
 * ### Insurance Renewals
-    ![Insruance_Renewals](Screenshots/Insurance_Renewals.png?raw=true "Insruance_Renewals")
-
-
+  ![Insruance_Renewals](Screenshots/Insurance_Renewals.png?raw=true "Insruance_Renewals")
 
 ## Requirements
 
-* Python3
-* Chrome Browser (or you can try any modern browser)
-* MongoDB
+Please install below requirements before installation
 
+* [Python3](https://www.python.org/downloads/)
+* [Google Chrome](https://www.google.com/chrome/) (OR Any Modern Browser)
+* [MongoDB](https://www.mongodb.com/try/download/community)
 
 ## Installation
 
@@ -35,31 +34,27 @@ Try Working Demo [https://freelancer-crm.herokuapp.com/](https://freelancer-crm.
    cd /project path
    ```
 
-1. Install required python packages in requirements.txt
+1. Install required python packages in `requirements.txt` (pymongo, Flask, bcrypt, gunicorn, dnspython)
+
     ```commandline
    pip install -r requirements.txt
     ```
 
-1. Setup Database
-    * Install [MongoDB server](https://www.mongodb.com/try/download/community) on local machine
-    * Write MongoDB server address in ```/freelancer/db.py```
-   ```python
-   client = pymongo.MongoClient("mongodb://localhost",27017)
-   ```
+1. By default, MongoDB address is set to `mongodb://localhost` , To change address set environment variable `db_address`
 
-1. Run server
+1. Run Server
     ```commandline
    python3 run.py
    ```
 
-1. Open [http://localhost:5000/](http://localhost:5000/) in Chrome Browser
+1. Open [http://localhost:5000/](http://localhost:5000/) in Browser
 
----
+## Developed using
 
-# Software Used
-[PyCharm](https://www.jetbrains.com/pycharm/)
+* [PyCharm](https://www.jetbrains.com/pycharm/)
 
-# Support
+## Support Developer
+
 If you like this project please support by giving star or give feedback
 
-[!["Buy Me A Coffee"](https://www.buymeacoffee.com/assets/img/custom_images/yellow_img.png)](https://www.buymeacoffee.com/growupanand)
+<a href="https://www.buymeacoffee.com/growupanand" target="_blank"><img src="https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png" alt="Buy Me A Coffee" style="height: 60px !important;width: 217px !important;" ></a>
