@@ -15,8 +15,8 @@
 </head>
 <body class="bg-light">
 <div class="toast-container position-fixed top-0 end-0 p-3" style="z-index: 7000" id="alert_container"></div>
-<nav class="navbar navbar-expand-md navbar-light bg-white">
-    <div class="container-xl">
+<nav class="navbar navbar-expand-lg navbar-light bg-white">
+    <div class="container">
         <a class="navbar-brand fw-bold fs-3" href="/">CRM</a>
         <div id="ajax_loading" class="fadeout_hide spinner-border text-primary spinner-border-sm mx-auto" role="status">
             <span class="visually-hidden">Loading...</span>
@@ -26,19 +26,30 @@
             <span class="navbar-toggler-icon"></span>
         </button>
         <div class="collapse navbar-collapse" id="navbarNav">
-            <ul class="navbar-nav">
+            <ul class="navbar-nav gap-lg-3 mb-3 mb-lg-0">
                 <li class="nav-item">
                     <a class="nav-link" href="/contacts">Contacts</a>
                 </li>
                 <li class="nav-item">
                     <a class="nav-link" href="/insurance_renewals">Insurance Renewals</a>
                 </li>
-            </ul>
-            <ul class="navbar-nav ms-auto">
-                <li class="nav-item">
-                    <a class="nav-link text-dark" href="/logout">Logout</a>
+                <li class="nav-item dropdown">
+                    <a href="#" class="nav-link dropdown-toggle" id="dropdown_manage_companies" role="button" data-bs-toggle="dropdown">
+                        Manage
+                    </a>
+                    <ul class="dropdown-menu bg-light">
+                        <li>
+                            <a class="dropdown-item" href="/manage_insurance_companies">Insurance Companies</a>
+                        </li>
+                        <li>
+                            <a class="dropdown-item" href="/manage_vehicle_companies">Vehicles Companies</a>
+                        </li>
+                    </ul>
                 </li>
             </ul>
+            <div class="d-grid ms-auto">
+                <a class="fw-bolder btn btn-secondary px-3" href="/logout">Logout</a>
+            </div>
         </div>
     </div>
 </nav>
