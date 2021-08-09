@@ -5,19 +5,6 @@ renewals.
 
 [Live Demo](https://freelancer-crm.herokuapp.com/)
 
-## Screeshots
-
-* ### Login
-  ![Login](Screenshots/Login.png?raw=true "Login")
-
-* ### Contacts
-  ![Contacts](Screenshots/Contacts.png?raw=true "Contacts")
-
-* ### Manage Contact and Policy
-  ![View_Contact](Screenshots/Contact_Profile.png?raw=true "View_Contact")
-
-* ### Insurance Renewals
-  ![Insruance_Renewals](Screenshots/Insurance_Renewals.png?raw=true "Insruance_Renewals")
 
 ## Requirements
 
