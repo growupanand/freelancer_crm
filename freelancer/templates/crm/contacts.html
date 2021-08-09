@@ -2,11 +2,14 @@
 {% block title %}Contacts{% endblock %}
 {% block body %}
 
-    <div class="bg-white sticky-lg-top border-bottom mb-5 py-3">
+    <div class="bg-white  border-bottom mb-5 py-3">
         <div class="container">
             <div class="d-flex flex-column gap-3 flex-lg-row justify-content-lg-between align-items-lg-center">
-                <h1 class="text-capitalize ">Contacts</h1>
-                <button class="btn btn-lg btn-primary px-3 fw-bolder" type="button" data-bs-toggle="modal"
+                <h1 class="text-capitalize ">
+                    Contacts
+                    <small class="text-muted">({{ contacts|length }})</small>
+                </h1>
+                <button class="btn btn-primary px-3 fw-bolder" type="button" data-bs-toggle="modal"
                         data-bs-target="#modal_add_contact">
                     New Contact
                 </button>
@@ -16,9 +19,6 @@
 
     <div class="container mb-3">
         <div class="d-flex flex-column align-items-stretch">
-            <p class="mb-3">
-                <span class="fs-6 text-muted">All Contacts ({{ contacts|length }})</span>
-            </p>
             <div class="list-group fs-5">
                 {% for contact in contacts %}
                     <a class="list-group-item list-group-item-action text-capitalize"

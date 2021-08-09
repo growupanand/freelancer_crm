@@ -9,9 +9,9 @@
         </div>
     </div>
 
-    <div class="container" id="renewal_list_container">
-        <div class="row">
-            <div class="col-lg-3 mx-auto mb-3">
+    <div class="container-fluid" id="renewal_list_container">
+        <div class="row gy-3">
+            <div class="col-lg-3">
                 <div style="max-height: 450px;" class="card">
                     <div class="card-header bg-transparent">
                         <div class="d-flex justify-content-between align-items-center">
@@ -52,19 +52,22 @@
                         <p class="text-center text-secondary">No Renewal Selected</p>
                     </div>
                 </div>
-                <div class="card fadeout_hide " id="view_renewal_container">
-                    <div class="card-body bg-white">
-                        <div class="d-flex justify-content-between mb-5">
-                            <h2 class="text-capitalize" data-field="full_name">Customer Name</h2>
+                <div class="card p-3 fadeout_hide " id="view_renewal_container">
+                    <div class="card-header border-0 bg-transparent">
+                        <div class="d-flex flex-column gap-3 flex-lg-row justify-content-lg-between align-items-lg-center">
+                            <h3 class="text-capitalize" data-field="full_name">Customer Name</h3>
                             <div class="d-flex flex-column">
-                                <button id="btn_policy_status" class="btn btn-primary px-5 fw-bold" type="button"
-                                        data-bs-target="#modal_add_renewal_policy" data-bs-toggle="modal">DONE
+                                <button id="btn_policy_status" class="btn btn-light text-primary px-3 fw-bold" type="button"
+                                        data-bs-target="#modal_add_renewal_policy" data-bs-toggle="modal">
+                                    Policy Done
                                 </button>
-                                <button id="btn_view_renewed_policy" class="fw-bold btn btn-light text-primary"
+                                <button id="btn_view_renewed_policy" class="fw-bold btn btn-primary fw-bolder px-3"
                                         type="button">View Renewed Policy
                                 </button>
                             </div>
                         </div>
+                    </div>
+                    <div class="card-body bg-white">
                         <div class="row">
                             <div class="col-lg-7 mb-3">
                                 <div class="mb-3">
@@ -173,26 +176,25 @@
                                 <div class="mb-3">
                                     <form name="form_followup" onsubmit="submit_form_followup(this)">
                                         <div class="mb-3">
-                                            <textarea placeholder="Remark" rows="4"
+                                            <textarea placeholder="Type Remark" rows="4"
                                                       class="form-control"
                                                       id="remark"
                                                       name="remark"></textarea>
                                         </div>
                                         <div class="d-grid mb-3">
                                             <button type="submit" name="submit"
-                                                    class="btn btn-secondary fw-bold position-relative">
+                                                    class="btn btn-primary fw-bold position-relative">
                                                 Follow Up
                                             </button>
                                         </div>
                                     </form>
                                 </div>
-                                <div class="text-muted small mb-2">
-                                    All Followups
-                                    (<span class="" id="followups_count">0</span>)
-                                </div>
                                 <div class="card border-0 ">
-                                    <div class="list-group list-group-flush" id="followups">
+                                    <div class="card-header border-0 bg-transparent">
+                                        All Followups
+                                        <small class="text-muted">(<span class="" id="followups_count">0</span>)</small>
                                     </div>
+                                    <div class="list-group list-group-flush" id="followups"></div>
                                 </div>
                             </div>
                         </div>
@@ -474,9 +476,9 @@
                             remark = followup['remark'].replace(/\r\n|\n|\r/gm, '<br/>')
                             followup_el = document.createElement('div')
                             followup_el.className = 'list-group-item'
-                            followup_el.innerHTML = '<p><span class="small text-muted">' +
+                            followup_el.innerHTML = '<small class=" text-muted">' +
                                 format_input_date(followup['created']['$date']) +
-                                '</span><br/>' + remark + '</p>'
+                                '</small><div class="ps-2">' + remark + '</div>'
                             followups_list_el.appendChild(followup_el)
                         }
                         document.getElementById('followups_count').innerText = followups_count

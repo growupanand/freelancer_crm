@@ -1,10 +1,10 @@
 {% extends 'crm/base.html' %}
 {% block body %}
-    <div class="bg-white sticky-lg-top border-bottom mb-5 py-3">
+    <div class="bg-white border-bottom mb-5 py-3">
         <div class="container">
             <div class="d-flex flex-column gap-3 flex-lg-row justify-content-lg-between align-items-lg-center">
                 <h1 class="text-capitalize">{{ contact['full_name'] }}</h1>
-                <button class="btn btn-lg bg-light fw-bold px-3 text-primary" data-bs-toggle="offcanvas"
+                <button class="btn bg-light fw-bold px-3 text-primary" data-bs-toggle="offcanvas"
                         data-bs-target="#offcanvas_edit_contact">
                     Edit Contact
                 </button>
@@ -12,13 +12,13 @@
         </div>
     </div>
 
-    <div class="container mb-3">
-        <div class="row g-5">
+    <div class="container-fluid mb-3">
+        <div class="row g-3">
             <div class="col-lg-3 ">
                 <div class="card" id="contact_information">
-                    <h4 class="card-header border-0 ">
+                    <div class="card-header fw-bolder border-0 ">
                         Contact Details
-                    </h4>
+                    </div>
                     <div class="card-body">
                         <div class="card-title text-muted">
                             Mobile Numbers
@@ -42,91 +42,100 @@
                 </div>
             </div>
             <div class="col-lg-9">
-                <div class="mb-3 d-flex flex-column gap-3 flex-lg-row justify-content-lg-between align-items-lg-center">
-                    <h2>Vehicles</h2>
-                    <button class="btn px-3 btn-primary fw-bolder" data-bs-toggle="modal"
-                            data-bs-target="#modal_add_vehicle">
-                        New Vehicle
-                    </button>
-                </div>
-                <p class="fs-6 text-muted">
-                    All Vehicles
-                    (<span id="vehicles_count">{{ vehicles|length }}</span>)
-                </p>
-                <div class="row row-cols-1 g-3 g-lg-5" id="vehicle_card_list">
-                    {% for vehicle in vehicles %}
-                        <div class="col">
-                            <div data-vehicle_id="{{ vehicle['_id'] }}" class="card shadow border-0 p-3">
-                                <div class="card-body">
-                                    <div class="mb-5 fs-3 d-flex flex-column gap-2 flex-lg-row justify-content-start">
+                <ul class="nav nav-tabs">
+                    <li class="nav-item">
+                        <a href="#" class="nav-link active">Motor Insurance</a>
+                    </li>
+                </ul>
+                <div class="container-fluid">
+                    <div class="my-3 d-flex flex-column gap-3 flex-lg-row justify-content-lg-between align-items-lg-center">
+                        <p class="fs-4 m-0">
+                            Vehicles
+                            <small class="text-muted">(<span id="vehicles_count">{{ vehicles|length }}</span>)</small>
+                        </p>
+                        <button class="btn px-3 btn-primary fw-bolder" data-bs-toggle="modal"
+                                data-bs-target="#modal_add_vehicle">
+                            New Vehicle
+                        </button>
+                    </div>
+                    <div class="row row-cols-1 gy-3 gy-lg-5" id="vehicle_card_list">
+                        {% for vehicle in vehicles %}
+                            <div class="col">
+                                <div data-vehicle_id="{{ vehicle['_id'] }}" class="card shadow border-0 p-3">
+                                    <div class="card-header border-0 bg-transparent">
+                                        <div class="fs-3 d-flex flex-column flex-lg-row justify-content-lg-between align-items-lg-center">
                                         <span data-field="registration_number"
-                                            class="m-0 text-uppercase fw-bolder">{{ vehicle['registration_number'] }}</span>
-                                        <span data-field="registration_name"
-                                              class="text-capitalize text-muted">{{ vehicle['registration_name'] }}</span>
-
-                                    </div>
-                                    <div class="row">
-                                        <div class="col-lg-6 mb-3">
-                                            <div class="d-flex justify-content-between align-items-center mb-3">
-                                                <span class="fs-5">Vehicle Details</span>
-                                                <button class="btn btn-sm text-primary"
-                                                        onclick="view_edit_vehicle_modal('{{ vehicle['_id'] }}')">
-                                                    Edit Details
-                                                </button>
-                                            </div>
-                                            <table class="text-uppercase table table-borderless table-striped table-sm align-middle">
-                                                <tr>
-                                                    <td class="text-muted text-nowrap">Number</td>
-                                                    <td data-field="registration_number">{{ vehicle['registration_number'] }}</td>
-                                                </tr>
-                                                <tr>
-                                                    <td class="text-muted text-nowrap">Name</td>
-                                                    <td data-field="registration_name">{{ vehicle['registration_name'] }}</td>
-                                                </tr>
-                                                <tr>
-                                                    <td class="text-muted text-nowrap">Make - Model</td>
-                                                    <td>
-                                                        <span data-field="vehicle_company">{{ vehicle['vehicle_company'] }}</span>
-                                                        -
-                                                        <span data-field="vehicle_model">{{ vehicle['vehicle_model'] }}</span>
-                                                    </td>
-                                                </tr>
-                                                <tr>
-                                                    <td class="text-muted text-nowrap">Reg Date</td>
-                                                    <td data-field="registration_date">
-                                                        {% if vehicle['registration_date'] not in ('', None) %}
-                                                            {{ vehicle['registration_date'].strftime('%d-%b-%Y') }}
-                                                        {% endif %}
-                                                    </td>
-                                                </tr>
-                                                <tr>
-                                                    <td class="text-muted text-nowrap">MFG Year</td>
-                                                    <td data-field="vehicle_mfg">{{ vehicle['vehicle_mfg'] }}</td>
-                                                </tr>
-                                                <tr>
-                                                    <td class="text-muted text-nowrap">CC</td>
-                                                    <td data-field="vehicle_cc">{{ vehicle['vehicle_cc'] }}</td>
-                                                </tr>
-                                                <tr>
-                                                    <td class="text-muted text-nowrap">Fuel Type</td>
-                                                    <td data-field="vehicle_fuel_type">{{ vehicle['vehicle_fuel_type'] }}</td>
-                                                </tr>
-                                            </table>
+                                              class="text-uppercase">{{ vehicle['registration_number'] }}</span>
                                         </div>
-                                        <div class="col-lg-6 mb-3">
-                                            <div class="d-grid d-lg-flex justify-content-lg-between align-items-lg-center mb-3">
-                                                <button class="btn bg-light text-primary fw-bold mb-3 mb-lg-0"
-                                                        onclick="view_add_vehicle_policy_modal('{{ vehicle['_id'] }}')">
-                                                    ADD POLICY
-                                                </button>
-                                                <span class="fs-5 text-muted">All Policies
-                                            (<span data-field="vehicle_policies_count">{{ vehicle.policies|length }}</span>)
-                                        </span>
+                                    </div>
+                                    <div class="card-body">
+
+                                        <div class="row">
+                                            <div class="col-lg-6 mb-3">
+                                                <div class="d-flex flex-column gap-3 flex-lg-row justify-content-lg-between align-items-lg-center mb-3">
+                                                    <span class="fs-5">Vehicle Details</span>
+                                                    <button class="btn bg-light text-primary fw-bold"
+                                                            onclick="view_edit_vehicle_modal('{{ vehicle['_id'] }}')">
+                                                        Edit Details
+                                                    </button>
+                                                </div>
+                                                <table class="text-uppercase table table-borderless table-striped table-sm align-middle">
+                                                    <tr>
+                                                        <td class="text-muted text-nowrap">Number</td>
+                                                        <td data-field="registration_number">{{ vehicle['registration_number'] }}</td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td class="text-muted text-nowrap">Name</td>
+                                                        <td data-field="registration_name">{{ vehicle['registration_name'] }}</td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td class="text-muted text-nowrap">Make - Model</td>
+                                                        <td>
+                                                            <span data-field="vehicle_company">{{ vehicle['vehicle_company'] }}</span>
+                                                            -
+                                                            <span data-field="vehicle_model">{{ vehicle['vehicle_model'] }}</span>
+                                                        </td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td class="text-muted text-nowrap">Reg Date</td>
+                                                        <td data-field="registration_date">
+                                                            {% if vehicle['registration_date'] not in ('', None) %}
+                                                                {{ vehicle['registration_date'].strftime('%d-%b-%Y') }}
+                                                            {% endif %}
+                                                        </td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td class="text-muted text-nowrap">MFG Year</td>
+                                                        <td data-field="vehicle_mfg">{{ vehicle['vehicle_mfg'] }}</td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td class="text-muted text-nowrap">CC</td>
+                                                        <td data-field="vehicle_cc">{{ vehicle['vehicle_cc'] }}</td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td class="text-muted text-nowrap">Fuel Type</td>
+                                                        <td data-field="vehicle_fuel_type">{{ vehicle['vehicle_fuel_type'] }}</td>
+                                                    </tr>
+                                                </table>
                                             </div>
-                                            <div id="vehicle_policies_list" class="list-group list-group-flush">
-                                                {% for policy in vehicle.policies %}
-                                                    <button onclick="view_vehicle_policy_modal(this, '{{ policy['_id'] }}')"
-                                                            class="list-group-item list-group-item-action d-flex justify-content-between">
+                                            <div class="col-lg-6 mb-3">
+                                                <div class="d-flex flex-column gap-3 flex-lg-row justify-content-lg-between align-items-lg-center mb-3">
+                                                <span class="fs-5">
+                                                    Policies
+                                                    <small class="text-muted">
+                                                        (<span
+                                                            data-field="vehicle_policies_count">{{ vehicle.policies|length }}</span>)
+                                                    </small>
+                                                </span>
+                                                    <button class="btn btn-primary fw-bold"
+                                                            onclick="view_add_vehicle_policy_modal('{{ vehicle['_id'] }}')">
+                                                        Add Policy
+                                                    </button>
+                                                </div>
+                                                <div id="vehicle_policies_list" class="list-group list-group-flush">
+                                                    {% for policy in vehicle.policies %}
+                                                        <button onclick="view_vehicle_policy_modal(this, '{{ policy['_id'] }}')"
+                                                                class="list-group-item list-group-item-action d-flex justify-content-between">
                                                     <span data-field="policy_number"
                                                           class="d-inline-block">
                                                         {{ policy['policy_number'] }}
@@ -134,17 +143,18 @@
                                                             <span class="rounded-circle fw-bold bi bi-check bg-success text-white"></span>
                                                         {% endif %}
                                                     </span>
-                                                        <span data-field="expiry_date"
-                                                              class="text-muted d-inline-block">{{ policy['expiry_date'].strftime('%d-%b-%Y') }}</span>
-                                                    </button>
-                                                {% endfor %}
+                                                            <span data-field="expiry_date"
+                                                                  class="text-muted d-inline-block">{{ policy['expiry_date'].strftime('%d-%b-%Y') }}</span>
+                                                        </button>
+                                                    {% endfor %}
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
                                 </div>
                             </div>
-                        </div>
-                    {% endfor %}
+                        {% endfor %}
+                    </div>
                 </div>
             </div>
         </div>
