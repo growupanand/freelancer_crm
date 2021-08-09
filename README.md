@@ -3,7 +3,9 @@
 This an open source CRM web app for freelancer insurance agent to manage contacts, insurance policies and insurance
 renewals.
 
-[Live Demo](https://freelancer-crm.herokuapp.com/)
+**[Live Demo](https://freelancer-crm.herokuapp.com/)**
+
+**Caution: This software is free for personal use only, don't use it for commercial use.**
 
 
 ## Requirements
