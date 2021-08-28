@@ -21,34 +21,42 @@
         <div id="ajax_loading" class="fadeout_hide spinner-border text-primary spinner-border-sm mx-auto" role="status">
             <span class="visually-hidden">Loading...</span>
         </div>
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
+        <button class="navbar-toggler" type="button" data-bs-toggle="offcanvas" data-bs-target="#navbarNav"
                 aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>
         </button>
-        <div class="collapse navbar-collapse" id="navbarNav">
-            <ul class="navbar-nav gap-lg-3 mb-3 mb-lg-0">
-                <li class="nav-item">
-                    <a class="nav-link" href="/contacts">Contacts</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="/insurance_renewals">Insurance Renewals</a>
-                </li>
-                <li class="nav-item dropdown">
-                    <a href="#" class="nav-link dropdown-toggle" id="dropdown_manage_companies" role="button" data-bs-toggle="dropdown">
-                        Manage
-                    </a>
-                    <ul class="dropdown-menu bg-light">
-                        <li>
-                            <a class="dropdown-item" href="/manage_insurance_companies">Insurance Companies</a>
-                        </li>
-                        <li>
-                            <a class="dropdown-item" href="/manage_vehicle_companies">Vehicles Companies</a>
-                        </li>
-                    </ul>
-                </li>
-            </ul>
-            <div class="d-grid ms-auto">
-                <a class="fw-bolder btn btn-secondary px-3" href="/logout">Logout</a>
+        <div class="offcanvas offcanvas-start" tabindex="-1" id="navbarNav">
+            <div class="offcanvas-header">
+                <h5 class="offcanvas-title" id="navbarNav">CRM</h5>
+                <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas"
+                        aria-label="Close"></button>
+            </div>
+            <div class="offcanvas-body">
+                <ul class="navbar-nav gap-lg-3 mb-3 mb-lg-0">
+                    <li class="nav-item">
+                        <a class="nav-link" href="/contacts">Contacts</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/insurance_renewals">Insurance Renewals</a>
+                    </li>
+                    <li class="nav-item dropdown">
+                        <a href="#" class="nav-link dropdown-toggle" id="dropdown_manage_companies" role="button"
+                           data-bs-toggle="dropdown">
+                            Manage
+                        </a>
+                        <ul class="dropdown-menu bg-light">
+                            <li>
+                                <a class="dropdown-item" href="/manage_insurance_companies">Insurance Companies</a>
+                            </li>
+                            <li>
+                                <a class="dropdown-item" href="/manage_vehicle_companies">Vehicles Companies</a>
+                            </li>
+                        </ul>
+                    </li>
+                </ul>
+                <div class="d-grid ms-auto">
+                    <a class="fw-bolder btn btn-secondary px-3" href="/logout">Logout</a>
+                </div>
             </div>
         </div>
     </div>

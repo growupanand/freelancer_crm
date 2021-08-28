@@ -48,7 +48,7 @@
                     </li>
                 </ul>
                 <div class="container-fluid">
-                    <div class="my-3 d-flex flex-column gap-3 flex-lg-row justify-content-lg-between align-items-lg-center">
+                    <div class="my-3 d-flex flex-row gap-3 justify-content-between align-items-center">
                         <p class="fs-4 m-0">
                             Vehicles
                             <small class="text-muted">(<span id="vehicles_count">{{ vehicles|length }}</span>)</small>
@@ -61,18 +61,18 @@
                     <div class="row row-cols-1 gy-3 gy-lg-5" id="vehicle_card_list">
                         {% for vehicle in vehicles %}
                             <div class="col">
-                                <div data-vehicle_id="{{ vehicle['_id'] }}" class="card shadow border-0 p-3">
+                                <div data-vehicle_id="{{ vehicle['_id'] }}" class="card shadow-sm p-3">
                                     <div class="card-header border-0 bg-transparent">
-                                        <div class="fs-3 d-flex flex-column flex-lg-row justify-content-lg-between align-items-lg-center">
+                                        <div class="d-flex flex-column align-items-center align-items-lg-start">
                                         <span data-field="registration_number"
-                                              class="text-uppercase">{{ vehicle['registration_number'] }}</span>
+                                              class="text-uppercase fs-3 fw-bolder">{{ vehicle['registration_number'] }}</span>
                                         </div>
                                     </div>
                                     <div class="card-body">
 
                                         <div class="row">
                                             <div class="col-lg-6 mb-3">
-                                                <div class="d-flex flex-column gap-3 flex-lg-row justify-content-lg-between align-items-lg-center mb-3">
+                                                <div class="d-flex gap-3 flex-row justify-content-between align-items-center mb-3">
                                                     <span class="fs-5">Vehicle Details</span>
                                                     <button class="btn bg-light text-primary fw-bold"
                                                             onclick="view_edit_vehicle_modal('{{ vehicle['_id'] }}')">
@@ -119,7 +119,7 @@
                                                 </table>
                                             </div>
                                             <div class="col-lg-6 mb-3">
-                                                <div class="d-flex flex-column gap-3 flex-lg-row justify-content-lg-between align-items-lg-center mb-3">
+                                                <div class="d-flex gap-3 flex-row justify-content-between align-items-center mb-3">
                                                 <span class="fs-5">
                                                     Policies
                                                     <small class="text-muted">
