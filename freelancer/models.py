@@ -63,8 +63,8 @@ class User:
             }
         # create user
         # hash password
-        hashed_password = bcrypt.hashpw(str.encode(password), bcrypt.gensalt())
-        user['password'] = hashed_password
+        # hashed_password = bcrypt.hashpw(str.encode(password), bcrypt.gensalt())
+        # user['password'] = hashed_password
         create = db.users_collection.insert_one(user)
         # if create user successfull
         if create.acknowledged:
@@ -91,7 +91,8 @@ class User:
         user_exist = db.users_collection.find_one({'username': username})
         if user_exist is not None:
             # check if password match
-            password_match = bcrypt.checkpw(str.encode(password), user_exist['password'])
+            # password_match = bcrypt.checkpw(str.encode(password), user_exist['password'])
+            password_match = password == user_exist['password']
             if password_match:
                 # set login in session
                 session['logged_in'] = True
